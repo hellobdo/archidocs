@@ -12,6 +12,30 @@ def load_variables(variables_path="templates/variables.json"):
     with open(variables_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
+def process_calculated_variables(variables):
+    """Process and add calculated variables."""
+    # Calculate total_cost if qty and cost_per_unit exist
+    if 'qty' in variables and 'cost_per_unit' in variables:
+        try:
+            qty = float(variables['qty'])
+            cost_per_unit = float(variables['cost_per_unit'])
+            
+            # Calculate total cost
+            total_cost = qty * cost_per_unit
+            
+            # Add to variables with formatting
+            variables['total_cost'] = total_cost
+            variables['total_cost_formatted'] = f"{total_cost:,.2f} €"
+            
+            # Replace decimal point with comma for Portuguese format
+            variables['total_cost_formatted'] = variables['total_cost_formatted'].replace('.', ',')
+            
+            print(f"Calculated total_cost: {variables['total_cost_formatted']}")
+        except (ValueError, TypeError) as e:
+            print(f"Warning: Could not calculate total_cost: {e}")
+    
+    return variables
+
 def get_portuguese_month(month_number):
     """Convert month number to Portuguese month name."""
     pt_months = {
@@ -104,10 +128,13 @@ def main():
         month_name = get_portuguese_month(now.month)
         variables['date'] = f"{month_name} de {now.year}"
     
+    # Process calculated variables
+    variables = process_calculated_variables(variables)
+    
     # Generate each document
     for template_name in templates_to_generate:
         output_path = os.path.join(args.output_dir, f"{template_name}.docx")
         generate_document(template_name, variables, output_path)
 
 if __name__ == '__main__':
-    main() 
+    main()
