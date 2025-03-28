@@ -2,6 +2,7 @@ import os
 import sys
 import shutil
 import unittest
+import subprocess
 from pathlib import Path
 
 # Add project root to path to ensure imports work properly
@@ -74,6 +75,36 @@ class TestPDFConversion(BaseTestCase):
                 if file.endswith('.docx'):
                     return os.path.join(templates_dir, file)
         
+        # If still no file found, create a simple test document
+        if not os.path.exists(outputs_dir):
+            os.makedirs(outputs_dir)
+        
+        test_docx = os.path.join(outputs_dir, 'test_document.docx')
+        if not os.path.exists(test_docx):
+            try:
+                # Create a simple test file
+                with open('/tmp/test.txt', 'w') as f:
+                    f.write('Test content for PDF conversion')
+                
+                # Try to convert it to DOCX using LibreOffice
+                cmd = [
+                    'libreoffice',
+                    '--headless',
+                    '--convert-to', 'docx',
+                    '--outdir', outputs_dir,
+                    '/tmp/test.txt'
+                ]
+                subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                
+                # Rename the file if needed
+                if os.path.exists(os.path.join(outputs_dir, 'test.docx')):
+                    os.rename(os.path.join(outputs_dir, 'test.docx'), test_docx)
+                
+                if os.path.exists(test_docx):
+                    return test_docx
+            except Exception as e:
+                print(f"Error creating test document: {str(e)}")
+                
         # Return None if no suitable file is found
         return None
         
@@ -134,41 +165,36 @@ class TestPDFConversion(BaseTestCase):
         finally:
             self.restore_stdout(original_stdout)
     
-    def test_pandoc_installed(self):
-        """Test that pandoc is properly installed."""
+    def test_libreoffice_installed(self):
+        """Test that LibreOffice is properly installed."""
         original_stdout = self.capture_stdout()
         
         try:
-            import pypandoc
-            version = pypandoc.get_pandoc_version()
-            print(f"Detected pandoc version: {version}")
+            # Try to run LibreOffice to check its version
+            process = subprocess.run(
+                ['libreoffice', '--version'], 
+                check=False,
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE,
+                text=True
+            )
             
-            # Check if version string is populated
-            self.assertIsNotNone(version, "Pandoc version should not be None")
-            self.assertTrue(len(version) > 0, "Pandoc version should not be empty")
+            print(f"LibreOffice version check output: {process.stdout}")
+            if process.stderr:
+                print(f"LibreOffice version check errors: {process.stderr}")
             
-            # Check available formats
-            formats = pypandoc.get_pandoc_formats()
-            print(f"Input formats: {formats[0]}")
-            print(f"Output formats: {formats[1]}")
+            # Check if we got some output indicating LibreOffice is installed
+            self.assertTrue(process.returncode == 0 or 'LibreOffice' in process.stdout, 
+                           "LibreOffice should be installed and return a version string")
             
-            # Verify PDF is in the output formats
-            self.assertTrue("pdf" in formats[1], "PDF should be available as output format")
-            # Verify DOCX is in the input formats
-            self.assertTrue("docx" in formats[0], "DOCX should be available as input format")
+            self.log_case_result("LibreOffice installation", True)
             
-            self.log_case_result("Pandoc installation", True)
-            
-        except ImportError:
-            print("pypandoc is not installed. Please install it with: pip install pypandoc")
-            self.log_case_result("Pandoc installation", False)
-            self.fail("pypandoc is not installed")
         except Exception as e:
-            print(f"Error checking pandoc: {str(e)}")
+            print(f"Error checking LibreOffice: {str(e)}")
             import traceback
             traceback.print_exc()
-            self.log_case_result("Pandoc installation", False)
-            self.fail(f"Error checking pandoc: {str(e)}")
+            self.log_case_result("LibreOffice installation", False)
+            self.fail(f"Error checking LibreOffice: {str(e)}")
         finally:
             self.restore_stdout(original_stdout)
 
