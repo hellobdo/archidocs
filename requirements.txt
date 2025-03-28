@@ -1,4 +1,2 @@
-python>=3.6
-argparse
 docxtpl
 num2words
