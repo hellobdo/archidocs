@@ -20,7 +20,7 @@ sys.path.insert(0, current_dir)
 from _utils.test_utils import BaseTestCase, print_summary
 
 # Import the module we want to test
-from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document, main
+from backend.generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document, main
 
 # Module specific test fixtures
 def create_module_fixtures():
@@ -479,7 +479,7 @@ class TestProcessTotalCost(BaseTestCase):
         self.assertEqual(result, 50)
         self.log_case_result("Both negative values work correctly", True)
     
-    @patch('generate_docx.to_number')
+    @patch('backend.generate_docx.to_number')
     def test_uses_to_number_for_rounding(self, mock_to_number):
         """Test that process_total_cost uses to_number for rounding"""
         # Setup mock return value
@@ -579,7 +579,7 @@ class TestGenerateDocument(BaseTestCase):
     
     @patch('os.path.exists')
     @patch('os.makedirs')
-    @patch('generate_docx.DocxTemplate')
+    @patch('backend.generate_docx.DocxTemplate')
     def test_successful_document_generation(self, mock_docx_template, mock_makedirs, mock_exists):
         """Test successful document generation"""
         # Setup mocks
@@ -627,7 +627,7 @@ class TestGenerateDocument(BaseTestCase):
         self.log_case_result("Template not found scenario works correctly", True)
     
     @patch('os.path.exists')
-    @patch('generate_docx.DocxTemplate')
+    @patch('backend.generate_docx.DocxTemplate')
     def test_exception_handling(self, mock_docx_template, mock_exists):
         """Test exception handling during document generation"""
         # Setup mocks
@@ -652,7 +652,7 @@ class TestGenerateDocument(BaseTestCase):
     
     @patch('os.path.exists')
     @patch('os.makedirs')
-    @patch('generate_docx.DocxTemplate')
+    @patch('backend.generate_docx.DocxTemplate')
     def test_existing_output_directory(self, mock_docx_template, mock_makedirs, mock_exists):
         """Test when output directory already exists"""
         # Setup mocks
@@ -672,7 +672,7 @@ class TestGenerateDocument(BaseTestCase):
     
     @patch('os.path.exists')
     @patch('os.makedirs')
-    @patch('generate_docx.DocxTemplate')
+    @patch('backend.generate_docx.DocxTemplate')
     def test_absolute_path_handling(self, mock_docx_template, mock_makedirs, mock_exists):
         """Test with absolute output path"""
         # Setup
@@ -710,9 +710,9 @@ class TestMain(BaseTestCase):
         }
     
     @patch('argparse.ArgumentParser.parse_args')
-    @patch('generate_docx.generate_document')
-    @patch('generate_docx.load_variables')
-    @patch('generate_docx.get_available_templates')
+    @patch('backend.generate_docx.generate_document')
+    @patch('backend.generate_docx.load_variables')
+    @patch('backend.generate_docx.get_available_templates')
     def test_default_arguments(self, mock_get_templates, mock_load_variables, mock_generate_document, mock_parse_args):
         """Test main function with default arguments"""
         # Setup mocks
@@ -744,9 +744,9 @@ class TestMain(BaseTestCase):
         self.log_case_result("Default arguments work correctly", True)
     
     @patch('argparse.ArgumentParser.parse_args')
-    @patch('generate_docx.generate_document')
-    @patch('generate_docx.load_variables')
-    @patch('generate_docx.get_available_templates')
+    @patch('backend.generate_docx.generate_document')
+    @patch('backend.generate_docx.load_variables')
+    @patch('backend.generate_docx.get_available_templates')
     def test_custom_templates(self, mock_get_templates, mock_load_variables, mock_generate_document, mock_parse_args):
         """Test main function with custom templates argument"""
         # Setup mocks
@@ -771,7 +771,7 @@ class TestMain(BaseTestCase):
         self.log_case_result("Custom templates argument works correctly", True)
     
     @patch('argparse.ArgumentParser.parse_args')
-    @patch('generate_docx.load_variables')
+    @patch('backend.generate_docx.load_variables')
     def test_custom_variables_file(self, mock_load_variables, mock_parse_args):
         """Test main function with custom variables file"""
         # Setup mocks
@@ -783,8 +783,8 @@ class TestMain(BaseTestCase):
         mock_parse_args.return_value = mock_args
         
         # Mock generate_document to prevent actual document generation
-        with patch('generate_docx.generate_document'):
-            with patch('generate_docx.get_available_templates', return_value=[]):
+        with patch('backend.generate_docx.generate_document'):
+            with patch('backend.generate_docx.get_available_templates', return_value=[]):
                 # Call the function
                 main()
         
@@ -794,8 +794,8 @@ class TestMain(BaseTestCase):
         self.log_case_result("Custom variables file works correctly", True)
     
     @patch('argparse.ArgumentParser.parse_args')
-    @patch('generate_docx.generate_document')
-    @patch('generate_docx.get_available_templates')
+    @patch('backend.generate_docx.generate_document')
+    @patch('backend.generate_docx.get_available_templates')
     def test_custom_output_directory(self, mock_get_templates, mock_generate_document, mock_parse_args):
         """Test main function with custom output directory"""
         # Setup mocks
@@ -809,7 +809,7 @@ class TestMain(BaseTestCase):
         mock_get_templates.return_value = self.templates
         
         # Mock load_variables to return empty dict to simplify
-        with patch('generate_docx.load_variables', return_value={}):
+        with patch('backend.generate_docx.load_variables', return_value={}):
             # Call the function
             main()
         
@@ -821,7 +821,7 @@ class TestMain(BaseTestCase):
         self.log_case_result("Custom output directory works correctly", True)
     
     @patch('argparse.ArgumentParser.parse_args')
-    @patch('generate_docx.get_available_templates')
+    @patch('backend.generate_docx.get_available_templates')
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_list_templates(self, mock_stdout, mock_get_templates, mock_parse_args):
         """Test listing templates with --list flag"""
@@ -844,10 +844,10 @@ class TestMain(BaseTestCase):
         self.log_case_result("Template listing works correctly", True)
     
     @patch('argparse.ArgumentParser.parse_args')
-    @patch('generate_docx.generate_document')
-    @patch('generate_docx.get_portuguese_month')
-    @patch('generate_docx.load_variables')
-    @patch('generate_docx.datetime')
+    @patch('backend.generate_docx.generate_document')
+    @patch('backend.generate_docx.get_portuguese_month')
+    @patch('backend.generate_docx.load_variables')
+    @patch('backend.generate_docx.datetime')
     def test_date_processing(self, mock_datetime, mock_load_variables, mock_get_month, mock_generate_document, mock_parse_args):
         """Test processing of 'today' date variable"""
         # Setup mocks
@@ -859,7 +859,7 @@ class TestMain(BaseTestCase):
         mock_parse_args.return_value = mock_args
         
         # Setup mock for get_available_templates
-        with patch('generate_docx.get_available_templates', return_value=['invoice']):
+        with patch('backend.generate_docx.get_available_templates', return_value=['invoice']):
             # Setup date mocks
             mock_now = MagicMock()
             mock_now.month = 2
@@ -885,12 +885,12 @@ class TestMain(BaseTestCase):
         self.log_case_result("'Today' date processing works correctly", True)
     
     @patch('argparse.ArgumentParser.parse_args')
-    @patch('generate_docx.generate_document')
-    @patch('generate_docx.format_number_pt')
-    @patch('generate_docx.num_to_words_pt')
-    @patch('generate_docx.process_total_cost')
-    @patch('generate_docx.to_number')
-    @patch('generate_docx.load_variables')
+    @patch('backend.generate_docx.generate_document')
+    @patch('backend.generate_docx.format_number_pt')
+    @patch('backend.generate_docx.num_to_words_pt')
+    @patch('backend.generate_docx.process_total_cost')
+    @patch('backend.generate_docx.to_number')
+    @patch('backend.generate_docx.load_variables')
     def test_cost_calculation_flow(self, mock_load_variables, mock_to_number, mock_process_total_cost, 
                                    mock_num_to_words, mock_format_number, mock_generate_document, mock_parse_args):
         """Test cost calculation flow"""
@@ -903,7 +903,7 @@ class TestMain(BaseTestCase):
         mock_parse_args.return_value = mock_args
         
         # Setup mock for get_available_templates
-        with patch('generate_docx.get_available_templates', return_value=['invoice']):
+        with patch('backend.generate_docx.get_available_templates', return_value=['invoice']):
             vars_with_costs = {"qty": 10, "cost_per_unit": 15.50}
             mock_load_variables.return_value = vars_with_costs
             
@@ -960,8 +960,8 @@ class TestMain(BaseTestCase):
             pass
         
         # Setup mocks
-        with patch('generate_docx.get_available_templates', return_value=[]):
-            with patch('generate_docx.load_variables') as mock_load_variables:
+        with patch('backend.generate_docx.get_available_templates', return_value=[]):
+            with patch('backend.generate_docx.load_variables') as mock_load_variables:
                 with patch('sys.exit', side_effect=TestExitException) as mock_exit:
                     with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
                         # Setup the exception
