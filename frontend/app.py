@@ -41,11 +41,6 @@ def display_document_form(default_values=None):
         default_values = {}
     
     # Create sections with expanders to organize fields
-    with st.expander("Informações do Autor", expanded=True):
-        author_name = st.text_input("Nome do Autor", value=default_values.get("author_name", ""))
-        author_address = st.text_input("Endereço do Autor", value=default_values.get("author_address", ""))
-        author_nif = st.text_input("NIF do Autor", value=default_values.get("author_nif", ""))
-        author_registration = st.text_input("Registro do Autor", value=default_values.get("author_registration", ""))
     
     with st.expander("Informações do Projeto", expanded=True):
         construction_type = st.text_input("Tipo de Construção", value=default_values.get("construction_type", ""))
@@ -85,6 +80,13 @@ def display_document_form(default_values=None):
     with st.expander("Informações do Processo", expanded=False):
         technical_information_id = st.text_input("ID da Informação Técnica", value=default_values.get("technical_information_id", ""))
         process_nr = st.text_input("Número do Processo", value=default_values.get("process_nr", ""))
+
+    with st.expander("Informações do Autor", expanded=True):
+        author_name = st.text_input("Nome do Autor", value=default_values.get("author_name", ""))
+        author_address = st.text_input("Endereço do Autor", value=default_values.get("author_address", ""))
+        author_nif = st.text_input("NIF do Autor", value=default_values.get("author_nif", ""))
+        author_registration = st.text_input("Registro na Ordem dos Arquitectos", value=default_values.get("author_registration", ""))
+        skills_code = st.text_input("Código de validação para verificação de competências", value=default_values.get("skills_code", ""))
     
     # Build variables dictionary
     variables = {
@@ -108,7 +110,7 @@ def display_document_form(default_values=None):
         "signature": signature,
         "signature_sub1": signature_sub1,
         "signature_sub2": signature_sub2,
-        "signature_sub3": signature_sub3,
+        "skills_code": skills_code,
         "regulatory_reference": regulatory_reference,
         "pdm": pdm,
         "qty": str(qty),
