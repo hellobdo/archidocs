@@ -234,11 +234,13 @@ def main():
                             st.success(f"Documento criado com sucesso!")
                             # List the files with download buttons
                             st.write("Documentos criados:")
-                            col1, col2 = st.columns([0.9, 0.1])
+                            col1, col2, col3 = st.columns([0.7, 0.15, 0.15])
                             with col1:
-                                st.write(f"- {os.path.basename(result.file_path)}")
+                                filename = os.path.basename(result.file_path)
+                                filename_without_ext = os.path.splitext(filename)[0]
+                                st.write(f"- {filename_without_ext}")
                             with col2:
-                                # Add download button
+                                # Add DOCX download button
                                 with open(result.file_path, "rb") as file:
                                     st.download_button(
                                         label="↓",
@@ -291,11 +293,13 @@ def main():
                             st.write("Documentos criados:")
                             for result in results:
                                 if result.success:
-                                    col1, col2 = st.columns([0.9, 0.1])
+                                    col1, col2, col3 = st.columns([0.7, 0.15, 0.15])
                                     with col1:
-                                        st.write(f"- {os.path.basename(result.file_path)}")
+                                        filename = os.path.basename(result.file_path)
+                                        filename_without_ext = os.path.splitext(filename)[0]
+                                        st.write(f"- {filename_without_ext}")
                                     with col2:
-                                        # Add download button
+                                        # Add DOCX download button
                                         with open(result.file_path, "rb") as file:
                                             st.download_button(
                                                 label="↓",

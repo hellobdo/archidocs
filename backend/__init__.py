@@ -10,7 +10,8 @@ from backend.document_service import (
     generate_document_from_dict,
     generate_document_from_request,
     load_and_generate_document,
-    get_templates
+    get_templates,
+    convert_docx_to_pdf
 )
 
 __all__ = [
@@ -20,5 +21,6 @@ __all__ = [
     'generate_document_from_dict',
     'generate_document_from_request',
     'load_and_generate_document',
-    'get_templates'
+    'get_templates',
+    'convert_docx_to_pdf'
 ] 

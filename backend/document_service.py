@@ -7,6 +7,7 @@ that will later become an API.
 """
 
 import os
+import json
 from typing import Dict, Any, Optional, List, Union
 # Import the functions from the original generate_docx.py
 from backend.generate_docx import (
@@ -21,6 +22,7 @@ from backend.generate_docx import (
     get_first_name_and_last_name
 )
 from backend.models import DocumentVariables, DocumentRequest, DocumentResponse
+from docx2pdf import convert
 
 
 def get_templates() -> List[str]:
@@ -132,3 +134,25 @@ def load_and_generate_document(template_name: str, variables_path: str = "templa
         return generate_document_from_dict(template_name, variables_dict, output_format, generate_all)
     except Exception as e:
         return DocumentResponse(success=False, error_message=str(e))
+
+
+def convert_docx_to_pdf(docx_path: str) -> str:
+    """
+    Convert a DOCX document to PDF format.
+    
+    Args:
+        docx_path: Path to the DOCX document
+        
+    Returns:
+        Path to the generated PDF file
+    """
+    # Determine PDF path
+    pdf_path = os.path.splitext(docx_path)[0] + ".pdf"
+    
+    # Convert the document
+    try:
+        convert(docx_path, pdf_path)
+        return pdf_path
+    except Exception as e:
+        print(f"Error converting document to PDF: {str(e)}")
+        return ""
