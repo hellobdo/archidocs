@@ -9,6 +9,8 @@ import json
 import streamlit as st
 from datetime import datetime
 import sys
+import io
+import zipfile
 
 # Add parent directory to sys.path to make backend imports work
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -261,6 +263,30 @@ def main():
                         success_count = sum(1 for r in results if r.success)
                         if success_count > 0:
                             st.success(f"{success_count} documentos criados com sucesso!")
+                            
+                            # Create a download all button for zip file
+                            success_files = [r.file_path for r in results if r.success]
+                            
+                            # Create a zip file in memory
+                            zip_buffer = io.BytesIO()
+                            with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+                                for file_path in success_files:
+                                    file_name = os.path.basename(file_path)
+                                    zip_file.write(file_path, arcname=file_name)
+                            
+                            # Reset buffer position
+                            zip_buffer.seek(0)
+                            
+                            # Add download all button
+                            st.download_button(
+                                label="Descarregar todos",
+                                data=zip_buffer,
+                                file_name="documentos.zip",
+                                mime="application/zip",
+                                key="download_all_docs",
+                                use_container_width=True
+                            )
+                            
                             # List the files with download buttons
                             st.write("Documentos criados:")
                             for result in results:
