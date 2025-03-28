@@ -53,24 +53,43 @@ def display_document_form(default_values=None):
         construction_address = st.text_input("Endereço do Projeto", value=default_values.get("construction_address", ""))
         property_description = st.text_area("Descrição da Propriedade", value=default_values.get("property_description", ""))
         request_type = st.text_input("Tipo de Solicitação", value=default_values.get("request_type", ""))
+        qty = st.number_input("Quantidade em m2", value=float(default_values.get("qty", 0)), format="%.2f")
+        cost_per_unit = st.number_input("Custo por m2", value=float(default_values.get("cost_per_unit", 0)), format="%.2f")
         
     
     with st.expander("Informações do Registo de Imóveis", expanded=False):
-        land_registry_location = st.text_input("Localização do Registo de Imóveis", value=default_values.get("land_registry_location", ""))
-        land_registry_number = st.text_input("Número do Registo de Imóveis", value=default_values.get("land_registry_number", ""))
+        land_registry_location = st.text_input("Localização no Registo de Imóveis", value=default_values.get("land_registry_location", ""))
+        land_registry_number = st.text_input("Número no Registo de Imóveis", value=default_values.get("land_registry_number", ""))
         land_registry_sublocation = st.text_input("Freguesia", value=default_values.get("land_registry_sublocation", ""))
     
     with st.expander("Referências Regulatórias", expanded=False):
         regulatory_reference = st.text_input("Referência Regulatória", value=default_values.get("regulatory_reference", ""))
         pdm = st.text_input("PDM", value=default_values.get("pdm", ""))
-    
-    with st.expander("Custo", expanded=False):
-        qty = st.number_input("Quantidade em m2", value=float(default_values.get("qty", 0)), format="%.2f")
-        cost_per_unit = st.number_input("Custo por Unidade", value=float(default_values.get("cost_per_unit", 0)), format="%.2f")
-    
-    with st.expander("Informações do Processo", expanded=False):
         technical_information_id = st.text_input("ID da Informação Técnica", value=default_values.get("technical_information_id", ""))
         process_nr = st.text_input("Número do Processo", value=default_values.get("process_nr", ""))
+
+    with st.expander("Tabelas opcionais", expanded=False):
+        table_row1 = st.text_input("Linha 1", value=default_values.get("table_row1", ""))
+        table_row2 = st.text_input("Linha 2", value=default_values.get("table_row2", ""))
+        table_row3 = st.text_input("Linha 3", value=default_values.get("table_row3", ""))
+        table_row4 = st.text_input("Linha 4", value=default_values.get("table_row4", ""))
+        table_row5 = st.text_input("Linha 5", value=default_values.get("table_row5", ""))
+        table_row6 = st.text_input("Linha 6", value=default_values.get("table_row6", ""))
+        table_row7 = st.text_input("Linha 7", value=default_values.get("table_row7", ""))
+        table_row8 = st.text_input("Linha 8", value=default_values.get("table_row8", ""))
+        table_row9 = st.text_input("Linha 9", value=default_values.get("table_row9", ""))
+        table_row10 = st.text_input("Linha 10", value=default_values.get("table_row10", ""))
+        table_row11 = st.text_input("Linha 11", value=default_values.get("table_row11", ""))
+        table_row12 = st.text_input("Linha 12", value=default_values.get("table_row12", ""))
+        table_row13 = st.text_input("Linha 13", value=default_values.get("table_row13", ""))
+        table_row14 = st.text_input("Linha 14", value=default_values.get("table_row14", ""))
+        table_row15 = st.text_input("Linha 15", value=default_values.get("table_row15", ""))
+        table_row16 = st.text_input("Linha 16", value=default_values.get("table_row16", ""))
+        table_row17 = st.text_input("Linha 17", value=default_values.get("table_row17", ""))
+        table_row18 = st.text_input("Linha 18", value=default_values.get("table_row18", ""))
+        table_row19 = st.text_input("Linha 19", value=default_values.get("table_row19", ""))
+        table_row20 = st.text_input("Linha 20", value=default_values.get("table_row20", ""))
+
 
     with st.expander("Informações do Autor", expanded=False):
         author_name = st.text_input("Nome do Autor", value=default_values.get("author_name", ""))
@@ -104,7 +123,27 @@ def display_document_form(default_values=None):
         "qty": str(qty),
         "cost_per_unit": str(cost_per_unit),
         "technical_information_id": technical_information_id,
-        "process_nr": process_nr
+        "process_nr": process_nr,
+        "table_row1": table_row1,
+        "table_row2": table_row2,
+        "table_row3": table_row3,
+        "table_row4": table_row4,
+        "table_row5": table_row5,
+        "table_row6": table_row6,
+        "table_row7": table_row7,
+        "table_row8": table_row8,
+        "table_row9": table_row9,
+        "table_row10": table_row10,
+        "table_row11": table_row11,
+        "table_row12": table_row12,
+        "table_row13": table_row13,
+        "table_row14": table_row14,
+        "table_row15": table_row15,
+        "table_row16": table_row16,
+        "table_row17": table_row17,
+        "table_row18": table_row18,
+        "table_row19": table_row19,
+        "table_row20": table_row20
     }
     
     # Remove empty fields

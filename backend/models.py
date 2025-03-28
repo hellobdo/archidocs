@@ -17,21 +17,21 @@ class DocumentVariables:
     author_nif: int
     oa_number: int
     oa_ref_number: str
+    location: str
     
     # Project information
     construction_type: str
     construction_address: str
     property_description: str
+    request_type: str
+    qty: int
+    cost_per_unit: int
     
     # Request information
-    request_type: str
     requester_name: str
     requester_role: str
     requester_nif: int
     requester_address: str
-    
-    # Location and date
-    location: str
     
     # Land registry information
     land_registry_location: str
@@ -41,6 +41,8 @@ class DocumentVariables:
     # Regulatory references
     regulatory_reference: str
     pdm: str
+    technical_information_id: str
+    process_nr: str
     
     # Table rows (for any tabular data in templates)
     table_row1: str
@@ -64,13 +66,6 @@ class DocumentVariables:
     table_row19: str
     table_row20: str
     
-    # Cost information
-    qty: int
-    cost_per_unit: int
-    
-    # Process information
-    technical_information_id: str
-    process_nr: str
     
     # Additional fields can be added as custom_fields
     custom_fields: Dict[str, Any] = field(default_factory=dict)
