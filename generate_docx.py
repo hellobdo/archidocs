@@ -7,6 +7,7 @@ import sys
 import glob
 from docxtpl import DocxTemplate
 from num2words import num2words
+from decimal import Decimal, ROUND_HALF_UP
 
 def load_variables(variables_path="templates/variables.json"):
     """Load variables from a JSON file."""
@@ -32,7 +33,7 @@ def format_number_pt(number, show_decimals=True, currency_symbol="€"):
         int_part, dec_part = formatted.split('.')
     else:
         # Format without decimal places (round to integer)
-        int_part = str(int(number))
+        int_part = str(round(number))
         dec_part = None
     
     # Add thousands separator to integer part
@@ -77,14 +78,17 @@ def num_to_words_pt(number, currency=None, lang='pt_pt'):
         # Convert to words
         int_words = num2words(int_part, lang=lang)
         
-        # Add comma after "mil" if it exists in the number and there are hundreds after it
-        # For example: "cento e oitenta e nove mil, cento e oitenta e nove"
-        # But not for: "cento e oitenta e nove mil"
-        if ' mil ' in int_words:
-            # Check if there are hundreds after "mil"
-            parts = int_words.split(' mil ')
-            if len(parts) > 1 and parts[1].strip() != '':
+        # Add comma after "mil" if it's followed by additional numbers
+        # Improved logic to handle different positions of "mil" in the string
+        if "mil" in int_words and int_part > 1000 and int_part % 1000 != 0:
+            # Check for different patterns: ' mil ', 'mil ' (at start), or ' mil' (at end)
+            if ' mil ' in int_words:
                 int_words = int_words.replace(' mil ', ' mil, ')
+            elif int_words.startswith('mil '):
+                int_words = int_words.replace('mil ', 'mil, ')
+            elif int_words.endswith(' mil'):
+                # This should rarely happen, but included for completeness
+                pass
         
         # Handle currency if provided
         if currency:
@@ -119,11 +123,41 @@ def num_to_words_pt(number, currency=None, lang='pt_pt'):
         print(f"Error converting number to words: {e}")
         return str(number)
 
+def to_number(variable):
+    """Convert variables to numbers with precise decimal handling.
+    
+    Uses Decimal for precise arithmetic to avoid floating point precision issues.
+    
+    Args:
+        variable: The value to convert to a number
+        
+    Returns:
+        The value as a float, precisely rounded to 2 decimal places
+    """
+    # Convert to Decimal for precise arithmetic
+    decimal_value = Decimal(str(variable))
+    
+    # Round to 2 decimal places using ROUND_HALF_UP
+    rounded_value = decimal_value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    
+    # Convert back to float for compatibility
+    return float(rounded_value)
+
 def process_total_cost(qty, cost_per_unit):
-    """Process and add calculated variables."""
-    # Calculate total_cost if qty and cost_per_unit exist
+    """Calculate the total cost from quantity and cost per unit.
+    
+    Args:
+        qty: The quantity
+        cost_per_unit: The cost per unit
+        
+    Returns:
+        The total cost precisely rounded to 2 decimal places
+    """
+    # Calculate total cost
     total_cost = qty * cost_per_unit
-    return round(total_cost, 2)
+    
+    # Use to_number for consistent rounding
+    return to_number(total_cost)
 
 def get_portuguese_month(month_number):
     """Convert month number to Portuguese month name."""
@@ -150,11 +184,6 @@ def get_available_templates():
         template_name = os.path.splitext(os.path.basename(path))[0]
         templates.append(template_name)
     return templates
-
-def to_number(variable):
-    """Convert variables to numbers."""
-    variable_float = round(float(variable), 2)
-    return variable_float
 
 def generate_document(template_name, variables, output_path):
     """Generate a document from a template and variables."""
@@ -222,20 +251,24 @@ def main():
         month_name = get_portuguese_month(now.month)
         variables['date'] = f"{month_name} de {now.year}"
 
-    # Convert variables to numbers
+    # Process cost calculations if required variables exist
     if 'qty' in variables and 'cost_per_unit' in variables:
+        # Convert variables to numbers with precise decimal handling
         qty = to_number(variables['qty'])
         cost_per_unit = to_number(variables['cost_per_unit'])
-    
-    # Process calculated variables
+        
+        # Calculate total cost
         total_cost = process_total_cost(qty, cost_per_unit)
+        
+        # Generate formatted versions
         total_cost_words = num_to_words_pt(total_cost, "euro")
         total_cost_formatted = format_number_pt(total_cost, True, "€")
-
-    variables['total_cost'] = total_cost_formatted
-    variables['total_cost_words'] = total_cost_words
-    variables['qty'] = format_number_pt(qty, True, "")
-    variables['cost_per_unit'] = format_number_pt(cost_per_unit, True, "€")
+        
+        # Update variables
+        variables['total_cost'] = total_cost_formatted
+        variables['total_cost_words'] = total_cost_words
+        variables['qty'] = format_number_pt(qty, True, "")
+        variables['cost_per_unit'] = format_number_pt(cost_per_unit, True, "€")
     
     # Generate each document
     for template_name in templates_to_generate:
