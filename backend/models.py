@@ -13,7 +13,6 @@ class DocumentVariables:
     """Schema for document template variables."""
     # Author information
     author_name: str
-    author_name_small: str
     author_address: str
     author_nif: int
     oa_number: int
