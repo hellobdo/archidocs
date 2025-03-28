@@ -267,7 +267,7 @@ def main():
                                         pdf_content = pdf_file.read()
                                         pdf_filename = os.path.basename(pdf_path)
                                         pdf_b64 = base64.b64encode(pdf_content).decode()
-                                        st.markdown(f'<a href="data:application/pdf;base64,{pdf_b64}" download="{pdf_filename}" class="small-font stButton">pdf</a>', unsafe_allow_html=True)
+                                        st.markdown(f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{pdf_b64}" download="{pdf_filename}" class="small-font stButton">pdf</a>', unsafe_allow_html=True)
                                 else:
                                     st.error("Erro ao gerar PDF")
                         else:
@@ -314,38 +314,38 @@ def main():
                                     use_container_width=True
                                 )
                             
-                            # Add download all as PDF button
+                            # Add download all as PDF button - Generate PDFs immediately
                             with download_col2:
-                                if st.button("Descarregar todos (PDF)", key="download_all_pdf", use_container_width=True):
-                                    with st.spinner("A gerar PDFs..."):
-                                        # Convert all documents to PDF
-                                        pdf_files = []
-                                        for file_path in success_files:
-                                            pdf_path = convert_docx_to_pdf(file_path)
-                                            if pdf_path:
-                                                pdf_files.append(pdf_path)
-                                        
-                                        if pdf_files:
-                                            # Create a zip file with all PDFs
-                                            pdf_zip_buffer = io.BytesIO()
-                                            with zipfile.ZipFile(pdf_zip_buffer, 'w') as pdf_zip_file:
-                                                for pdf_path in pdf_files:
-                                                    pdf_name = os.path.basename(pdf_path)
-                                                    pdf_zip_file.write(pdf_path, arcname=pdf_name)
-                                            
-                                            # Reset buffer position
-                                            pdf_zip_buffer.seek(0)
-                                            
-                                            # Add download button for PDF zip
-                                            st.download_button(
-                                                label="Descarregar PDFs",
-                                                data=pdf_zip_buffer,
-                                                file_name="documentos_pdf.zip",
-                                                mime="application/zip",
-                                                key="download_all_pdf_zip"
-                                            )
-                                        else:
-                                            st.error("Erro ao gerar PDFs")
+                                # Convert all documents to PDF first
+                                pdf_files = []
+                                with st.spinner("A gerar PDFs..."):
+                                    for file_path in success_files:
+                                        pdf_path = convert_docx_to_pdf(file_path)
+                                        if pdf_path:
+                                            pdf_files.append(pdf_path)
+                                
+                                if pdf_files:
+                                    # Create a zip file with all PDFs
+                                    pdf_zip_buffer = io.BytesIO()
+                                    with zipfile.ZipFile(pdf_zip_buffer, 'w') as pdf_zip_file:
+                                        for pdf_path in pdf_files:
+                                            pdf_name = os.path.basename(pdf_path)
+                                            pdf_zip_file.write(pdf_path, arcname=pdf_name)
+                                    
+                                    # Reset buffer position
+                                    pdf_zip_buffer.seek(0)
+                                    
+                                    # Add download button for PDF zip
+                                    st.download_button(
+                                        label="Descarregar todos (PDF)",
+                                        data=pdf_zip_buffer,
+                                        file_name="documentos_pdf.zip",
+                                        mime="application/zip",
+                                        key="download_all_pdf_zip",
+                                        use_container_width=True
+                                    )
+                                else:
+                                    st.error("Erro ao gerar PDFs")
                             
                             # List the files with download buttons
                             st.write("Documentos criados:")
@@ -372,7 +372,7 @@ def main():
                                                 pdf_content = pdf_file.read()
                                                 pdf_filename = os.path.basename(pdf_path)
                                                 pdf_b64 = base64.b64encode(pdf_content).decode()
-                                                st.markdown(f'<a href="data:application/pdf;base64,{pdf_b64}" download="{pdf_filename}" class="small-font stButton">pdf</a>', unsafe_allow_html=True)
+                                                st.markdown(f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{pdf_b64}" download="{pdf_filename}" class="small-font stButton">pdf</a>', unsafe_allow_html=True)
                                         else:
                                             st.error("Erro ao gerar PDF")
                         else:
