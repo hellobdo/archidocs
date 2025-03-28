@@ -13,27 +13,28 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
-        cache: 'pip'
-        cache-dependency-path: 'requirements.txt'
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
     
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        
+    - name: Build Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: false
+        load: true
+        tags: archidocs:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
     - name: Create directory structure
       run: |
         mkdir -p templates/files
         mkdir -p outputs
-        
-    - name: Run tests
-      run: |
-        python -m unittest discover -s tests -p "test_*.py"
     
-    - name: Run specific test file
+    - name: Run tests in Docker container
       run: |
-        python tests/test_generate_docx.py 
+        docker run --rm -v $(pwd)/templates:/app/templates -v $(pwd)/outputs:/app/outputs archidocs:test python -m unittest discover -s tests -p "test_*.py"
+    
+    - name: Run specific test file in Docker container
+      run: |
+        docker run --rm -v $(pwd)/templates:/app/templates -v $(pwd)/outputs:/app/outputs archidocs:test python tests/test_generate_docx.py 
