@@ -238,7 +238,7 @@ def main():
                             with col1:
                                 filename = os.path.basename(result.file_path)
                                 filename_without_ext = os.path.splitext(filename)[0]
-                                st.write(f"- {filename_without_ext}")
+                                st.write(f"{filename_without_ext}")
                             with col2:
                                 # Add DOCX download button
                                 with open(result.file_path, "rb") as file:
@@ -297,7 +297,7 @@ def main():
                                     with col1:
                                         filename = os.path.basename(result.file_path)
                                         filename_without_ext = os.path.splitext(filename)[0]
-                                        st.write(f"- {filename_without_ext}")
+                                        st.write(f"{filename_without_ext}")
                                     with col2:
                                         # Add DOCX download button
                                         with open(result.file_path, "rb") as file:
