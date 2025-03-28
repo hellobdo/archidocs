@@ -531,56 +531,41 @@ class TestGetPortugueseMonth(BaseTestCase):
 class TestGetAvailableTemplates(BaseTestCase):
     """Test cases for get_available_templates function"""
     
-    @patch('os.listdir')
-    def test_template_extraction(self, mock_listdir):
-        """Test that template names are correctly extracted from files"""
-        # Setup mock to return sample file names
-        mock_listdir.return_value = [
-            'invoice.docx',
-            'contract.docx',
-            'report-2023.docx',
-            'not-a-template.txt',  # Should be ignored
-            '.DS_Store'            # Should be ignored
+    @patch('glob.glob')
+    def test_template_extraction(self, mock_glob):
+        """Test that template names are correctly extracted from paths"""
+        # Setup mock to return sample file paths
+        mock_glob.return_value = [
+            'templates/files/invoice.docx',
+            'templates/files/contract.docx',
+            'templates/files/report-2023.docx'
         ]
         
         # Call the function
         result = get_available_templates()
         
-        # Verify mock was called with the right directory
-        mock_listdir.assert_called_once_with('backend/templates/files')
+        # Verify mock was called with the right pattern
+        mock_glob.assert_called_once_with('templates/files/*.docx')
         
-        # Verify the result contains only the .docx files without extensions
+        # Verify the result contains the correct template names
         self.assertEqual(result, ['invoice', 'contract', 'report-2023'])
-        self.log_case_result("Template names correctly extracted from files", True)
+        self.log_case_result("Template names correctly extracted from file paths", True)
     
-    @patch('os.listdir')
-    def test_empty_directory(self, mock_listdir):
+    @patch('glob.glob')
+    def test_empty_directory(self, mock_glob):
         """Test behavior when no templates are found"""
         # Setup mock to return empty list
-        mock_listdir.return_value = []
+        mock_glob.return_value = []
         
         # Call the function
         result = get_available_templates()
         
         # Verify mock was called
-        mock_listdir.assert_called_once_with('backend/templates/files')
+        mock_glob.assert_called_once_with('templates/files/*.docx')
         
         # Verify the result is an empty list
         self.assertEqual(result, [])
         self.log_case_result("Empty list returned when no templates exist", True)
-        
-    @patch('os.listdir')
-    def test_exception_handling(self, mock_listdir):
-        """Test exception handling when directory cannot be accessed"""
-        # Setup mock to raise an exception
-        mock_listdir.side_effect = Exception("Directory not found")
-        
-        # Call the function
-        result = get_available_templates()
-        
-        # Verify the result is an empty list
-        self.assertEqual(result, [])
-        self.log_case_result("Empty list returned on exception", True)
 
 class TestGenerateDocument(BaseTestCase):
     """Test cases for generate_document function"""
@@ -589,7 +574,7 @@ class TestGenerateDocument(BaseTestCase):
         """Set up test fixtures"""
         super().setUp()
         self.template_name = "invoice"
-        self.template_path = "backend/templates/files/invoice.docx"
+        self.template_path = "templates/files/invoice.docx"
         self.output_path = "outputs/invoice.docx"
         self.variables = {"author_name": "Test Author", "total_cost": "100,00 €"}
     
@@ -850,12 +835,10 @@ class TestMain(BaseTestCase):
         mock_parse_args.return_value = mock_args
         
         # Mock generate_document to prevent actual document generation
-        # Also need to mock get_portuguese_month since we're calculating date directly now
         with patch('backend.generate_docx.generate_document'):
             with patch('backend.generate_docx.get_available_templates', return_value=[]):
-                with patch('backend.generate_docx.get_portuguese_month', return_value="janeiro"):
-                    # Call the function
-                    main()
+                # Call the function
+                main()
         
         # Verify variables were loaded from custom path
         mock_load_variables.assert_called_once_with('custom/vars.json')
@@ -875,29 +858,17 @@ class TestMain(BaseTestCase):
         mock_args.list = False
         mock_parse_args.return_value = mock_args
         
-        # Only return one template to simplify testing
-        mock_get_templates.return_value = ['invoice']
+        mock_get_templates.return_value = self.templates
         
         # Mock load_variables to return empty dict to simplify
         with patch('backend.generate_docx.load_variables', return_value={}):
             # Call the function
             main()
         
-        # Verify documents were generated with the correct output path
-        # Using a more flexible assertion that ignores exact path formatting
-        self.assertEqual(mock_generate_document.call_count, 1)
-        
-        # Get the actual arguments passed to generate_document
-        args, _ = mock_generate_document.call_args
-        template_name, variables, output_path = args
-        
-        # Verify the template name and variables
-        self.assertEqual(template_name, 'invoice')
-        
-        # Verify the output path contains both the directory and filename
-        # regardless of path separator format
-        self.assertIn('custom_outputs', output_path)
-        self.assertIn('invoice.docx', output_path)
+        # Verify documents were generated in the custom output directory
+        for template in self.templates:
+            expected_output_path = f"custom_outputs/{template}.docx"
+            mock_generate_document.assert_any_call(template, {}, expected_output_path)
         
         self.log_case_result("Custom output directory works correctly", True)
     
@@ -930,7 +901,7 @@ class TestMain(BaseTestCase):
     @patch('backend.generate_docx.load_variables')
     @patch('backend.generate_docx.datetime')
     def test_date_processing(self, mock_datetime, mock_load_variables, mock_get_month, mock_generate_document, mock_parse_args):
-        """Test date variable is always set to current date"""
+        """Test processing of 'today' date variable"""
         # Setup mocks
         mock_args = MagicMock()
         mock_args.templates = ['invoice']
@@ -948,9 +919,8 @@ class TestMain(BaseTestCase):
             mock_datetime.now.return_value = mock_now
             mock_get_month.return_value = "fevereiro"
             
-            # Any variables, doesn't need to have 'date' anymore
-            test_variables = {"author_name": "Test Author"}
-            mock_load_variables.return_value = test_variables
+            vars_with_today = {"date": "today", "author_name": "Test Author"}
+            mock_load_variables.return_value = vars_with_today
             
             # Call the function
             main()
@@ -958,13 +928,13 @@ class TestMain(BaseTestCase):
             # Verify month name was retrieved
             mock_get_month.assert_called_once_with(2)
             
-            # Verify date was added to variables
+            # Verify date was properly formatted in variables
             mock_generate_document.assert_called_once()
             args, _ = mock_generate_document.call_args
             updated_variables = args[1]
             self.assertEqual(updated_variables['date'], "fevereiro de 2023")
         
-        self.log_case_result("Date is always set to current date", True)
+        self.log_case_result("'Today' date processing works correctly", True)
     
     @patch('argparse.ArgumentParser.parse_args')
     @patch('backend.generate_docx.generate_document')

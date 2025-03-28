@@ -1,3 +1,4 @@
 /outputs/*
 .vscode/*
 /venv/*
+/backend/outputs/*
