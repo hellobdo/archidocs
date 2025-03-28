@@ -89,7 +89,6 @@ def display_document_form(default_values=None):
     # Build variables dictionary
     variables = {
         "author_name": author_name,
-        "author_name_small": author_name_small,
         "author_address": author_address,
         "author_nif": author_nif,
         "author_registration": author_registration,
@@ -148,13 +147,13 @@ def save_variables(variables):
 def main():
     """Main application entry point."""
     st.set_page_config(
-        page_title="Document Generator",
+        page_title="ArchiDocs",
         page_icon="📄",
         layout="wide"
     )
     
-    st.title("Document Generator")
-    st.write("Generate professional documents from templates")
+    st.title("ArchiDocs")
+    st.write("Cria todos os documentos necessários para o teu projecto de arquitetura com um clique")
     
     # Get available templates
     try:
