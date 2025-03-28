@@ -67,10 +67,24 @@ def num_to_words_pt(number, currency=None, lang='pt_pt'):
     try:
         # Get integer and decimal parts
         int_part = int(number)
-        decimal_part = int(round((number - int_part) * 100))
+        # Use string formatting to get exact decimal part (avoids floating point errors)
+        formatted = f"{number:.2f}"
+        _, dec_str = formatted.split('.')
+        decimal_part = int(dec_str)
+        
+        print(f"Debug - Number: {number}, Int part: {int_part}, Decimal part: {decimal_part}")
         
         # Convert to words
         int_words = num2words(int_part, lang=lang)
+        
+        # Add comma after "mil" if it exists in the number and there are hundreds after it
+        # For example: "cento e oitenta e nove mil, cento e oitenta e nove"
+        # But not for: "cento e oitenta e nove mil"
+        if ' mil ' in int_words:
+            # Check if there are hundreds after "mil"
+            parts = int_words.split(' mil ')
+            if len(parts) > 1 and parts[1].strip() != '':
+                int_words = int_words.replace(' mil ', ' mil, ')
         
         # Handle currency if provided
         if currency:
@@ -97,7 +111,7 @@ def num_to_words_pt(number, currency=None, lang='pt_pt'):
             # Add decimal part if there is any
             if decimal_part > 0:
                 dec_words = num2words(decimal_part, lang=lang)
-                result += f" vírgula {dec_words}"
+                result += f", {dec_words}"
         
         return result
     
@@ -109,7 +123,7 @@ def process_total_cost(qty, cost_per_unit):
     """Process and add calculated variables."""
     # Calculate total_cost if qty and cost_per_unit exist
     total_cost = qty * cost_per_unit
-    return total_cost
+    return round(total_cost, 2)
 
 def get_portuguese_month(month_number):
     """Convert month number to Portuguese month name."""
@@ -215,8 +229,8 @@ def main():
     
     # Process calculated variables
         total_cost = process_total_cost(qty, cost_per_unit)
-        total_cost_formatted = format_number_pt(total_cost, True, "€")
         total_cost_words = num_to_words_pt(total_cost, "euro")
+        total_cost_formatted = format_number_pt(total_cost, True, "€")
 
     variables['total_cost'] = total_cost_formatted
     variables['total_cost_words'] = total_cost_words
