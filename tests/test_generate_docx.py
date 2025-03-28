@@ -212,6 +212,137 @@ class TestFormatNumberPt(BaseTestCase):
         self.assertEqual(result, "1.234.567,89 €")
         self.log_case_result("Seven digit number has correct separators", True)
 
+class TestNumToWordsPt(BaseTestCase):
+    """Test cases for num_to_words_pt function"""
+    
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_basic_integer_conversion(self, mock_stdout):
+        """Test converting basic integers to Portuguese words"""
+        # Case 1: Single digit
+        result = num_to_words_pt(1)
+        self.assertEqual(result, "um")
+        self.log_case_result("Single digit converts correctly", True)
+        
+        # Case 2: Two digits
+        result = num_to_words_pt(21)
+        self.assertEqual(result, "vinte e um")
+        self.log_case_result("Two digit number converts correctly", True)
+        
+        # Case 3: Three digits
+        result = num_to_words_pt(100)
+        self.assertEqual(result, "cem")
+        self.log_case_result("Three digit number converts correctly", True)
+        
+        # Case 4: Large number
+        result = num_to_words_pt(1234)
+        self.assertEqual(result, "mil, duzentos e trinta e quatro")
+        self.log_case_result("Four digit number converts correctly", True)
+        
+        # Case 5: Very large number
+        result = num_to_words_pt(1000000)
+        self.assertEqual(result, "um milhão")
+        self.log_case_result("Large number converts correctly", True)
+    
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_decimal_number_conversion(self, mock_stdout):
+        """Test converting decimal numbers to Portuguese words"""
+        # Case 1: Number with 50 cents
+        result = num_to_words_pt(1.50)
+        self.assertEqual(result, "um, cinquenta")
+        self.log_case_result("Number with 50 cents converts correctly", True)
+        
+        # Case 2: Number with 1 cent
+        result = num_to_words_pt(10.01)
+        self.assertEqual(result, "dez, um")
+        self.log_case_result("Number with 1 cent converts correctly", True)
+        
+        # Case 3: Number with 99 cents
+        result = num_to_words_pt(100.99)
+        self.assertEqual(result, "cem, noventa e nove")
+        self.log_case_result("Number with 99 cents converts correctly", True)
+        
+        # Case 4: Number with zero decimal part
+        result = num_to_words_pt(10.00)
+        self.assertEqual(result, "dez")
+        self.log_case_result("Number with zero decimal part converts correctly", True)
+    
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_currency_formatting(self, mock_stdout):
+        """Test converting numbers with currency formatting"""
+        # Case 1: Singular currency
+        result = num_to_words_pt(1, currency="euro")
+        self.assertEqual(result, "um euro")
+        self.log_case_result("Singular currency formats correctly", True)
+        
+        # Case 2: Plural currency
+        result = num_to_words_pt(2, currency="euro")
+        self.assertEqual(result, "dois euros")
+        self.log_case_result("Plural currency formats correctly", True)
+        
+        # Case 3: Currency with decimal part
+        result = num_to_words_pt(1.50, currency="euro")
+        self.assertEqual(result, "um euro e cinquenta centavos")
+        self.log_case_result("Currency with 50 cents formats correctly", True)
+        
+        # Case 4: Currency with 1 cent
+        result = num_to_words_pt(2.01, currency="euro")
+        self.assertEqual(result, "dois euros e um centavo")
+        self.log_case_result("Currency with 1 cent formats correctly", True)
+    
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_special_formatting_cases(self, mock_stdout):
+        """Test special formatting cases"""
+        # Case 1: Numbers with "mil" followed by hundreds
+        result = num_to_words_pt(1101)
+        self.assertEqual(result, "mil, cento e um")
+        self.log_case_result("Number with 'mil' followed by hundreds formats correctly", True)
+        
+        # Case 2: Numbers with "mil" not followed by hundreds
+        result = num_to_words_pt(1000)
+        self.assertEqual(result, "mil")
+        self.log_case_result("Number with 'mil' not followed by hundreds formats correctly", True)
+        
+        # Case 3: Complex case with "mil" in middle
+        result = num_to_words_pt(1234567)
+        self.assertTrue("mil," in result, f"Expected 'mil,' in result, got {result}")
+        self.log_case_result("Complex number with 'mil' formats correctly", True)
+    
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_language_parameter(self, mock_stdout):
+        """Test language parameter works correctly"""
+        # Test Portuguese from Portugal (default)
+        result_pt = num_to_words_pt(1)
+        self.assertEqual(result_pt, "um")
+        
+        # Test Portuguese from Brazil
+        result_br = num_to_words_pt(1, lang='pt_br')
+        self.assertEqual(result_br, "um")
+        
+        self.log_case_result("Language parameter works correctly", True)
+    
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_edge_cases(self, mock_stdout):
+        """Test edge cases"""
+        # Case 1: Zero
+        result = num_to_words_pt(0)
+        self.assertEqual(result, "zero")
+        self.log_case_result("Zero converts correctly", True)
+        
+        # Case 2: Negative number
+        result = num_to_words_pt(-10)
+        self.assertEqual(result, "menos dez")
+        self.log_case_result("Negative number converts correctly", True)
+        
+        # Case 3: Very large number
+        result = num_to_words_pt(1000000000)  # 1 billion
+        self.assertEqual(result, "mil milhões")
+        self.log_case_result("Very large number converts correctly", True)
+        
+        # Case 4: Invalid input (test exception handling)
+        result = num_to_words_pt("not_a_number")
+        self.assertEqual(result, "not_a_number")  # Should return the input as string
+        self.log_case_result("Invalid input handled correctly", True)
+
 if __name__ == '__main__':
     print("\n🔍 Running tests for generate_docx.py...")
     

@@ -77,14 +77,17 @@ def num_to_words_pt(number, currency=None, lang='pt_pt'):
         # Convert to words
         int_words = num2words(int_part, lang=lang)
         
-        # Add comma after "mil" if it exists in the number and there are hundreds after it
-        # For example: "cento e oitenta e nove mil, cento e oitenta e nove"
-        # But not for: "cento e oitenta e nove mil"
-        if ' mil ' in int_words:
-            # Check if there are hundreds after "mil"
-            parts = int_words.split(' mil ')
-            if len(parts) > 1 and parts[1].strip() != '':
+        # Add comma after "mil" if it's followed by additional numbers
+        # Improved logic to handle different positions of "mil" in the string
+        if "mil" in int_words and int_part > 1000 and int_part % 1000 != 0:
+            # Check for different patterns: ' mil ', 'mil ' (at start), or ' mil' (at end)
+            if ' mil ' in int_words:
                 int_words = int_words.replace(' mil ', ' mil, ')
+            elif int_words.startswith('mil '):
+                int_words = int_words.replace('mil ', 'mil, ')
+            elif int_words.endswith(' mil'):
+                # This should rarely happen, but included for completeness
+                pass
         
         # Handle currency if provided
         if currency:
