@@ -142,11 +142,11 @@ def main():
         layout="wide"
     )
     
-    # Add CSS to make button text smaller and remove link behavior from title
-    st.write('<style>div.stButton button p { font-size: 0.8rem !important; } .title-div { font-size: 2.25rem; font-weight: 700; margin-bottom: 0.5rem; } .header-div { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; margin-top: 1rem; }</style>', unsafe_allow_html=True)
+    # Add CSS to make button text smaller
+    st.write('<style>div.stButton button p { font-size: 0.8rem !important; }</style>', unsafe_allow_html=True)
     
-    # Custom title using div instead of h1 to avoid link behavior
-    st.write('<div class="title-div">ArchiDocs</div>', unsafe_allow_html=True)
+    # Use built-in anchor=False parameter to remove links from headers
+    st.title("ArchiDocs", anchor=False)
     st.write("Cria todos os documentos necessários para o teu projecto de arquitetura com um clique")
     
     # Get available templates
@@ -160,7 +160,7 @@ def main():
     
     # Sidebar for actions and template selection
     with st.sidebar:
-        st.header("Opções")
+        st.header("Opções", anchor=False)
         
         # Load/save variables
         if st.button("Carregar valores padrão", use_container_width=True):
@@ -174,7 +174,7 @@ def main():
                 st.error("No variables to save.")
         
         # Template selection
-        st.header("Criar documentos")
+        st.header("Criar documentos", anchor=False)
         if template_list:
             selected_template = st.selectbox(
                 "Selecionar modelo",
@@ -248,8 +248,8 @@ def main():
     if "variables" not in st.session_state:
         st.session_state.variables = load_default_variables()
     
-    # Custom header using div instead of h2 to avoid link behavior
-    st.write('<div class="header-div">Adicionar informações para documentos aqui</div>', unsafe_allow_html=True)
+    # Use st.subheader for a smaller header
+    st.subheader("Adicionar informações para documentos aqui", anchor=False)
     updated_variables = display_document_form(st.session_state.variables)
     
     # Update session state when form is submitted
