@@ -48,7 +48,7 @@ def display_document_form(default_values=None):
         requester_nif = st.text_input("NIF do Solicitante", value=default_values.get("requester_nif", ""))
         requester_address = st.text_input("Endereço do Solicitante", value=default_values.get("requester_address", ""))
 
-    with st.expander("Informações do Projeto", expanded=True):
+    with st.expander("Informações do Projeto", expanded=False):
         construction_type = st.text_input("Tipo de Construção", value=default_values.get("construction_type", ""))
         construction_address = st.text_input("Endereço do Projeto", value=default_values.get("construction_address", ""))
         property_description = st.text_area("Descrição da Propriedade", value=default_values.get("property_description", ""))
@@ -64,7 +64,7 @@ def display_document_form(default_values=None):
         regulatory_reference = st.text_input("Referência Regulatória", value=default_values.get("regulatory_reference", ""))
         pdm = st.text_input("PDM", value=default_values.get("pdm", ""))
     
-    with st.expander("Custo", expanded=True):
+    with st.expander("Custo", expanded=False):
         qty = st.number_input("Quantidade em m2", value=float(default_values.get("qty", 0)), format="%.2f")
         cost_per_unit = st.number_input("Custo por Unidade", value=float(default_values.get("cost_per_unit", 0)), format="%.2f")
     
@@ -72,7 +72,7 @@ def display_document_form(default_values=None):
         technical_information_id = st.text_input("ID da Informação Técnica", value=default_values.get("technical_information_id", ""))
         process_nr = st.text_input("Número do Processo", value=default_values.get("process_nr", ""))
 
-    with st.expander("Informações do Autor", expanded=True):
+    with st.expander("Informações do Autor", expanded=False):
         author_name = st.text_input("Nome do Autor", value=default_values.get("author_name", ""))
         author_address = st.text_input("Endereço do Autor", value=default_values.get("author_address", ""))
         author_nif = st.text_input("NIF do Autor", value=default_values.get("author_nif", ""))
