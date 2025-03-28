@@ -9,9 +9,8 @@ import json
 import streamlit as st
 from datetime import datetime
 import sys
-import io
-import zipfile
 import base64
+import uuid  # Add import for unique IDs
 
 # Add parent directory to sys.path to make backend imports work
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -25,7 +24,8 @@ from backend import (
     generate_document_from_request,
     load_and_generate_document,
     get_templates,
-    convert_docx_to_pdf
+    convert_docx_to_pdf,
+    create_zip_from_files
 )
 
 
@@ -267,7 +267,8 @@ def main():
                                         pdf_content = pdf_file.read()
                                         pdf_filename = os.path.basename(pdf_path)
                                         pdf_b64 = base64.b64encode(pdf_content).decode()
-                                        st.markdown(f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{pdf_b64}" download="{pdf_filename}" class="small-font stButton">pdf</a>', unsafe_allow_html=True)
+                                        # Use application/pdf MIME type with target="_blank" to avoid page reload
+                                        st.markdown(f'<a href="data:application/pdf;base64,{pdf_b64}" download="{pdf_filename}" target="_blank" class="small-font stButton">pdf</a>', unsafe_allow_html=True)
                                 else:
                                     st.error("Erro ao gerar PDF")
                         else:
@@ -287,65 +288,74 @@ def main():
                         if success_count > 0:
                             st.success(f"{success_count} documentos criados com sucesso!")
                             
+                            # Add session ID for file handling
+                            if "session_id" not in st.session_state:
+                                st.session_state.session_id = str(uuid.uuid4())
+                            
+                            # Create directory for temporary download files
+                            download_dir = os.path.join("outputs", "downloads", st.session_state.session_id)
+                            os.makedirs(download_dir, exist_ok=True)
+                            
                             # Create a download all button for zip file
                             success_files = [r.file_path for r in results if r.success]
                             
-                            # Create a zip file in memory
-                            zip_buffer = io.BytesIO()
-                            with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+                            # Generate PDFs up front, before any download buttons
+                            with st.spinner("A gerar PDFs..."):
+                                pdf_files = []
                                 for file_path in success_files:
-                                    file_name = os.path.basename(file_path)
-                                    zip_file.write(file_path, arcname=file_name)
+                                    pdf_path = convert_docx_to_pdf(file_path)
+                                    if pdf_path:
+                                        pdf_files.append(pdf_path)
                             
-                            # Reset buffer position
-                            zip_buffer.seek(0)
+                            # Create DOCX and PDF zip files using our dedicated function
+                            # Create files directly in the outputs directory with clear names
+                            docx_zip_path = os.path.join("outputs", "documentos.zip")
+                            create_zip_from_files(success_files, docx_zip_path)
+                            
+                            # Create PDF zip if we have PDFs
+                            pdf_zip_path = None
+                            if pdf_files:
+                                pdf_zip_path = os.path.join("outputs", "documentos_pdf.zip")
+                                create_zip_from_files(pdf_files, pdf_zip_path)
                             
                             # Create a container for the download buttons
                             download_col1, download_col2 = st.columns(2)
                             
-                            # Add download all (DOCX) button
+                            # Add download all (DOCX) button with static link
                             with download_col1:
-                                st.download_button(
-                                    label="Descarregar todos (DOCX)",
-                                    data=zip_buffer,
-                                    file_name="documentos.zip",
-                                    mime="application/zip",
-                                    key="download_all_docs",
-                                    use_container_width=True
-                                )
+                                if os.path.exists(docx_zip_path):
+                                    # Read ZIP file and encode as base64 (like we do for individual files)
+                                    with open(docx_zip_path, "rb") as zip_file:
+                                        zip_content = zip_file.read()
+                                        zip_b64 = base64.b64encode(zip_content).decode()
+                                        
+                                        # Use data URL instead of relative path
+                                        st.markdown(
+                                            f'<a href="data:application/zip;base64,{zip_b64}" download="documentos.zip" target="_blank" style="display:inline-block; padding:0.5em 1em; color:white; background-color:#FF4B4B; border-radius:0.3em; text-decoration:none; font-weight:bold; text-align:center; width:100%;">Descarregar todos (DOCX)</a>',
+                                            unsafe_allow_html=True
+                                        )
+                                    print(f"DOCX ZIP created at: {docx_zip_path}, size: {os.path.getsize(docx_zip_path)}")
+                                else:
+                                    st.error("Erro ao gerar ZIP de DOCX")
+                                    print(f"DOCX ZIP not found at: {docx_zip_path}")
                             
-                            # Add download all as PDF button - Generate PDFs immediately
+                            # Add download all as PDF button
                             with download_col2:
-                                # Convert all documents to PDF first
-                                pdf_files = []
-                                with st.spinner("A gerar PDFs..."):
-                                    for file_path in success_files:
-                                        pdf_path = convert_docx_to_pdf(file_path)
-                                        if pdf_path:
-                                            pdf_files.append(pdf_path)
-                                
-                                if pdf_files:
-                                    # Create a zip file with all PDFs
-                                    pdf_zip_buffer = io.BytesIO()
-                                    with zipfile.ZipFile(pdf_zip_buffer, 'w') as pdf_zip_file:
-                                        for pdf_path in pdf_files:
-                                            pdf_name = os.path.basename(pdf_path)
-                                            pdf_zip_file.write(pdf_path, arcname=pdf_name)
-                                    
-                                    # Reset buffer position
-                                    pdf_zip_buffer.seek(0)
-                                    
-                                    # Add download button for PDF zip
-                                    st.download_button(
-                                        label="Descarregar todos (PDF)",
-                                        data=pdf_zip_buffer,
-                                        file_name="documentos_pdf.zip",
-                                        mime="application/zip",
-                                        key="download_all_pdf_zip",
-                                        use_container_width=True
-                                    )
+                                if pdf_zip_path and os.path.exists(pdf_zip_path):
+                                    # Read ZIP file and encode as base64 (like we do for individual files)
+                                    with open(pdf_zip_path, "rb") as zip_file:
+                                        zip_content = zip_file.read()
+                                        zip_b64 = base64.b64encode(zip_content).decode()
+                                        
+                                        # Use data URL instead of relative path
+                                        st.markdown(
+                                            f'<a href="data:application/zip;base64,{zip_b64}" download="documentos_pdf.zip" target="_blank" style="display:inline-block; padding:0.5em 1em; color:white; background-color:#FF4B4B; border-radius:0.3em; text-decoration:none; font-weight:bold; text-align:center; width:100%;">Descarregar todos (PDF)</a>',
+                                            unsafe_allow_html=True
+                                        )
+                                    print(f"PDF ZIP created at: {pdf_zip_path}, size: {os.path.getsize(pdf_zip_path)}")
                                 else:
                                     st.error("Erro ao gerar PDFs")
+                                    print(f"PDF ZIP not found at: {pdf_zip_path}")
                             
                             # List the files with download buttons
                             st.write("Documentos criados:")
@@ -357,22 +367,28 @@ def main():
                                         filename_without_ext = os.path.splitext(filename)[0]
                                         st.write(f"{filename_without_ext}")
                                     with col2:
-                                        # Add DOCX download button using custom styling
-                                        with open(result.file_path, "rb") as file:
-                                            file_content = file.read()
-                                            file_name = os.path.basename(result.file_path)
-                                            b64_content = base64.b64encode(file_content).decode()
-                                            st.markdown(f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_content}" download="{file_name}" class="small-font stButton">docx</a>', unsafe_allow_html=True)
+                                        # Use the file directly from its original location
+                                        file_path = result.file_path
+                                        docx_rel_path = os.path.relpath(file_path, os.getcwd())
+                                        
+                                        # Use HTML link with target="_blank" to avoid page reload
+                                        st.markdown(
+                                            f'<a href="{docx_rel_path}" download="{filename}" target="_blank" class="small-font stButton">docx</a>',
+                                            unsafe_allow_html=True
+                                        )
 
                                     with col3:
                                         # Add button to generate and download PDF
                                         pdf_path = convert_docx_to_pdf(result.file_path)
                                         if pdf_path and os.path.exists(pdf_path):
-                                            with open(pdf_path, "rb") as pdf_file:
-                                                pdf_content = pdf_file.read()
-                                                pdf_filename = os.path.basename(pdf_path)
-                                                pdf_b64 = base64.b64encode(pdf_content).decode()
-                                                st.markdown(f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{pdf_b64}" download="{pdf_filename}" class="small-font stButton">pdf</a>', unsafe_allow_html=True)
+                                            pdf_filename = os.path.basename(pdf_path)
+                                            pdf_rel_path = os.path.relpath(pdf_path, os.getcwd())
+                                            
+                                            # Use HTML link with target="_blank" to avoid page reload
+                                            st.markdown(
+                                                f'<a href="{pdf_rel_path}" download="{pdf_filename}" target="_blank" class="small-font stButton">pdf</a>',
+                                                unsafe_allow_html=True
+                                            )
                                         else:
                                             st.error("Erro ao gerar PDF")
                         else:
