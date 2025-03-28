@@ -531,37 +531,37 @@ class TestGetPortugueseMonth(BaseTestCase):
 class TestGetAvailableTemplates(BaseTestCase):
     """Test cases for get_available_templates function"""
     
-    @patch('glob.glob')
-    def test_template_extraction(self, mock_glob):
+    @patch('os.listdir')
+    def test_template_extraction(self, mock_listdir):
         """Test that template names are correctly extracted from paths"""
         # Setup mock to return sample file paths
-        mock_glob.return_value = [
-            'templates/files/invoice.docx',
-            'templates/files/contract.docx',
-            'templates/files/report-2023.docx'
+        mock_listdir.return_value = [
+            'invoice.docx',
+            'contract.docx',
+            'report-2023.docx'
         ]
         
         # Call the function
         result = get_available_templates()
         
-        # Verify mock was called with the right pattern
-        mock_glob.assert_called_once_with('templates/files/*.docx')
+        # Verify mock was called with the right directory
+        mock_listdir.assert_called_once_with('backend/templates/files')
         
         # Verify the result contains the correct template names
         self.assertEqual(result, ['invoice', 'contract', 'report-2023'])
         self.log_case_result("Template names correctly extracted from file paths", True)
     
-    @patch('glob.glob')
-    def test_empty_directory(self, mock_glob):
+    @patch('os.listdir')
+    def test_empty_directory(self, mock_listdir):
         """Test behavior when no templates are found"""
         # Setup mock to return empty list
-        mock_glob.return_value = []
+        mock_listdir.return_value = []
         
         # Call the function
         result = get_available_templates()
         
         # Verify mock was called
-        mock_glob.assert_called_once_with('templates/files/*.docx')
+        mock_listdir.assert_called_once_with('backend/templates/files')
         
         # Verify the result is an empty list
         self.assertEqual(result, [])
@@ -574,7 +574,7 @@ class TestGenerateDocument(BaseTestCase):
         """Set up test fixtures"""
         super().setUp()
         self.template_name = "invoice"
-        self.template_path = "templates/files/invoice.docx"
+        self.template_path = "backend/templates/files/invoice.docx"
         self.output_path = "outputs/invoice.docx"
         self.variables = {"author_name": "Test Author", "total_cost": "100,00 €"}
     
@@ -848,7 +848,9 @@ class TestMain(BaseTestCase):
     @patch('argparse.ArgumentParser.parse_args')
     @patch('backend.generate_docx.generate_document')
     @patch('backend.generate_docx.get_available_templates')
-    def test_custom_output_directory(self, mock_get_templates, mock_generate_document, mock_parse_args):
+    @patch('backend.generate_docx.get_portuguese_month')
+    @patch('backend.generate_docx.datetime')
+    def test_custom_output_directory(self, mock_datetime, mock_get_month, mock_get_templates, mock_generate_document, mock_parse_args):
         """Test main function with custom output directory"""
         # Setup mocks
         mock_args = MagicMock()
@@ -860,15 +862,25 @@ class TestMain(BaseTestCase):
         
         mock_get_templates.return_value = self.templates
         
-        # Mock load_variables to return empty dict to simplify
+        # Mock datetime for consistent date
+        mock_now = MagicMock()
+        mock_now.month = 5
+        mock_now.year = 2023
+        mock_datetime.now.return_value = mock_now
+        mock_get_month.return_value = "maio"
+        
+        # Mock load_variables to return empty dict
         with patch('backend.generate_docx.load_variables', return_value={}):
             # Call the function
             main()
         
         # Verify documents were generated in the custom output directory
+        # The empty dict will have a date added to it
+        expected_variables = {'date': 'maio de 2023'}
+        
         for template in self.templates:
             expected_output_path = f"custom_outputs/{template}.docx"
-            mock_generate_document.assert_any_call(template, {}, expected_output_path)
+            mock_generate_document.assert_any_call(template, expected_variables, expected_output_path)
         
         self.log_case_result("Custom output directory works correctly", True)
     
@@ -1053,7 +1065,7 @@ class TestMain(BaseTestCase):
             mock_load_variables.return_value = vars_with_author
             
             # Setup return value for get_first_name_and_last_name
-            mock_get_name_parts.return_value = "Daniela", "Cristina de Oliveira Grosso"
+            mock_get_name_parts.return_value = ("Daniela", "Cristina de Oliveira Grosso")
             
             # Call the function
             main()
@@ -1061,7 +1073,7 @@ class TestMain(BaseTestCase):
             # Verify author_name_small was processed
             mock_get_name_parts.assert_called_once_with("Daniela Cristina de Oliveira Grosso")
             
-            # Verify variables were updated correctly
+            # Verify the variables were updated properly
             mock_generate_document.assert_called_once()
             args, _ = mock_generate_document.call_args
             updated_variables = args[1]
