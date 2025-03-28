@@ -192,10 +192,10 @@ def main():
                             # Display success message and download button on the same line
                             col1, col2 = st.columns([0.9, 0.1])
                             with col1:
-                                st.success(f"Documento criado: {os.path.basename(result.file_path)}")
+                                st.success(f"Documento criado")
                             with col2:
                                 # Create download link and center it vertically
-                                st.write('<div style="height: 50%; margin-top: 12px;">', unsafe_allow_html=True)
+                                st.write('<div style="display: flex; justify-content: center; align-items: center; padding-top: 0.7rem;">', unsafe_allow_html=True)
                                 with open(result.file_path, "rb") as file:
                                     st.download_button(
                                         label="↓",
@@ -220,11 +220,23 @@ def main():
                         success_count = sum(1 for r in results if r.success)
                         if success_count > 0:
                             st.success(f"{success_count} documentos criados com sucesso!")
-                            # List the files
+                            # List the files with download buttons
                             st.write("Documentos criados:")
                             for result in results:
                                 if result.success:
-                                    st.write(f"- {os.path.basename(result.file_path)}")
+                                    col1, col2 = st.columns([0.9, 0.1])
+                                    with col1:
+                                        st.write(f"- {os.path.basename(result.file_path)}")
+                                    with col2:
+                                        # Add download button
+                                        with open(result.file_path, "rb") as file:
+                                            st.download_button(
+                                                label="↓",
+                                                data=file,
+                                                file_name=os.path.basename(result.file_path),
+                                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                                key=f"download_{os.path.basename(result.file_path)}"
+                                            )
                         else:
                             st.error("Falha ao criar os documentos.")
                 else:
