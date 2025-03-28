@@ -50,26 +50,26 @@ class DocumentVariables:
     pdm: str
     
     # Table rows (for any tabular data in templates)
-    table_row1: str = ""
-    table_row2: str = ""
-    table_row3: str = ""
-    table_row4: str = ""
-    table_row5: str = ""
-    table_row6: str = ""
-    table_row7: str = ""
-    table_row8: str = ""
-    table_row9: str = ""
-    table_row10: str = ""
-    table_row11: str = ""
-    table_row12: str = ""
-    table_row13: str = ""
-    table_row14: str = ""
-    table_row15: str = ""
-    table_row16: str = ""
-    table_row17: str = ""
-    table_row18: str = ""
-    table_row19: str = ""
-    table_row20: str = ""
+    table_row1: str
+    table_row2: str
+    table_row3: str
+    table_row4: str
+    table_row5: str
+    table_row6: str
+    table_row7: str
+    table_row8: str
+    table_row9: str
+    table_row10: str
+    table_row11: str
+    table_row12: str
+    table_row13: str
+    table_row14: str
+    table_row15: str
+    table_row16: str
+    table_row17: str
+    table_row18: str
+    table_row19: str
+    table_row20: str
     
     # Cost information
     qty: int
