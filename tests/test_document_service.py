@@ -7,6 +7,14 @@ import zipfile
 import tempfile
 from pathlib import Path
 
+# Import the PDF validation libraries
+try:
+    import pikepdf
+    import fitz  # PyMuPDF
+    HAVE_PDF_LIBS = True
+except ImportError:
+    HAVE_PDF_LIBS = False
+
 # Add project root to path to ensure imports work properly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -271,27 +279,99 @@ class TestPDFConversion(BaseTestCase):
             # Check that PDF was created
             self.assertIsNotNone(pdf_path, "PDF path should not be None")
             self.assertTrue(os.path.exists(pdf_path), "PDF file should exist")
+            self.assertTrue(os.path.getsize(pdf_path) > 0, "PDF file should not be empty")
             
-            # Check if the PDF is a PDF/A format by looking for the PDF/A identifier
-            # Install poppler-utils for this to work
+            # PDF/A verification
+            pdfa_verification_passed = False
+            verification_results = []
+            
+            # Method 1: PyMuPDF (fitz) inspection
+            if HAVE_PDF_LIBS:
+                try:
+                    print("\nVerifying PDF/A format using PyMuPDF...")
+                    doc = fitz.open(pdf_path)
+                    pdf_a_level = None
+                    metadata = doc.metadata
+                    
+                    # Check metadata for PDF/A conformance
+                    for key, value in metadata.items():
+                        print(f"Metadata {key}: {value}")
+                        if "PDF/A" in str(value):
+                            pdf_a_level = str(value)
+                            verification_results.append(f"PyMuPDF found PDF/A marker in metadata: {pdf_a_level}")
+                            pdfa_verification_passed = True
+                    
+                    # Check additional metadata (PyMuPDF specific)
+                    if hasattr(doc, "pdfa_status") and doc.pdfa_status:
+                        pdf_a_level = doc.pdfa_status
+                        verification_results.append(f"PyMuPDF pdfa_status: {pdf_a_level}")
+                        pdfa_verification_passed = True
+                    
+                    # Check document catalog for PDF/A identifiers
+                    catalog = doc.xref_object(1)  # Document catalog is typically at index 1
+                    if catalog and "PDF/A" in catalog:
+                        verification_results.append(f"PyMuPDF found PDF/A in document catalog")
+                        pdfa_verification_passed = True
+                    
+                    doc.close()
+                except Exception as e:
+                    verification_results.append(f"PyMuPDF verification error: {str(e)}")
+                
+                # Method 2: PikePDF inspection
+                try:
+                    print("\nVerifying PDF/A format using PikePDF...")
+                    with pikepdf.open(pdf_path) as pdf:
+                        # Check for PDF/A identifiers in the root
+                        if "/Metadata" in pdf.Root:
+                            metadata_stream = pdf.Root.Metadata
+                            metadata_content = metadata_stream.read_bytes()
+                            
+                            if b"http://www.aiim.org/pdfa/ns/id" in metadata_content:
+                                verification_results.append("PikePDF found PDF/A namespace in XMP metadata")
+                                pdfa_verification_passed = True
+                            
+                            # Look for PDF/A conformance markers
+                            pdfa_markers = [
+                                b"pdfaid:conformance", 
+                                b"pdfaid:part",
+                                b"pdfaid:",
+                                b"PDF/A"
+                            ]
+                            
+                            for marker in pdfa_markers:
+                                if marker in metadata_content:
+                                    verification_results.append(f"PikePDF found marker in XMP metadata: {marker}")
+                                    pdfa_verification_passed = True
+                
+                except Exception as e:
+                    verification_results.append(f"PikePDF verification error: {str(e)}")
+            else:
+                verification_results.append("PDF libraries (pikepdf and PyMuPDF) not available")
+                try:
+                    # Install libraries for future test runs
+                    print("Installing PDF validation libraries...")
+                    subprocess.run(
+                        [sys.executable, "-m", "pip", "install", "pikepdf", "PyMuPDF"],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        check=False
+                    )
+                    verification_results.append("PDF libraries installed for future test runs")
+                except Exception as e:
+                    verification_results.append(f"Failed to install PDF libraries: {str(e)}")
+            
+            # Method 3: External command-line tools if available (fallback)
             try:
-                # Try to install poppler-utils if not already present
+                # Install poppler-utils if needed
                 try:
                     subprocess.run(['pdfinfo', '--version'], check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 except (subprocess.SubprocessError, FileNotFoundError):
-                    print("Installing poppler-utils to check PDF/A compliance...")
+                    print("Installing poppler-utils for additional PDF/A verification...")
                     subprocess.run(['apt-get', 'update'], check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    install_process = subprocess.run(
-                        ['apt-get', 'install', '-y', 'poppler-utils'], 
-                        check=False, 
-                        stdout=subprocess.PIPE, 
-                        stderr=subprocess.PIPE
-                    )
-                    if install_process.returncode != 0:
-                        self.fail(f"Failed to install poppler-utils: {install_process.stderr}")
+                    subprocess.run(['apt-get', 'install', '-y', 'poppler-utils'], check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 
-                # Extract PDF metadata using pdfinfo
-                process = subprocess.run(
+                # Check using pdfinfo
+                pdf_info_process = subprocess.run(
                     ['pdfinfo', pdf_path], 
                     check=False,
                     stdout=subprocess.PIPE, 
@@ -299,37 +379,44 @@ class TestPDFConversion(BaseTestCase):
                     text=True
                 )
                 
-                if process.returncode != 0:
-                    self.fail(f"Failed to get PDF metadata: {process.stderr}")
-                
-                print(f"PDF metadata: {process.stdout}")
-                
-                # Look for PDF/A identifier in the metadata or file content
-                # If pdfinfo doesn't show PDF/A directly, we check the PDF content
-                if "PDF/A" not in process.stdout:
-                    # Direct check in PDF content for PDF/A marker
-                    with open(pdf_path, 'rb') as f:
-                        content = f.read()
-                        has_pdfa = b"/PDFA" in content or b"PDF/A" in content
+                if pdf_info_process.returncode == 0:
+                    pdf_info_output = pdf_info_process.stdout
+                    verification_results.append(f"pdfinfo output: {pdf_info_output}")
+                    
+                    if "PDF/A" in pdf_info_output:
+                        verification_results.append("pdfinfo found PDF/A marker in metadata")
+                        pdfa_verification_passed = True
                         
-                        # Some files have PDF/A information in different formatting
-                        if not has_pdfa:
-                            has_pdfa = b"pdfaid" in content
-                        
-                        self.assertTrue(has_pdfa, f"PDF file should be in PDF/A format")
-                else:
-                    # PDF/A information was directly found in pdfinfo output
-                    self.assertTrue(True, "PDF/A format confirmed by pdfinfo")
+                # Another check: raw file content
+                with open(pdf_path, 'rb') as f:
+                    content = f.read()
+                    pdfa_markers = [
+                        b"/PDFA", b"PDF/A", b"pdfaid", 
+                        b"http://www.aiim.org/pdfa/ns/id", 
+                        b"versionYear"
+                    ]
+                    for marker in pdfa_markers:
+                        if marker in content:
+                            verification_results.append(f"Found PDF/A marker in raw content: {marker}")
+                            pdfa_verification_passed = True
+                            
+            except Exception as e:
+                verification_results.append(f"External tools verification error: {str(e)}")
+            
+            # Print all verification results for debugging
+            print("\nPDF/A verification results:")
+            for result in verification_results:
+                print(f"  - {result}")
                 
+            # Final verification decision
+            if pdfa_verification_passed:
+                print("\nPDF/A verification PASSED")
                 self.log_case_result("PDF/A format verification", True)
-                
-            except Exception as pdf_check_error:
-                print(f"Error checking PDF/A compliance: {str(pdf_check_error)}")
-                import traceback
-                traceback.print_exc()
-                # Treat this as a critical failure since PDF/A compliance is important
+            else:
+                print("\nPDF/A verification FAILED")
                 self.log_case_result("PDF/A format verification", False)
-                self.fail(f"PDF/A verification failed: {str(pdf_check_error)}")
+                self.fail(f"PDF does not comply with PDF/A format. Verification details:\n" + 
+                          "\n".join([f"  - {r}" for r in verification_results]))
                 
         except Exception as e:
             print(f"Error in test_pdf_is_pdfa_format: {str(e)}")

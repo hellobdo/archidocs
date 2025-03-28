@@ -238,12 +238,6 @@ def convert_docx_to_pdf(docx_path: str) -> str:
             if process.stderr:
                 print(f"Command errors: {process.stderr}")
             
-            # Clean up temporary profile directory
-            try:
-                shutil.rmtree(temp_profile_dir)
-            except Exception as e:
-                print(f"Warning: Could not remove temporary profile directory: {str(e)}")
-            
             # Check if the PDF was created
             if os.path.exists(pdf_path):
                 file_size = os.path.getsize(pdf_path)
