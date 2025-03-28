@@ -20,7 +20,7 @@ sys.path.insert(0, current_dir)
 from _utils.test_utils import BaseTestCase, print_summary
 
 # Import the module we want to test
-from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number
+from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document
 
 # Module specific test fixtures
 def create_module_fixtures():
@@ -51,6 +51,7 @@ class TestGenerateDocxImports(BaseTestCase):
             self.assertTrue(callable(get_portuguese_month))
             self.assertTrue(callable(get_available_templates))
             self.assertTrue(callable(to_number))
+            self.assertTrue(callable(generate_document))
             self.log_case_result("Functions are callable", True)
         except AssertionError:
             self.log_case_result("Functions are callable", False)
@@ -563,6 +564,134 @@ class TestGetAvailableTemplates(BaseTestCase):
         # Verify the result is an empty list
         self.assertEqual(result, [])
         self.log_case_result("Empty list returned when no templates exist", True)
+
+class TestGenerateDocument(BaseTestCase):
+    """Test cases for generate_document function"""
+    
+    def setUp(self):
+        """Set up test fixtures"""
+        super().setUp()
+        self.template_name = "invoice"
+        self.template_path = "templates/files/invoice.docx"
+        self.output_path = "outputs/invoice.docx"
+        self.variables = {"author_name": "Test Author", "total_cost": "100,00 €"}
+    
+    @patch('os.path.exists')
+    @patch('os.makedirs')
+    @patch('generate_docx.DocxTemplate')
+    def test_successful_document_generation(self, mock_docx_template, mock_makedirs, mock_exists):
+        """Test successful document generation"""
+        # Setup mocks
+        mock_exists.side_effect = lambda path: path == self.template_path  # Template exists, output dir doesn't
+        mock_doc = MagicMock()
+        mock_docx_template.return_value = mock_doc
+        
+        # Call the function
+        result = generate_document(self.template_name, self.variables, self.output_path)
+        
+        # Verify template was loaded
+        mock_docx_template.assert_called_once_with(self.template_path)
+        
+        # Verify render was called with variables
+        mock_doc.render.assert_called_once_with(self.variables)
+        
+        # Verify output directory was created
+        mock_makedirs.assert_called_once_with("outputs")
+        
+        # Verify document was saved
+        mock_doc.save.assert_called_once_with(self.output_path)
+        
+        # Verify function returned True
+        self.assertTrue(result)
+        self.log_case_result("Document generation success scenario works correctly", True)
+    
+    @patch('os.path.exists')
+    def test_template_not_found(self, mock_exists):
+        """Test behavior when template is not found"""
+        # Setup mock to make template not exist
+        mock_exists.return_value = False
+        
+        # Capture stdout to verify error message
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            # Call the function
+            result = generate_document(self.template_name, self.variables, self.output_path)
+            
+            # Verify function returned False
+            self.assertFalse(result)
+            
+            # Verify error message
+            output = fake_stdout.getvalue()
+            self.assertIn(f"Error: Template '{self.template_name}' not found", output)
+        
+        self.log_case_result("Template not found scenario works correctly", True)
+    
+    @patch('os.path.exists')
+    @patch('generate_docx.DocxTemplate')
+    def test_exception_handling(self, mock_docx_template, mock_exists):
+        """Test exception handling during document generation"""
+        # Setup mocks
+        mock_exists.return_value = True  # Template exists
+        mock_doc = MagicMock()
+        mock_doc.render.side_effect = Exception("Test error")
+        mock_docx_template.return_value = mock_doc
+        
+        # Capture stdout to verify error message
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            # Call the function
+            result = generate_document(self.template_name, self.variables, self.output_path)
+            
+            # Verify function returned False
+            self.assertFalse(result)
+            
+            # Verify error message
+            output = fake_stdout.getvalue()
+            self.assertIn("Error generating document: Test error", output)
+        
+        self.log_case_result("Exception handling works correctly", True)
+    
+    @patch('os.path.exists')
+    @patch('os.makedirs')
+    @patch('generate_docx.DocxTemplate')
+    def test_existing_output_directory(self, mock_docx_template, mock_makedirs, mock_exists):
+        """Test when output directory already exists"""
+        # Setup mocks
+        mock_exists.side_effect = lambda path: True  # Both template and output dir exist
+        mock_doc = MagicMock()
+        mock_docx_template.return_value = mock_doc
+        
+        # Call the function
+        result = generate_document(self.template_name, self.variables, self.output_path)
+        
+        # Verify makedirs was not called
+        mock_makedirs.assert_not_called()
+        
+        # Verify function returned True
+        self.assertTrue(result)
+        self.log_case_result("Existing output directory scenario works correctly", True)
+    
+    @patch('os.path.exists')
+    @patch('os.makedirs')
+    @patch('generate_docx.DocxTemplate')
+    def test_absolute_path_handling(self, mock_docx_template, mock_makedirs, mock_exists):
+        """Test with absolute output path"""
+        # Setup
+        absolute_path = "/absolute/path/to/document.docx"
+        mock_exists.side_effect = lambda path: path == self.template_path  # Template exists, output dir doesn't
+        mock_doc = MagicMock()
+        mock_docx_template.return_value = mock_doc
+        
+        # Call the function
+        result = generate_document(self.template_name, self.variables, absolute_path)
+        
+        # Verify output directory was created
+        mock_makedirs.assert_called_once_with("/absolute/path/to")
+        
+        # Verify document was saved to absolute path
+        mock_doc.save.assert_called_once_with(absolute_path)
+        
+        # Verify function returned True
+        self.assertTrue(result)
+        self.log_case_result("Absolute path handling works correctly", True)
 
 if __name__ == '__main__':
     print("\n🔍 Running tests for generate_docx.py...")
