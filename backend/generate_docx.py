@@ -216,6 +216,37 @@ def get_available_templates():
 
 def generate_document(template_name, variables, output_path):
     """Generate a document from a template and variables."""
+    # Make a copy of variables to avoid modifying the original
+    variables = variables.copy()
+    
+    # Process first name and last name variables
+    if 'author_name' in variables:
+        variables['author_name_small'] = get_first_name_and_last_name(variables['author_name'])
+    
+    # Process date variable with special format
+    now = datetime.now()
+    month_name = get_portuguese_month(now.month)
+    variables['date'] = f"{month_name} de {now.year}"
+
+    # Process cost calculations if required variables exist
+    if 'qty' in variables and 'cost_per_unit' in variables:
+        # Convert variables to numbers with precise decimal handling
+        qty = to_number(variables['qty'])
+        cost_per_unit = to_number(variables['cost_per_unit'])
+        
+        # Calculate total cost
+        total_cost = process_total_cost(qty, cost_per_unit)
+        
+        # Generate formatted versions
+        total_cost_words = num_to_words_pt(total_cost, "euro")
+        total_cost_formatted = format_number_pt(total_cost, True, "€")
+        
+        # Update variables
+        variables['total_cost'] = total_cost_formatted
+        variables['total_cost_words'] = total_cost_words
+        variables['qty'] = format_number_pt(qty, True, "")
+        variables['cost_per_unit'] = format_number_pt(cost_per_unit, True, "€")
+    
     # Determine template path
     template_path = os.path.join('backend/templates/files', f"{template_name}.docx")
     
@@ -273,34 +304,6 @@ def main():
     except FileNotFoundError:
         print(f"Error: Variables file '{args.variables}' not found")
         sys.exit(1)
-
-    # Process first name and last name variables
-    if 'author_name' in variables:
-        variables['author_name_small'] = get_first_name_and_last_name(variables['author_name'])
-    
-    # Process date variable if it exists with special format
-    now = datetime.now()
-    month_name = get_portuguese_month(now.month)
-    variables['date'] = f"{month_name} de {now.year}"
-
-    # Process cost calculations if required variables exist
-    if 'qty' in variables and 'cost_per_unit' in variables:
-        # Convert variables to numbers with precise decimal handling
-        qty = to_number(variables['qty'])
-        cost_per_unit = to_number(variables['cost_per_unit'])
-        
-        # Calculate total cost
-        total_cost = process_total_cost(qty, cost_per_unit)
-        
-        # Generate formatted versions
-        total_cost_words = num_to_words_pt(total_cost, "euro")
-        total_cost_formatted = format_number_pt(total_cost, True, "€")
-        
-        # Update variables
-        variables['total_cost'] = total_cost_formatted
-        variables['total_cost_words'] = total_cost_words
-        variables['qty'] = format_number_pt(qty, True, "")
-        variables['cost_per_unit'] = format_number_pt(cost_per_unit, True, "€")
     
     # Generate each document
     for template_name in templates_to_generate:

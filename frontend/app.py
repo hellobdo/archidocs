@@ -9,6 +9,8 @@ import json
 import streamlit as st
 from datetime import datetime
 import sys
+import io
+import zipfile
 
 # Add parent directory to sys.path to make backend imports work
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -48,31 +50,50 @@ def display_document_form(default_values=None):
         requester_nif = st.text_input("NIF do Solicitante", value=default_values.get("requester_nif", ""))
         requester_address = st.text_input("Endereço do Solicitante", value=default_values.get("requester_address", ""))
 
-    with st.expander("Informações do Projeto", expanded=True):
+    with st.expander("Informações do Projeto", expanded=False):
         construction_type = st.text_input("Tipo de Construção", value=default_values.get("construction_type", ""))
         construction_address = st.text_input("Endereço do Projeto", value=default_values.get("construction_address", ""))
         property_description = st.text_area("Descrição da Propriedade", value=default_values.get("property_description", ""))
         request_type = st.text_input("Tipo de Solicitação", value=default_values.get("request_type", ""))
+        qty = st.number_input("Quantidade em m2", value=float(default_values.get("qty", 0)), format="%.2f")
+        cost_per_unit = st.number_input("Custo por m2", value=float(default_values.get("cost_per_unit", 0)), format="%.2f")
         
     
     with st.expander("Informações do Registo de Imóveis", expanded=False):
-        land_registry_location = st.text_input("Localização do Registo de Imóveis", value=default_values.get("land_registry_location", ""))
-        land_registry_number = st.text_input("Número do Registo de Imóveis", value=default_values.get("land_registry_number", ""))
+        land_registry_location = st.text_input("Localização no Registo de Imóveis", value=default_values.get("land_registry_location", ""))
+        land_registry_number = st.text_input("Número no Registo de Imóveis", value=default_values.get("land_registry_number", ""))
         land_registry_sublocation = st.text_input("Freguesia", value=default_values.get("land_registry_sublocation", ""))
     
     with st.expander("Referências Regulatórias", expanded=False):
         regulatory_reference = st.text_input("Referência Regulatória", value=default_values.get("regulatory_reference", ""))
         pdm = st.text_input("PDM", value=default_values.get("pdm", ""))
-    
-    with st.expander("Custo", expanded=True):
-        qty = st.number_input("Quantidade em m2", value=float(default_values.get("qty", 0)), format="%.2f")
-        cost_per_unit = st.number_input("Custo por Unidade", value=float(default_values.get("cost_per_unit", 0)), format="%.2f")
-    
-    with st.expander("Informações do Processo", expanded=False):
         technical_information_id = st.text_input("ID da Informação Técnica", value=default_values.get("technical_information_id", ""))
         process_nr = st.text_input("Número do Processo", value=default_values.get("process_nr", ""))
 
-    with st.expander("Informações do Autor", expanded=True):
+    with st.expander("Tabelas opcionais", expanded=False):
+        table_row1 = st.text_input("Linha 1", value=default_values.get("table_row1", ""))
+        table_row2 = st.text_input("Linha 2", value=default_values.get("table_row2", ""))
+        table_row3 = st.text_input("Linha 3", value=default_values.get("table_row3", ""))
+        table_row4 = st.text_input("Linha 4", value=default_values.get("table_row4", ""))
+        table_row5 = st.text_input("Linha 5", value=default_values.get("table_row5", ""))
+        table_row6 = st.text_input("Linha 6", value=default_values.get("table_row6", ""))
+        table_row7 = st.text_input("Linha 7", value=default_values.get("table_row7", ""))
+        table_row8 = st.text_input("Linha 8", value=default_values.get("table_row8", ""))
+        table_row9 = st.text_input("Linha 9", value=default_values.get("table_row9", ""))
+        table_row10 = st.text_input("Linha 10", value=default_values.get("table_row10", ""))
+        table_row11 = st.text_input("Linha 11", value=default_values.get("table_row11", ""))
+        table_row12 = st.text_input("Linha 12", value=default_values.get("table_row12", ""))
+        table_row13 = st.text_input("Linha 13", value=default_values.get("table_row13", ""))
+        table_row14 = st.text_input("Linha 14", value=default_values.get("table_row14", ""))
+        table_row15 = st.text_input("Linha 15", value=default_values.get("table_row15", ""))
+        table_row16 = st.text_input("Linha 16", value=default_values.get("table_row16", ""))
+        table_row17 = st.text_input("Linha 17", value=default_values.get("table_row17", ""))
+        table_row18 = st.text_input("Linha 18", value=default_values.get("table_row18", ""))
+        table_row19 = st.text_input("Linha 19", value=default_values.get("table_row19", ""))
+        table_row20 = st.text_input("Linha 20", value=default_values.get("table_row20", ""))
+
+
+    with st.expander("Informações do Autor", expanded=False):
         author_name = st.text_input("Nome do Autor", value=default_values.get("author_name", ""))
         author_address = st.text_input("Endereço do Autor", value=default_values.get("author_address", ""))
         author_nif = st.text_input("NIF do Autor", value=default_values.get("author_nif", ""))
@@ -104,7 +125,27 @@ def display_document_form(default_values=None):
         "qty": str(qty),
         "cost_per_unit": str(cost_per_unit),
         "technical_information_id": technical_information_id,
-        "process_nr": process_nr
+        "process_nr": process_nr,
+        "table_row1": table_row1,
+        "table_row2": table_row2,
+        "table_row3": table_row3,
+        "table_row4": table_row4,
+        "table_row5": table_row5,
+        "table_row6": table_row6,
+        "table_row7": table_row7,
+        "table_row8": table_row8,
+        "table_row9": table_row9,
+        "table_row10": table_row10,
+        "table_row11": table_row11,
+        "table_row12": table_row12,
+        "table_row13": table_row13,
+        "table_row14": table_row14,
+        "table_row15": table_row15,
+        "table_row16": table_row16,
+        "table_row17": table_row17,
+        "table_row18": table_row18,
+        "table_row19": table_row19,
+        "table_row20": table_row20
     }
     
     # Remove empty fields
@@ -145,7 +186,8 @@ def main():
     # Add CSS to make button text smaller
     st.write('<style>div.stButton button p { font-size: 0.8rem !important; }</style>', unsafe_allow_html=True)
     
-    st.title("ArchiDocs")
+    # Use built-in anchor=False parameter to remove links from headers
+    st.title("ArchiDocs", anchor=False)
     st.write("Cria todos os documentos necessários para o teu projecto de arquitetura com um clique")
     
     # Get available templates
@@ -159,7 +201,7 @@ def main():
     
     # Sidebar for actions and template selection
     with st.sidebar:
-        st.header("Opções")
+        st.header("Opções", anchor=False)
         
         # Load/save variables
         if st.button("Carregar valores padrão", use_container_width=True):
@@ -173,7 +215,7 @@ def main():
                 st.error("No variables to save.")
         
         # Template selection
-        st.header("Criar documentos")
+        st.header("Criar documentos", anchor=False)
         if template_list:
             selected_template = st.selectbox(
                 "Selecionar modelo",
@@ -189,15 +231,22 @@ def main():
                             st.session_state.variables
                         )
                         if result.success:
-                            st.success(f"Documento criado: {result.file_path}")
-                            # Create download link
-                            with open(result.file_path, "rb") as file:
-                                st.download_button(
-                                    label="Descarregar documento",
-                                    data=file,
-                                    file_name=os.path.basename(result.file_path),
-                                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                                )
+                            st.success(f"Documento criado com sucesso!")
+                            # List the files with download buttons
+                            st.write("Documentos criados:")
+                            col1, col2 = st.columns([0.9, 0.1])
+                            with col1:
+                                st.write(f"- {os.path.basename(result.file_path)}")
+                            with col2:
+                                # Add download button
+                                with open(result.file_path, "rb") as file:
+                                    st.download_button(
+                                        label="↓",
+                                        data=file,
+                                        file_name=os.path.basename(result.file_path),
+                                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                        key=f"download_single_{os.path.basename(result.file_path)}"
+                                    )
                         else:
                             st.error(f"Erro: {result.error_message}")
                 else:
@@ -214,11 +263,47 @@ def main():
                         success_count = sum(1 for r in results if r.success)
                         if success_count > 0:
                             st.success(f"{success_count} documentos criados com sucesso!")
-                            # List the files
+                            
+                            # Create a download all button for zip file
+                            success_files = [r.file_path for r in results if r.success]
+                            
+                            # Create a zip file in memory
+                            zip_buffer = io.BytesIO()
+                            with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+                                for file_path in success_files:
+                                    file_name = os.path.basename(file_path)
+                                    zip_file.write(file_path, arcname=file_name)
+                            
+                            # Reset buffer position
+                            zip_buffer.seek(0)
+                            
+                            # Add download all button
+                            st.download_button(
+                                label="Descarregar todos",
+                                data=zip_buffer,
+                                file_name="documentos.zip",
+                                mime="application/zip",
+                                key="download_all_docs",
+                                use_container_width=True
+                            )
+                            
+                            # List the files with download buttons
                             st.write("Documentos criados:")
                             for result in results:
                                 if result.success:
-                                    st.write(f"- {os.path.basename(result.file_path)}")
+                                    col1, col2 = st.columns([0.9, 0.1])
+                                    with col1:
+                                        st.write(f"- {os.path.basename(result.file_path)}")
+                                    with col2:
+                                        # Add download button
+                                        with open(result.file_path, "rb") as file:
+                                            st.download_button(
+                                                label="↓",
+                                                data=file,
+                                                file_name=os.path.basename(result.file_path),
+                                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                                key=f"download_{os.path.basename(result.file_path)}"
+                                            )
                         else:
                             st.error("Falha ao criar os documentos.")
                 else:
@@ -228,7 +313,8 @@ def main():
     if "variables" not in st.session_state:
         st.session_state.variables = load_default_variables()
     
-    st.header("Variáveis do documento")
+    # Use st.subheader for a smaller header
+    st.subheader("Adicionar informações para documentos aqui", anchor=False)
     updated_variables = display_document_form(st.session_state.variables)
     
     # Update session state when form is submitted

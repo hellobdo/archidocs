@@ -17,7 +17,8 @@ from backend.generate_docx import (
     process_total_cost,
     get_portuguese_month,
     get_available_templates,
-    generate_document
+    generate_document,
+    get_first_name_and_last_name
 )
 from backend.models import DocumentVariables, DocumentRequest, DocumentResponse
 
