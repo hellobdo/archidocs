@@ -16,7 +16,8 @@ class DocumentVariables:
     author_name_small: str
     author_address: str
     author_nif: int
-    author_registration: int
+    oa_number: int
+    oa_ref_number: str
     
     # Project information
     construction_type: str
@@ -38,12 +39,6 @@ class DocumentVariables:
     land_registry_location: str
     land_registry_number: int
     land_registry_sublocation: str
-    
-    # Signature information
-    signature: str
-    signature_sub1: str
-    signature_sub2: str
-    signature_sub3: str
     
     # Regulatory references
     regulatory_reference: str

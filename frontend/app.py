@@ -42,17 +42,17 @@ def display_document_form(default_values=None):
     
     # Create sections with expanders to organize fields
     
-    with st.expander("Informações do Projeto", expanded=True):
-        construction_type = st.text_input("Tipo de Construção", value=default_values.get("construction_type", ""))
-        construction_address = st.text_input("Endereço do Projeto", value=default_values.get("construction_address", ""))
-        property_description = st.text_area("Descrição da Propriedade", value=default_values.get("property_description", ""))
-    
-    with st.expander("Informações da Solicitação", expanded=False):
-        request_type = st.text_input("Tipo de Solicitação", value=default_values.get("request_type", ""))
+    with st.expander("Informações do Solicitante", expanded=False):
         requester_name = st.text_input("Nome do Solicitante", value=default_values.get("requester_name", ""))
         requester_role = st.text_input("Cargo do Solicitante", value=default_values.get("requester_role", ""))
         requester_nif = st.text_input("NIF do Solicitante", value=default_values.get("requester_nif", ""))
         requester_address = st.text_input("Endereço do Solicitante", value=default_values.get("requester_address", ""))
+
+    with st.expander("Informações do Projeto", expanded=True):
+        construction_type = st.text_input("Tipo de Construção", value=default_values.get("construction_type", ""))
+        construction_address = st.text_input("Endereço do Projeto", value=default_values.get("construction_address", ""))
+        property_description = st.text_area("Descrição da Propriedade", value=default_values.get("property_description", ""))
+        request_type = st.text_input("Tipo de Solicitação", value=default_values.get("request_type", ""))
     
     with st.expander("Location and Date", expanded=False):
         location = st.text_input("Localização", value=default_values.get("location", ""))
@@ -62,12 +62,6 @@ def display_document_form(default_values=None):
         land_registry_location = st.text_input("Localização do Registo de Imóveis", value=default_values.get("land_registry_location", ""))
         land_registry_number = st.text_input("Número do Registo de Imóveis", value=default_values.get("land_registry_number", ""))
         land_registry_sublocation = st.text_input("Freguesia", value=default_values.get("land_registry_sublocation", ""))
-    
-    with st.expander("Assinatura", expanded=False):
-        signature = st.text_input("Assinatura", value=default_values.get("signature", ""))
-        signature_sub1 = st.text_input("Signature Sub 1", value=default_values.get("signature_sub1", ""))
-        signature_sub2 = st.text_input("Signature Sub 2", value=default_values.get("signature_sub2", ""))
-        signature_sub3 = st.text_input("Signature Sub 3", value=default_values.get("signature_sub3", ""))
     
     with st.expander("Referências Regulatórias", expanded=False):
         regulatory_reference = st.text_input("Referência Regulatória", value=default_values.get("regulatory_reference", ""))
@@ -85,15 +79,14 @@ def display_document_form(default_values=None):
         author_name = st.text_input("Nome do Autor", value=default_values.get("author_name", ""))
         author_address = st.text_input("Endereço do Autor", value=default_values.get("author_address", ""))
         author_nif = st.text_input("NIF do Autor", value=default_values.get("author_nif", ""))
-        author_registration = st.text_input("Registro na Ordem dos Arquitectos", value=default_values.get("author_registration", ""))
-        skills_code = st.text_input("Código de validação para verificação de competências", value=default_values.get("skills_code", ""))
+        oa_number = st.text_input("Número de Registo na Ordem dos Arquitectos", value=default_values.get("oa_number", ""))
+        oa_ref_number = st.text_input("Código de validação para verificação de competências", value=default_values.get("oa_ref_number", ""))
     
     # Build variables dictionary
     variables = {
         "author_name": author_name,
         "author_address": author_address,
         "author_nif": author_nif,
-        "author_registration": author_registration,
         "construction_type": construction_type,
         "construction_address": construction_address,
         "property_description": property_description,
@@ -107,10 +100,8 @@ def display_document_form(default_values=None):
         "land_registry_location": land_registry_location,
         "land_registry_number": land_registry_number,
         "land_registry_sublocation": land_registry_sublocation,
-        "signature": signature,
-        "signature_sub1": signature_sub1,
-        "signature_sub2": signature_sub2,
-        "skills_code": skills_code,
+        "oa_number": oa_number,
+        "oa_ref_number": oa_ref_number,
         "regulatory_reference": regulatory_reference,
         "pdm": pdm,
         "qty": str(qty),
