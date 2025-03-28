@@ -25,10 +25,16 @@ class TestPDFConversion(BaseTestCase):
         # Find a suitable test DOCX file
         self.test_docx = self._find_test_docx()
         
-        # If a suitable test file is found, copy it to our test directory
+        # Always ensure we have a test file, creating one if necessary
+        if not self.test_docx:
+            self.test_docx = self._create_test_docx()
+            
+        # If a suitable test file is found, copy it to our test directory    
         if self.test_docx:
             self.test_docx_copy = os.path.join(self.test_output_dir, 'test_document.docx')
             shutil.copy2(self.test_docx, self.test_docx_copy)
+        else:
+            raise RuntimeError("Failed to create or find a test DOCX file")
         
     def tearDown(self):
         # Clean up any created PDF files after tests
@@ -108,6 +114,54 @@ class TestPDFConversion(BaseTestCase):
                 print(f"Error creating test document: {str(e)}")
                 
         # Return None if no suitable file is found
+        return None
+        
+    def _create_test_docx(self):
+        """Create a test DOCX file if one doesn't exist."""
+        print("Creating a test DOCX file...")
+        outputs_dir = os.path.join(os.getcwd(), 'outputs')
+        os.makedirs(outputs_dir, exist_ok=True)
+        
+        test_docx = os.path.join(outputs_dir, 'test_document.docx')
+        
+        # Create a simple test file
+        test_txt = os.path.join(self.test_output_dir, 'test_content.txt')
+        with open(test_txt, 'w') as f:
+            f.write('Test content for PDF conversion created directly by test')
+        
+        try:
+            # Try to convert it to DOCX using LibreOffice
+            cmd = [
+                'libreoffice',
+                '--headless',
+                '--convert-to', 'docx',
+                '--outdir', outputs_dir,
+                test_txt
+            ]
+            process = subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            
+            # Check if the conversion was successful
+            if process.returncode == 0:
+                # Rename the file if needed
+                if os.path.exists(os.path.join(outputs_dir, 'test_content.docx')):
+                    result_path = os.path.join(outputs_dir, 'test_content.docx')
+                    shutil.move(result_path, test_docx)
+                    print(f"Created test DOCX at: {test_docx}")
+                    return test_docx
+        except Exception as e:
+            print(f"Error creating test DOCX using LibreOffice: {str(e)}")
+            
+        # If LibreOffice conversion fails, create a minimal DOCX directly
+        try:
+            from docx import Document
+            document = Document()
+            document.add_paragraph('Test content for PDF conversion')
+            document.save(test_docx)
+            print(f"Created test DOCX using python-docx at: {test_docx}")
+            return test_docx
+        except Exception as e:
+            print(f"Error creating test DOCX using python-docx: {str(e)}")
+            
         return None
         
     def test_conversion_valid_file(self):
@@ -197,6 +251,92 @@ class TestPDFConversion(BaseTestCase):
             traceback.print_exc()
             self.log_case_result("LibreOffice installation", False)
             self.fail(f"Error checking LibreOffice: {str(e)}")
+        finally:
+            self.restore_stdout(original_stdout)
+            
+    def test_pdf_is_pdfa_format(self):
+        """Test that the converted PDF is in PDF/A format."""
+        # Skip if no valid test file was found (should never happen with our setup)
+        if not hasattr(self, 'test_docx_copy') or not os.path.exists(self.test_docx_copy):
+            self.fail("No valid DOCX test file found, test setup is broken")
+            
+        # Capture stdout to see debug messages
+        original_stdout = self.capture_stdout()
+        
+        try:
+            # First perform the conversion
+            print(f"\nTesting conversion to PDF/A format: {self.test_docx_copy}")
+            pdf_path = convert_docx_to_pdf(self.test_docx_copy)
+            
+            # Check that PDF was created
+            self.assertIsNotNone(pdf_path, "PDF path should not be None")
+            self.assertTrue(os.path.exists(pdf_path), "PDF file should exist")
+            
+            # Check if the PDF is a PDF/A format by looking for the PDF/A identifier
+            # Install poppler-utils for this to work
+            try:
+                # Try to install poppler-utils if not already present
+                try:
+                    subprocess.run(['pdfinfo', '--version'], check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                except (subprocess.SubprocessError, FileNotFoundError):
+                    print("Installing poppler-utils to check PDF/A compliance...")
+                    subprocess.run(['apt-get', 'update'], check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    install_process = subprocess.run(
+                        ['apt-get', 'install', '-y', 'poppler-utils'], 
+                        check=False, 
+                        stdout=subprocess.PIPE, 
+                        stderr=subprocess.PIPE
+                    )
+                    if install_process.returncode != 0:
+                        self.fail(f"Failed to install poppler-utils: {install_process.stderr}")
+                
+                # Extract PDF metadata using pdfinfo
+                process = subprocess.run(
+                    ['pdfinfo', pdf_path], 
+                    check=False,
+                    stdout=subprocess.PIPE, 
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+                
+                if process.returncode != 0:
+                    self.fail(f"Failed to get PDF metadata: {process.stderr}")
+                
+                print(f"PDF metadata: {process.stdout}")
+                
+                # Look for PDF/A identifier in the metadata or file content
+                # If pdfinfo doesn't show PDF/A directly, we check the PDF content
+                if "PDF/A" not in process.stdout:
+                    # Direct check in PDF content for PDF/A marker
+                    with open(pdf_path, 'rb') as f:
+                        content = f.read()
+                        has_pdfa = b"/PDFA" in content or b"PDF/A" in content
+                        
+                        # Some files have PDF/A information in different formatting
+                        if not has_pdfa:
+                            has_pdfa = b"pdfaid" in content
+                        
+                        self.assertTrue(has_pdfa, f"PDF file should be in PDF/A format")
+                else:
+                    # PDF/A information was directly found in pdfinfo output
+                    self.assertTrue(True, "PDF/A format confirmed by pdfinfo")
+                
+                self.log_case_result("PDF/A format verification", True)
+                
+            except Exception as pdf_check_error:
+                print(f"Error checking PDF/A compliance: {str(pdf_check_error)}")
+                import traceback
+                traceback.print_exc()
+                # Treat this as a critical failure since PDF/A compliance is important
+                self.log_case_result("PDF/A format verification", False)
+                self.fail(f"PDF/A verification failed: {str(pdf_check_error)}")
+                
+        except Exception as e:
+            print(f"Error in test_pdf_is_pdfa_format: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            self.log_case_result("PDF/A format verification", False)
+            self.fail(f"Unexpected error: {str(e)}")
         finally:
             self.restore_stdout(original_stdout)
 

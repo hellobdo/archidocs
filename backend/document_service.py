@@ -196,14 +196,31 @@ def convert_docx_to_pdf(docx_path: str) -> str:
             docx_abs_path = os.path.abspath(docx_path)
             output_dir = os.path.dirname(os.path.abspath(pdf_path))
             
-            # Run LibreOffice in headless mode for conversion
+            # Create a temporary user profile directory for PDF/A settings
+            import tempfile
+            temp_profile_dir = tempfile.mkdtemp(prefix="libreoffice_pdfa_")
+            
+            # Create the user directory structure
+            user_config_dir = os.path.join(temp_profile_dir, "user", "registrymodifications.xcu")
+            os.makedirs(os.path.dirname(user_config_dir), exist_ok=True)
+            
+            # Create configuration file with PDF/A settings
+            with open(user_config_dir, 'w') as f:
+                f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+                f.write('<oor:items xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
+                f.write('<item oor:path="/org.openoffice.Office.Common/Filter/PDF/Export"><prop oor:name="ExportPDFA" oor:op="fuse"><value>true</value></prop></item>\n')
+                f.write('<item oor:path="/org.openoffice.Office.Common/Filter/PDF/Export"><prop oor:name="SelectPdfVersion" oor:op="fuse"><value>1</value></prop></item>\n')
+                f.write('<item oor:path="/org.openoffice.Office.Common/Filter/PDF/Export"><prop oor:name="UseTaggedPDF" oor:op="fuse"><value>true</value></prop></item>\n')
+                f.write('</oor:items>')
+            
+            # Run LibreOffice in headless mode for conversion with PDF/A format
+            # Use the temporary profile with PDF/A settings
             cmd = [
                 libreoffice_cmd,
                 "--headless",
                 "--nofirststartwizard",
-                # Add minimal Microsoft Word compatibility parameters
-                "--infilter=MS Word 2007 XML",  # Treat input specifically as MS Word format
-                "--convert-to", "pdf",  # Simple PDF conversion without complex parameters
+                f"-env:UserInstallation=file://{temp_profile_dir}",
+                "--convert-to", "pdf",
                 "--outdir", output_dir,
                 docx_abs_path
             ]
@@ -220,6 +237,12 @@ def convert_docx_to_pdf(docx_path: str) -> str:
             print(f"Command output: {process.stdout}")
             if process.stderr:
                 print(f"Command errors: {process.stderr}")
+            
+            # Clean up temporary profile directory
+            try:
+                shutil.rmtree(temp_profile_dir)
+            except Exception as e:
+                print(f"Warning: Could not remove temporary profile directory: {str(e)}")
             
             # Check if the PDF was created
             if os.path.exists(pdf_path):
