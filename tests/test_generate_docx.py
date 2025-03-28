@@ -20,7 +20,7 @@ sys.path.insert(0, current_dir)
 from _utils.test_utils import BaseTestCase, print_summary
 
 # Import the module we want to test
-from backend.generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document, main, get_first_name_and_last_name
+from backend.generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document, main
 
 # Module specific test fixtures
 def create_module_fixtures():
@@ -53,7 +53,6 @@ class TestGenerateDocxImports(BaseTestCase):
             self.assertTrue(callable(to_number))
             self.assertTrue(callable(generate_document))
             self.assertTrue(callable(main))
-            self.assertTrue(callable(get_first_name_and_last_name))
             self.log_case_result("Functions are callable", True)
         except AssertionError:
             self.log_case_result("Functions are callable", False)
@@ -597,8 +596,7 @@ class TestGenerateDocument(BaseTestCase):
         # Verify render was called with variables (should now include enriched variables)
         render_vars = mock_doc.render.call_args[0][0]
         
-        # Check that the variables dictionary was enriched with author_name_small
-        self.assertIn('author_name_small', render_vars)
+        # Check that the variables dictionary was enriched with date
         self.assertIn('date', render_vars)
         
         # Verify output directory was created
@@ -610,27 +608,6 @@ class TestGenerateDocument(BaseTestCase):
         # Verify function returned True
         self.assertTrue(result)
         self.log_case_result("Document generation success scenario works correctly", True)
-    
-    @patch('os.path.exists')
-    @patch('os.makedirs')
-    @patch('backend.generate_docx.DocxTemplate')
-    @patch('backend.generate_docx.get_first_name_and_last_name')
-    def test_author_name_enrichment(self, mock_get_name, mock_docx_template, mock_makedirs, mock_exists):
-        """Test author_name enrichment in generate_document"""
-        # Setup mocks
-        mock_exists.return_value = True
-        mock_doc = MagicMock()
-        mock_docx_template.return_value = mock_doc
-        mock_get_name.return_value = ("Test", "Author")
-        
-        # Call the function
-        result = generate_document(self.template_name, self.variables, self.output_path)
-        
-        # Verify author_name_small was added
-        render_vars = mock_doc.render.call_args[0][0]
-        self.assertEqual(render_vars['author_name_small'], ("Test", "Author"))
-        self.assertTrue(result)
-        self.log_case_result("Author name enrichment works correctly", True)
     
     @patch('os.path.exists')
     @patch('os.makedirs')
@@ -802,57 +779,6 @@ class TestGenerateDocument(BaseTestCase):
         self.assertEqual(original_vars, self.variables)
         self.assertTrue(result)
         self.log_case_result("Original variables dictionary is not modified", True)
-
-class TestGetFirstNameAndLastName(BaseTestCase):
-    """Test cases for get_first_name_and_last_name function"""
-    
-    def test_basic_name_extraction(self):
-        """Test extraction of first and last name from basic name formats"""
-        # Case 1: Simple two-part name
-        first, last = get_first_name_and_last_name("John Doe")
-        self.assertEqual(first, "John")
-        self.assertEqual(last, "Doe")
-        self.log_case_result("Simple two-part name extracts correctly", True)
-        
-        # Case 2: Three-part name
-        first, last = get_first_name_and_last_name("Alice Bob Smith")
-        self.assertEqual(first, "Alice")
-        self.assertEqual(last, "Bob Smith")
-        self.log_case_result("Three-part name extracts correctly", True)
-    
-    def test_complex_name_extraction(self):
-        """Test extraction with complex names including particles"""
-        # Case 1: Name with particles
-        first, last = get_first_name_and_last_name("Carlos de la Cruz")
-        self.assertEqual(first, "Carlos")
-        self.assertEqual(last, "de la Cruz")
-        self.log_case_result("Name with particles extracts correctly", True)
-        
-        # Case 2: Portuguese name format
-        first, last = get_first_name_and_last_name("Daniela Cristina de Oliveira Grosso")
-        self.assertEqual(first, "Daniela")
-        self.assertEqual(last, "Cristina de Oliveira Grosso")
-        self.log_case_result("Portuguese name format extracts correctly", True)
-    
-    def test_edge_cases(self):
-        """Test edge cases for name extraction"""
-        # Case 1: Empty string
-        first, last = get_first_name_and_last_name("")
-        self.assertEqual(first, "")
-        self.assertEqual(last, "")
-        self.log_case_result("Empty string handled correctly", True)
-        
-        # Case 2: Single name
-        first, last = get_first_name_and_last_name("John")
-        self.assertEqual(first, "John")
-        self.assertEqual(last, "")
-        self.log_case_result("Single name handled correctly", True)
-        
-        # Case 3: Name with extra spaces
-        first, last = get_first_name_and_last_name("  Maria  Silva  ")
-        self.assertEqual(first, "Maria")
-        self.assertEqual(last, "Silva")
-        self.log_case_result("Name with extra spaces handled correctly", True)
 
 class TestMain(BaseTestCase):
     """Test cases for main function"""

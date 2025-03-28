@@ -4,3 +4,5 @@
 /backend/outputs/*
 /backend/__pycache__/*
 __pycache__/*
+utils/__pycache__/*
+tests/__pycache__/*
