@@ -200,7 +200,10 @@ def convert_docx_to_pdf(docx_path: str) -> str:
             cmd = [
                 libreoffice_cmd,
                 "--headless",
-                "--convert-to", "pdf",
+                "--nofirststartwizard",
+                # Add minimal Microsoft Word compatibility parameters
+                "--infilter=MS Word 2007 XML",  # Treat input specifically as MS Word format
+                "--convert-to", "pdf",  # Simple PDF conversion without complex parameters
                 "--outdir", output_dir,
                 docx_abs_path
             ]
@@ -222,6 +225,7 @@ def convert_docx_to_pdf(docx_path: str) -> str:
             if os.path.exists(pdf_path):
                 file_size = os.path.getsize(pdf_path)
                 print(f"PDF created at: {pdf_path} with size: {file_size} bytes")
+                
                 if file_size > 0:
                     print(f"PDF successfully created at: {pdf_path}")
                     return pdf_path
