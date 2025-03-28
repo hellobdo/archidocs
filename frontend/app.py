@@ -189,21 +189,22 @@ def main():
                             st.session_state.variables
                         )
                         if result.success:
-                            # Display success message and download button on the same line
+                            st.success(f"Documento criado com sucesso!")
+                            # List the files with download buttons
+                            st.write("Documentos criados:")
                             col1, col2 = st.columns([0.9, 0.1])
                             with col1:
-                                st.success(f"Documento criado")
+                                st.write(f"- {os.path.basename(result.file_path)}")
                             with col2:
-                                # Create download link and center it vertically
-                                st.write('<div style="display: flex; justify-content: center; align-items: center; padding-top: 0.7rem;">', unsafe_allow_html=True)
+                                # Add download button
                                 with open(result.file_path, "rb") as file:
                                     st.download_button(
                                         label="↓",
                                         data=file,
                                         file_name=os.path.basename(result.file_path),
-                                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                        key=f"download_single_{os.path.basename(result.file_path)}"
                                     )
-                                st.write('</div>', unsafe_allow_html=True)
                         else:
                             st.error(f"Erro: {result.error_message}")
                 else:
