@@ -142,10 +142,11 @@ def main():
         layout="wide"
     )
     
-    # Add CSS to make button text smaller
-    st.write('<style>div.stButton button p { font-size: 0.8rem !important; }</style>', unsafe_allow_html=True)
+    # Add CSS to make button text smaller and remove link behavior from title
+    st.write('<style>div.stButton button p { font-size: 0.8rem !important; } .title-div { font-size: 2.25rem; font-weight: 700; margin-bottom: 0.5rem; } .header-div { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; margin-top: 1rem; }</style>', unsafe_allow_html=True)
     
-    st.title("ArchiDocs")
+    # Custom title using div instead of h1 to avoid link behavior
+    st.write('<div class="title-div">ArchiDocs</div>', unsafe_allow_html=True)
     st.write("Cria todos os documentos necessários para o teu projecto de arquitetura com um clique")
     
     # Get available templates
@@ -247,7 +248,8 @@ def main():
     if "variables" not in st.session_state:
         st.session_state.variables = load_default_variables()
     
-    st.header("Variáveis do documento")
+    # Custom header using div instead of h2 to avoid link behavior
+    st.write('<div class="header-div">Adicionar informações para documentos aqui</div>', unsafe_allow_html=True)
     updated_variables = display_document_form(st.session_state.variables)
     
     # Update session state when form is submitted
