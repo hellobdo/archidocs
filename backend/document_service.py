@@ -11,10 +11,15 @@ from typing import Dict, Any, Optional, List, Union
 # Import the functions from the original generate_docx.py
 from backend.generate_docx import (
     load_variables,
+    format_number_pt,
+    num_to_words_pt,
+    to_number,
+    process_total_cost,
+    get_portuguese_month,
     get_available_templates,
     generate_document
 )
-from models import DocumentVariables, DocumentRequest, DocumentResponse
+from backend.models import DocumentVariables, DocumentRequest, DocumentResponse
 
 
 def get_templates() -> List[str]:
