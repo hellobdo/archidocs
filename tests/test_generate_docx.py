@@ -20,7 +20,7 @@ sys.path.insert(0, current_dir)
 from _utils.test_utils import BaseTestCase, print_summary
 
 # Import the module we want to test
-from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document
+from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document, main
 
 # Module specific test fixtures
 def create_module_fixtures():
@@ -52,6 +52,7 @@ class TestGenerateDocxImports(BaseTestCase):
             self.assertTrue(callable(get_available_templates))
             self.assertTrue(callable(to_number))
             self.assertTrue(callable(generate_document))
+            self.assertTrue(callable(main))
             self.log_case_result("Functions are callable", True)
         except AssertionError:
             self.log_case_result("Functions are callable", False)
@@ -692,6 +693,293 @@ class TestGenerateDocument(BaseTestCase):
         # Verify function returned True
         self.assertTrue(result)
         self.log_case_result("Absolute path handling works correctly", True)
+
+class TestMain(BaseTestCase):
+    """Test cases for main function"""
+    
+    def setUp(self):
+        """Set up test fixtures"""
+        super().setUp()
+        # Sample templates and variables
+        self.templates = ["invoice", "contract", "report"]
+        self.variables = {
+            "author_name": "Test Author",
+            "qty": 10,
+            "cost_per_unit": 12.50,
+            "date": "today"
+        }
+    
+    @patch('argparse.ArgumentParser.parse_args')
+    @patch('generate_docx.generate_document')
+    @patch('generate_docx.load_variables')
+    @patch('generate_docx.get_available_templates')
+    def test_default_arguments(self, mock_get_templates, mock_load_variables, mock_generate_document, mock_parse_args):
+        """Test main function with default arguments"""
+        # Setup mocks
+        mock_args = MagicMock()
+        mock_args.templates = None
+        mock_args.variables = 'templates/variables.json'
+        mock_args.output_dir = 'outputs'
+        mock_args.list = False
+        mock_parse_args.return_value = mock_args
+        
+        mock_get_templates.return_value = self.templates
+        mock_load_variables.return_value = self.variables
+        
+        # Call the function
+        main()
+        
+        # Verify templates were retrieved
+        mock_get_templates.assert_called_once()
+        
+        # Verify variables were loaded from default path
+        mock_load_variables.assert_called_once_with('templates/variables.json')
+        
+        # Verify generate_document was called for each template
+        self.assertEqual(mock_generate_document.call_count, len(self.templates))
+        for template in self.templates:
+            expected_output_path = f"outputs/{template}.docx"
+            mock_generate_document.assert_any_call(template, mock_load_variables.return_value, expected_output_path)
+        
+        self.log_case_result("Default arguments work correctly", True)
+    
+    @patch('argparse.ArgumentParser.parse_args')
+    @patch('generate_docx.generate_document')
+    @patch('generate_docx.load_variables')
+    @patch('generate_docx.get_available_templates')
+    def test_custom_templates(self, mock_get_templates, mock_load_variables, mock_generate_document, mock_parse_args):
+        """Test main function with custom templates argument"""
+        # Setup mocks
+        mock_args = MagicMock()
+        mock_args.templates = ['invoice', 'contract']
+        mock_args.variables = 'templates/variables.json'
+        mock_args.output_dir = 'outputs'
+        mock_args.list = False
+        mock_parse_args.return_value = mock_args
+        
+        mock_get_templates.return_value = self.templates
+        mock_load_variables.return_value = self.variables
+        
+        # Call the function
+        main()
+        
+        # Verify only selected templates were generated
+        self.assertEqual(mock_generate_document.call_count, 2)
+        mock_generate_document.assert_any_call('invoice', mock_load_variables.return_value, 'outputs/invoice.docx')
+        mock_generate_document.assert_any_call('contract', mock_load_variables.return_value, 'outputs/contract.docx')
+        
+        self.log_case_result("Custom templates argument works correctly", True)
+    
+    @patch('argparse.ArgumentParser.parse_args')
+    @patch('generate_docx.load_variables')
+    def test_custom_variables_file(self, mock_load_variables, mock_parse_args):
+        """Test main function with custom variables file"""
+        # Setup mocks
+        mock_args = MagicMock()
+        mock_args.templates = []
+        mock_args.variables = 'custom/vars.json'
+        mock_args.output_dir = 'outputs'
+        mock_args.list = False
+        mock_parse_args.return_value = mock_args
+        
+        # Mock generate_document to prevent actual document generation
+        with patch('generate_docx.generate_document'):
+            with patch('generate_docx.get_available_templates', return_value=[]):
+                # Call the function
+                main()
+        
+        # Verify variables were loaded from custom path
+        mock_load_variables.assert_called_once_with('custom/vars.json')
+        
+        self.log_case_result("Custom variables file works correctly", True)
+    
+    @patch('argparse.ArgumentParser.parse_args')
+    @patch('generate_docx.generate_document')
+    @patch('generate_docx.get_available_templates')
+    def test_custom_output_directory(self, mock_get_templates, mock_generate_document, mock_parse_args):
+        """Test main function with custom output directory"""
+        # Setup mocks
+        mock_args = MagicMock()
+        mock_args.templates = None
+        mock_args.variables = 'templates/variables.json'
+        mock_args.output_dir = 'custom_outputs'
+        mock_args.list = False
+        mock_parse_args.return_value = mock_args
+        
+        mock_get_templates.return_value = self.templates
+        
+        # Mock load_variables to return empty dict to simplify
+        with patch('generate_docx.load_variables', return_value={}):
+            # Call the function
+            main()
+        
+        # Verify documents were generated in the custom output directory
+        for template in self.templates:
+            expected_output_path = f"custom_outputs/{template}.docx"
+            mock_generate_document.assert_any_call(template, {}, expected_output_path)
+        
+        self.log_case_result("Custom output directory works correctly", True)
+    
+    @patch('argparse.ArgumentParser.parse_args')
+    @patch('generate_docx.get_available_templates')
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_list_templates(self, mock_stdout, mock_get_templates, mock_parse_args):
+        """Test listing templates with --list flag"""
+        # Setup mocks
+        mock_args = MagicMock()
+        mock_args.list = True
+        mock_parse_args.return_value = mock_args
+        
+        mock_get_templates.return_value = self.templates
+        
+        # Call the function
+        main()
+        
+        # Verify templates were listed
+        output = mock_stdout.getvalue()
+        self.assertIn("Available templates:", output)
+        for template in self.templates:
+            self.assertIn(f"  - {template}", output)
+        
+        self.log_case_result("Template listing works correctly", True)
+    
+    @patch('argparse.ArgumentParser.parse_args')
+    @patch('generate_docx.generate_document')
+    @patch('generate_docx.get_portuguese_month')
+    @patch('generate_docx.load_variables')
+    @patch('generate_docx.datetime')
+    def test_date_processing(self, mock_datetime, mock_load_variables, mock_get_month, mock_generate_document, mock_parse_args):
+        """Test processing of 'today' date variable"""
+        # Setup mocks
+        mock_args = MagicMock()
+        mock_args.templates = ['invoice']
+        mock_args.variables = 'templates/variables.json'
+        mock_args.output_dir = 'outputs'
+        mock_args.list = False
+        mock_parse_args.return_value = mock_args
+        
+        # Setup mock for get_available_templates
+        with patch('generate_docx.get_available_templates', return_value=['invoice']):
+            # Setup date mocks
+            mock_now = MagicMock()
+            mock_now.month = 2
+            mock_now.year = 2023
+            mock_datetime.now.return_value = mock_now
+            mock_get_month.return_value = "fevereiro"
+            
+            vars_with_today = {"date": "today", "author_name": "Test Author"}
+            mock_load_variables.return_value = vars_with_today
+            
+            # Call the function
+            main()
+            
+            # Verify month name was retrieved
+            mock_get_month.assert_called_once_with(2)
+            
+            # Verify date was properly formatted in variables
+            mock_generate_document.assert_called_once()
+            args, _ = mock_generate_document.call_args
+            updated_variables = args[1]
+            self.assertEqual(updated_variables['date'], "fevereiro de 2023")
+        
+        self.log_case_result("'Today' date processing works correctly", True)
+    
+    @patch('argparse.ArgumentParser.parse_args')
+    @patch('generate_docx.generate_document')
+    @patch('generate_docx.format_number_pt')
+    @patch('generate_docx.num_to_words_pt')
+    @patch('generate_docx.process_total_cost')
+    @patch('generate_docx.to_number')
+    @patch('generate_docx.load_variables')
+    def test_cost_calculation_flow(self, mock_load_variables, mock_to_number, mock_process_total_cost, 
+                                   mock_num_to_words, mock_format_number, mock_generate_document, mock_parse_args):
+        """Test cost calculation flow"""
+        # Setup mocks
+        mock_args = MagicMock()
+        mock_args.templates = ['invoice']
+        mock_args.variables = 'templates/variables.json'
+        mock_args.output_dir = 'outputs'
+        mock_args.list = False
+        mock_parse_args.return_value = mock_args
+        
+        # Setup mock for get_available_templates
+        with patch('generate_docx.get_available_templates', return_value=['invoice']):
+            vars_with_costs = {"qty": 10, "cost_per_unit": 15.50}
+            mock_load_variables.return_value = vars_with_costs
+            
+            # Setup return values for the calculation chain
+            mock_to_number.side_effect = lambda x: float(x)  # Just pass through the value
+            mock_process_total_cost.return_value = 155.00
+            mock_num_to_words.return_value = "cento e cinquenta e cinco euros"
+            mock_format_number.side_effect = [
+                "155,00 €",  # For total_cost
+                "10,00",     # For qty
+                "15,50 €"    # For cost_per_unit
+            ]
+            
+            # Call the function
+            main()
+            
+            # Verify number conversion
+            mock_to_number.assert_any_call(10)
+            mock_to_number.assert_any_call(15.50)
+            
+            # Verify total cost calculation
+            mock_process_total_cost.assert_called_once_with(10, 15.50)
+            
+            # Verify words conversion
+            mock_num_to_words.assert_called_once_with(155.00, "euro")
+            
+            # Verify number formatting
+            self.assertEqual(mock_format_number.call_count, 3)
+            
+            # Verify variables were updated correctly
+            mock_generate_document.assert_called_once()
+            args, _ = mock_generate_document.call_args
+            updated_variables = args[1]
+            self.assertEqual(updated_variables['total_cost'], "155,00 €")
+            self.assertEqual(updated_variables['total_cost_words'], "cento e cinquenta e cinco euros")
+            self.assertEqual(updated_variables['qty'], "10,00")
+            self.assertEqual(updated_variables['cost_per_unit'], "15,50 €")
+        
+        self.log_case_result("Cost calculation flow works correctly", True)
+    
+    @patch('argparse.ArgumentParser.parse_args')
+    def test_variables_file_not_found(self, mock_parse_args):
+        """Test handling of missing variables file"""
+        # Setup mocks
+        mock_args = MagicMock()
+        mock_args.templates = None
+        mock_args.variables = 'nonexistent.json'
+        mock_args.output_dir = 'outputs'
+        mock_args.list = False
+        mock_parse_args.return_value = mock_args
+        
+        # Create a custom exception to test sys.exit
+        class TestExitException(Exception):
+            pass
+        
+        # Setup mocks
+        with patch('generate_docx.get_available_templates', return_value=[]):
+            with patch('generate_docx.load_variables') as mock_load_variables:
+                with patch('sys.exit', side_effect=TestExitException) as mock_exit:
+                    with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
+                        # Setup the exception
+                        mock_load_variables.side_effect = FileNotFoundError("No such file")
+                        
+                        # Call the function and expect our custom exception
+                        with self.assertRaises(TestExitException):
+                            main()
+                        
+                        # Verify error message
+                        output = mock_stdout.getvalue()
+                        self.assertIn("Error: Variables file 'nonexistent.json' not found", output)
+                        
+                        # Verify exit was called with code 1
+                        mock_exit.assert_called_once_with(1)
+        
+        self.log_case_result("Missing variables file error handling works correctly", True)
+
 
 if __name__ == '__main__':
     print("\n🔍 Running tests for generate_docx.py...")
