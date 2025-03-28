@@ -19,7 +19,7 @@ sys.path.insert(0, current_dir)
 from _utils.test_utils import BaseTestCase, print_summary
 
 # Import the module we want to test
-from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost
+from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month
 
 # Module specific test fixtures
 def create_module_fixtures():
@@ -47,6 +47,7 @@ class TestGenerateDocxImports(BaseTestCase):
             self.assertTrue(callable(format_number_pt))
             self.assertTrue(callable(num_to_words_pt))
             self.assertTrue(callable(process_total_cost))
+            self.assertTrue(callable(get_portuguese_month))
             self.log_case_result("Functions are callable", True)
         except AssertionError:
             self.log_case_result("Functions are callable", False)
@@ -413,6 +414,38 @@ class TestProcessTotalCost(BaseTestCase):
         result = process_total_cost(-5, -10)
         self.assertEqual(result, 50)
         self.log_case_result("Both negative values work correctly", True)
+
+class TestGetPortugueseMonth(BaseTestCase):
+    """Test cases for get_portuguese_month function"""
+    
+    def test_valid_months(self):
+        """Test valid month numbers return correct Portuguese month names"""
+        # Case 1: January
+        result = get_portuguese_month(1)
+        self.assertEqual(result, "janeiro")
+        self.log_case_result("January returns correct Portuguese name", True)
+        
+        # Case 2: March (with special character ç)
+        result = get_portuguese_month(3)
+        self.assertEqual(result, "março")
+        self.log_case_result("March returns correct Portuguese name with special character", True)
+        
+        # Case 3: December
+        result = get_portuguese_month(12)
+        self.assertEqual(result, "dezembro")
+        self.log_case_result("December returns correct Portuguese name", True)
+    
+    def test_invalid_months(self):
+        """Test invalid month numbers return empty string"""
+        # Case 1: Month 0 (invalid)
+        result = get_portuguese_month(0)
+        self.assertEqual(result, "")
+        self.log_case_result("Month 0 returns empty string", True)
+        
+        # Case 2: Month 13 (invalid)
+        result = get_portuguese_month(13)
+        self.assertEqual(result, "")
+        self.log_case_result("Month 13 returns empty string", True)
 
 if __name__ == '__main__':
     print("\n🔍 Running tests for generate_docx.py...")
