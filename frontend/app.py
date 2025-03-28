@@ -189,7 +189,7 @@ def main():
                             st.session_state.variables
                         )
                         if result.success:
-                            st.success(f"Documento criado: {result.file_path}")
+                            st.success(f"Documento criado: {os.path.basename(result.file_path)}")
                             # Create download link
                             with open(result.file_path, "rb") as file:
                                 st.download_button(
