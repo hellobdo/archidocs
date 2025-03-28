@@ -20,7 +20,7 @@ sys.path.insert(0, current_dir)
 from _utils.test_utils import BaseTestCase, print_summary
 
 # Import the module we want to test
-from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document, main
+from backend.generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document, main
 
 # Module specific test fixtures
 def create_module_fixtures():
