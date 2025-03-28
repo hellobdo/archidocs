@@ -20,7 +20,7 @@ sys.path.insert(0, current_dir)
 from _utils.test_utils import BaseTestCase, print_summary
 
 # Import the module we want to test
-from backend.generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document, main
+from backend.generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document, main, get_first_name_and_last_name
 
 # Module specific test fixtures
 def create_module_fixtures():
@@ -53,6 +53,7 @@ class TestGenerateDocxImports(BaseTestCase):
             self.assertTrue(callable(to_number))
             self.assertTrue(callable(generate_document))
             self.assertTrue(callable(main))
+            self.assertTrue(callable(get_first_name_and_last_name))
             self.log_case_result("Functions are callable", True)
         except AssertionError:
             self.log_case_result("Functions are callable", False)
@@ -693,6 +694,57 @@ class TestGenerateDocument(BaseTestCase):
         # Verify function returned True
         self.assertTrue(result)
         self.log_case_result("Absolute path handling works correctly", True)
+
+class TestGetFirstNameAndLastName(BaseTestCase):
+    """Test cases for get_first_name_and_last_name function"""
+    
+    def test_basic_name_extraction(self):
+        """Test extraction of first and last name from basic name formats"""
+        # Case 1: Simple two-part name
+        first, last = get_first_name_and_last_name("John Doe")
+        self.assertEqual(first, "John")
+        self.assertEqual(last, "Doe")
+        self.log_case_result("Simple two-part name extracts correctly", True)
+        
+        # Case 2: Three-part name
+        first, last = get_first_name_and_last_name("Alice Bob Smith")
+        self.assertEqual(first, "Alice")
+        self.assertEqual(last, "Bob Smith")
+        self.log_case_result("Three-part name extracts correctly", True)
+    
+    def test_complex_name_extraction(self):
+        """Test extraction with complex names including particles"""
+        # Case 1: Name with particles
+        first, last = get_first_name_and_last_name("Carlos de la Cruz")
+        self.assertEqual(first, "Carlos")
+        self.assertEqual(last, "de la Cruz")
+        self.log_case_result("Name with particles extracts correctly", True)
+        
+        # Case 2: Portuguese name format
+        first, last = get_first_name_and_last_name("Daniela Cristina de Oliveira Grosso")
+        self.assertEqual(first, "Daniela")
+        self.assertEqual(last, "Cristina de Oliveira Grosso")
+        self.log_case_result("Portuguese name format extracts correctly", True)
+    
+    def test_edge_cases(self):
+        """Test edge cases for name extraction"""
+        # Case 1: Empty string
+        first, last = get_first_name_and_last_name("")
+        self.assertEqual(first, "")
+        self.assertEqual(last, "")
+        self.log_case_result("Empty string handled correctly", True)
+        
+        # Case 2: Single name
+        first, last = get_first_name_and_last_name("John")
+        self.assertEqual(first, "John")
+        self.assertEqual(last, "")
+        self.log_case_result("Single name handled correctly", True)
+        
+        # Case 3: Name with extra spaces
+        first, last = get_first_name_and_last_name("  Maria  Silva  ")
+        self.assertEqual(first, "Maria")
+        self.assertEqual(last, "Silva")
+        self.log_case_result("Name with extra spaces handled correctly", True)
 
 class TestMain(BaseTestCase):
     """Test cases for main function"""

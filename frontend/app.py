@@ -41,51 +41,50 @@ def display_document_form(default_values=None):
         default_values = {}
     
     # Create sections with expanders to organize fields
-    with st.expander("Author Information", expanded=True):
-        author_name = st.text_input("Author Name", value=default_values.get("author_name", ""))
-        author_name_small = st.text_input("Author Name (Small)", value=default_values.get("author_name_small", ""))
-        author_address = st.text_input("Author Address", value=default_values.get("author_address", ""))
-        author_nif = st.text_input("Author NIF", value=default_values.get("author_nif", ""))
-        author_registration = st.text_input("Author Registration", value=default_values.get("author_registration", ""))
+    with st.expander("Informações do Autor", expanded=True):
+        author_name = st.text_input("Nome do Autor", value=default_values.get("author_name", ""))
+        author_address = st.text_input("Endereço do Autor", value=default_values.get("author_address", ""))
+        author_nif = st.text_input("NIF do Autor", value=default_values.get("author_nif", ""))
+        author_registration = st.text_input("Registro do Autor", value=default_values.get("author_registration", ""))
     
-    with st.expander("Project Information", expanded=True):
-        construction_type = st.text_input("Construction Type", value=default_values.get("construction_type", ""))
-        construction_address = st.text_input("Construction Address", value=default_values.get("construction_address", ""))
-        property_description = st.text_area("Property Description", value=default_values.get("property_description", ""))
+    with st.expander("Informações do Projeto", expanded=True):
+        construction_type = st.text_input("Tipo de Construção", value=default_values.get("construction_type", ""))
+        construction_address = st.text_input("Endereço do Projeto", value=default_values.get("construction_address", ""))
+        property_description = st.text_area("Descrição da Propriedade", value=default_values.get("property_description", ""))
     
-    with st.expander("Request Information", expanded=False):
-        request_type = st.text_input("Request Type", value=default_values.get("request_type", ""))
-        requester_name = st.text_input("Requester Name", value=default_values.get("requester_name", ""))
-        requester_role = st.text_input("Requester Role", value=default_values.get("requester_role", ""))
-        requester_nif = st.text_input("Requester NIF", value=default_values.get("requester_nif", ""))
-        requester_address = st.text_input("Requester Address", value=default_values.get("requester_address", ""))
+    with st.expander("Informações da Solicitação", expanded=False):
+        request_type = st.text_input("Tipo de Solicitação", value=default_values.get("request_type", ""))
+        requester_name = st.text_input("Nome do Solicitante", value=default_values.get("requester_name", ""))
+        requester_role = st.text_input("Cargo do Solicitante", value=default_values.get("requester_role", ""))
+        requester_nif = st.text_input("NIF do Solicitante", value=default_values.get("requester_nif", ""))
+        requester_address = st.text_input("Endereço do Solicitante", value=default_values.get("requester_address", ""))
     
     with st.expander("Location and Date", expanded=False):
-        location = st.text_input("Location", value=default_values.get("location", ""))
-        date = st.text_input("Date (use 'today' for current date)", value=default_values.get("date", "today"))
+        location = st.text_input("Localização", value=default_values.get("location", ""))
+        date = st.text_input("Data (use 'today' para data atual)", value=default_values.get("date", "today"))
     
-    with st.expander("Land Registry Information", expanded=False):
-        land_registry_location = st.text_input("Land Registry Location", value=default_values.get("land_registry_location", ""))
-        land_registry_number = st.text_input("Land Registry Number", value=default_values.get("land_registry_number", ""))
-        land_registry_sublocation = st.text_input("Land Registry Sublocation", value=default_values.get("land_registry_sublocation", ""))
+    with st.expander("Informações do Registo de Imóveis", expanded=False):
+        land_registry_location = st.text_input("Localização do Registo de Imóveis", value=default_values.get("land_registry_location", ""))
+        land_registry_number = st.text_input("Número do Registo de Imóveis", value=default_values.get("land_registry_number", ""))
+        land_registry_sublocation = st.text_input("Freguesia", value=default_values.get("land_registry_sublocation", ""))
     
-    with st.expander("Signature Information", expanded=False):
-        signature = st.text_input("Signature", value=default_values.get("signature", ""))
+    with st.expander("Assinatura", expanded=False):
+        signature = st.text_input("Assinatura", value=default_values.get("signature", ""))
         signature_sub1 = st.text_input("Signature Sub 1", value=default_values.get("signature_sub1", ""))
         signature_sub2 = st.text_input("Signature Sub 2", value=default_values.get("signature_sub2", ""))
         signature_sub3 = st.text_input("Signature Sub 3", value=default_values.get("signature_sub3", ""))
     
-    with st.expander("Regulatory References", expanded=False):
-        regulatory_reference = st.text_input("Regulatory Reference", value=default_values.get("regulatory_reference", ""))
+    with st.expander("Referências Regulatórias", expanded=False):
+        regulatory_reference = st.text_input("Referência Regulatória", value=default_values.get("regulatory_reference", ""))
         pdm = st.text_input("PDM", value=default_values.get("pdm", ""))
     
-    with st.expander("Cost Information", expanded=True):
-        qty = st.number_input("Quantity", value=float(default_values.get("qty", 0)), format="%.2f")
-        cost_per_unit = st.number_input("Cost per Unit", value=float(default_values.get("cost_per_unit", 0)), format="%.2f")
+    with st.expander("Custo", expanded=True):
+        qty = st.number_input("Quantidade em m2", value=float(default_values.get("qty", 0)), format="%.2f")
+        cost_per_unit = st.number_input("Custo por Unidade", value=float(default_values.get("cost_per_unit", 0)), format="%.2f")
     
-    with st.expander("Process Information", expanded=False):
-        technical_information_id = st.text_input("Technical Information ID", value=default_values.get("technical_information_id", ""))
-        process_nr = st.text_input("Process Number", value=default_values.get("process_nr", ""))
+    with st.expander("Informações do Processo", expanded=False):
+        technical_information_id = st.text_input("ID da Informação Técnica", value=default_values.get("technical_information_id", ""))
+        process_nr = st.text_input("Número do Processo", value=default_values.get("process_nr", ""))
     
     # Build variables dictionary
     variables = {

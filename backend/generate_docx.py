@@ -13,6 +13,23 @@ def load_variables(variables_path="templates/variables.json"):
     """Load variables from a JSON file."""
     with open(variables_path, 'r', encoding='utf-8') as f:
         return json.load(f)
+    
+
+def get_first_name_and_last_name(author_name):
+    """Extract first name and last name from a full name.
+    
+    Args:
+        author_name: The full name to extract from
+        
+    Returns:
+        Tuple containing first name and last name
+    """
+    if not author_name:
+        return "", ""
+    
+    parts = author_name.split()
+    return parts[0], " ".join(parts[1:])
+
 
 def format_number_pt(number, show_decimals=True, currency_symbol="€"):
     """Format number in Portuguese style.
@@ -244,6 +261,10 @@ def main():
     except FileNotFoundError:
         print(f"Error: Variables file '{args.variables}' not found")
         sys.exit(1)
+
+    # Process first name and last name variables
+    if 'author_name' in variables:
+        variables['author_name_small'] = get_first_name_and_last_name(variables['author_name'])
     
     # Process date variable if it exists with special format
     if 'date' in variables and variables['date'].lower() == 'today':
