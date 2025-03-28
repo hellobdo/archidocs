@@ -13,6 +13,23 @@ def load_variables(variables_path="templates/variables.json"):
     """Load variables from a JSON file."""
     with open(variables_path, 'r', encoding='utf-8') as f:
         return json.load(f)
+    
+
+def get_first_name_and_last_name(author_name):
+    """Extract first name and last name from a full name.
+    
+    Args:
+        author_name: The full name to extract from
+        
+    Returns:
+        Tuple containing first name and last name
+    """
+    if not author_name:
+        return "", ""
+    
+    parts = author_name.split()
+    return parts[0], " ".join(parts[1:])
+
 
 def format_number_pt(number, show_decimals=True, currency_symbol="€"):
     """Format number in Portuguese style.
@@ -180,15 +197,27 @@ def get_portuguese_month(month_number):
 def get_available_templates():
     """Get a list of available templates."""
     templates = []
-    for path in glob.glob('templates/files/*.docx'):
-        template_name = os.path.splitext(os.path.basename(path))[0]
-        templates.append(template_name)
+    template_dir = 'backend/templates/files'
+    
+    try:
+        # List all files in the directory
+        files = os.listdir(template_dir)
+        
+        # Filter for .docx files
+        for file in files:
+            if file.lower().endswith('.docx'):
+                # Extract template name (filename without extension)
+                template_name = os.path.splitext(file)[0]
+                templates.append(template_name)
+    except Exception as e:
+        print(f"Error listing templates: {e}")
+    
     return templates
 
 def generate_document(template_name, variables, output_path):
     """Generate a document from a template and variables."""
     # Determine template path
-    template_path = os.path.join('templates', f"files/{template_name}.docx")
+    template_path = os.path.join('backend/templates/files', f"{template_name}.docx")
     
     # Check if template exists
     if not os.path.exists(template_path):
@@ -244,12 +273,15 @@ def main():
     except FileNotFoundError:
         print(f"Error: Variables file '{args.variables}' not found")
         sys.exit(1)
+
+    # Process first name and last name variables
+    if 'author_name' in variables:
+        variables['author_name_small'] = get_first_name_and_last_name(variables['author_name'])
     
     # Process date variable if it exists with special format
-    if 'date' in variables and variables['date'].lower() == 'today':
-        now = datetime.now()
-        month_name = get_portuguese_month(now.month)
-        variables['date'] = f"{month_name} de {now.year}"
+    now = datetime.now()
+    month_name = get_portuguese_month(now.month)
+    variables['date'] = f"{month_name} de {now.year}"
 
     # Process cost calculations if required variables exist
     if 'qty' in variables and 'cost_per_unit' in variables:

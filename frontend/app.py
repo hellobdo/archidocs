@@ -41,59 +41,50 @@ def display_document_form(default_values=None):
         default_values = {}
     
     # Create sections with expanders to organize fields
-    with st.expander("Author Information", expanded=True):
-        author_name = st.text_input("Author Name", value=default_values.get("author_name", ""))
-        author_name_small = st.text_input("Author Name (Small)", value=default_values.get("author_name_small", ""))
-        author_address = st.text_input("Author Address", value=default_values.get("author_address", ""))
-        author_nif = st.text_input("Author NIF", value=default_values.get("author_nif", ""))
-        author_registration = st.text_input("Author Registration", value=default_values.get("author_registration", ""))
     
-    with st.expander("Project Information", expanded=True):
-        construction_type = st.text_input("Construction Type", value=default_values.get("construction_type", ""))
-        construction_address = st.text_input("Construction Address", value=default_values.get("construction_address", ""))
-        property_description = st.text_area("Property Description", value=default_values.get("property_description", ""))
+    with st.expander("Informações do Solicitante", expanded=False):
+        requester_name = st.text_input("Nome do Solicitante", value=default_values.get("requester_name", ""))
+        requester_role = st.text_input("Cargo do Solicitante", value=default_values.get("requester_role", ""))
+        requester_nif = st.text_input("NIF do Solicitante", value=default_values.get("requester_nif", ""))
+        requester_address = st.text_input("Endereço do Solicitante", value=default_values.get("requester_address", ""))
+
+    with st.expander("Informações do Projeto", expanded=True):
+        construction_type = st.text_input("Tipo de Construção", value=default_values.get("construction_type", ""))
+        construction_address = st.text_input("Endereço do Projeto", value=default_values.get("construction_address", ""))
+        property_description = st.text_area("Descrição da Propriedade", value=default_values.get("property_description", ""))
+        request_type = st.text_input("Tipo de Solicitação", value=default_values.get("request_type", ""))
+        
     
-    with st.expander("Request Information", expanded=False):
-        request_type = st.text_input("Request Type", value=default_values.get("request_type", ""))
-        requester_name = st.text_input("Requester Name", value=default_values.get("requester_name", ""))
-        requester_role = st.text_input("Requester Role", value=default_values.get("requester_role", ""))
-        requester_nif = st.text_input("Requester NIF", value=default_values.get("requester_nif", ""))
-        requester_address = st.text_input("Requester Address", value=default_values.get("requester_address", ""))
+    with st.expander("Informações do Registo de Imóveis", expanded=False):
+        land_registry_location = st.text_input("Localização do Registo de Imóveis", value=default_values.get("land_registry_location", ""))
+        land_registry_number = st.text_input("Número do Registo de Imóveis", value=default_values.get("land_registry_number", ""))
+        land_registry_sublocation = st.text_input("Freguesia", value=default_values.get("land_registry_sublocation", ""))
     
-    with st.expander("Location and Date", expanded=False):
-        location = st.text_input("Location", value=default_values.get("location", ""))
-        date = st.text_input("Date (use 'today' for current date)", value=default_values.get("date", "today"))
-    
-    with st.expander("Land Registry Information", expanded=False):
-        land_registry_location = st.text_input("Land Registry Location", value=default_values.get("land_registry_location", ""))
-        land_registry_number = st.text_input("Land Registry Number", value=default_values.get("land_registry_number", ""))
-        land_registry_sublocation = st.text_input("Land Registry Sublocation", value=default_values.get("land_registry_sublocation", ""))
-    
-    with st.expander("Signature Information", expanded=False):
-        signature = st.text_input("Signature", value=default_values.get("signature", ""))
-        signature_sub1 = st.text_input("Signature Sub 1", value=default_values.get("signature_sub1", ""))
-        signature_sub2 = st.text_input("Signature Sub 2", value=default_values.get("signature_sub2", ""))
-        signature_sub3 = st.text_input("Signature Sub 3", value=default_values.get("signature_sub3", ""))
-    
-    with st.expander("Regulatory References", expanded=False):
-        regulatory_reference = st.text_input("Regulatory Reference", value=default_values.get("regulatory_reference", ""))
+    with st.expander("Referências Regulatórias", expanded=False):
+        regulatory_reference = st.text_input("Referência Regulatória", value=default_values.get("regulatory_reference", ""))
         pdm = st.text_input("PDM", value=default_values.get("pdm", ""))
     
-    with st.expander("Cost Information", expanded=True):
-        qty = st.number_input("Quantity", value=float(default_values.get("qty", 0)), format="%.2f")
-        cost_per_unit = st.number_input("Cost per Unit", value=float(default_values.get("cost_per_unit", 0)), format="%.2f")
+    with st.expander("Custo", expanded=True):
+        qty = st.number_input("Quantidade em m2", value=float(default_values.get("qty", 0)), format="%.2f")
+        cost_per_unit = st.number_input("Custo por Unidade", value=float(default_values.get("cost_per_unit", 0)), format="%.2f")
     
-    with st.expander("Process Information", expanded=False):
-        technical_information_id = st.text_input("Technical Information ID", value=default_values.get("technical_information_id", ""))
-        process_nr = st.text_input("Process Number", value=default_values.get("process_nr", ""))
+    with st.expander("Informações do Processo", expanded=False):
+        technical_information_id = st.text_input("ID da Informação Técnica", value=default_values.get("technical_information_id", ""))
+        process_nr = st.text_input("Número do Processo", value=default_values.get("process_nr", ""))
+
+    with st.expander("Informações do Autor", expanded=True):
+        author_name = st.text_input("Nome do Autor", value=default_values.get("author_name", ""))
+        author_address = st.text_input("Endereço do Autor", value=default_values.get("author_address", ""))
+        author_nif = st.text_input("NIF do Autor", value=default_values.get("author_nif", ""))
+        oa_number = st.text_input("Número de Registo na Ordem dos Arquitectos", value=default_values.get("oa_number", ""))
+        oa_ref_number = st.text_input("Código de validação para verificação de competências", value=default_values.get("oa_ref_number", ""))
+        location = st.text_input("Localização", value=default_values.get("location", ""))
     
     # Build variables dictionary
     variables = {
         "author_name": author_name,
-        "author_name_small": author_name_small,
         "author_address": author_address,
         "author_nif": author_nif,
-        "author_registration": author_registration,
         "construction_type": construction_type,
         "construction_address": construction_address,
         "property_description": property_description,
@@ -103,14 +94,11 @@ def display_document_form(default_values=None):
         "requester_nif": requester_nif,
         "requester_address": requester_address,
         "location": location,
-        "date": date,
         "land_registry_location": land_registry_location,
         "land_registry_number": land_registry_number,
         "land_registry_sublocation": land_registry_sublocation,
-        "signature": signature,
-        "signature_sub1": signature_sub1,
-        "signature_sub2": signature_sub2,
-        "signature_sub3": signature_sub3,
+        "oa_number": oa_number,
+        "oa_ref_number": oa_ref_number,
         "regulatory_reference": regulatory_reference,
         "pdm": pdm,
         "qty": str(qty),
@@ -149,104 +137,104 @@ def save_variables(variables):
 def main():
     """Main application entry point."""
     st.set_page_config(
-        page_title="Document Generator",
+        page_title="ArchiDocs",
         page_icon="📄",
         layout="wide"
     )
     
-    st.title("Document Generator")
-    st.write("Generate professional documents from templates")
+    # Add CSS to make button text smaller
+    st.write('<style>div.stButton button p { font-size: 0.8rem !important; }</style>', unsafe_allow_html=True)
+    
+    st.title("ArchiDocs")
+    st.write("Cria todos os documentos necessários para o teu projecto de arquitetura com um clique")
     
     # Get available templates
     try:
         template_list = get_templates()
         if not template_list:
-            st.warning("No templates found. Please add templates to the 'backend/templates/files' directory.")
+            st.warning("No templates found. Please contact customer support.")
     except Exception as e:
         st.error(f"Error loading templates: {str(e)}")
         template_list = []
     
     # Sidebar for actions and template selection
     with st.sidebar:
-        st.header("Controls")
+        st.header("Opções")
         
         # Load/save variables
-        if st.button("Load Default Variables"):
+        if st.button("Carregar valores padrão", use_container_width=True):
             st.session_state.variables = load_default_variables()
-            st.success("Variables loaded!")
+            st.success("Valores carregados!")
             
-        if st.button("Save Variables"):
+        if st.button("Guardar valores", use_container_width=True):
             if "variables" in st.session_state:
                 save_variables(st.session_state.variables)
             else:
                 st.error("No variables to save.")
         
         # Template selection
-        st.header("Generate Documents")
+        st.header("Criar documentos")
         if template_list:
             selected_template = st.selectbox(
-                "Select template",
+                "Selecionar modelo",
                 options=template_list
             )
             
-            # Generate buttons
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("Generate Selected"):
-                    if "variables" in st.session_state:
-                        with st.spinner("Generating document..."):
-                            result = generate_document_from_dict(
-                                selected_template,
-                                st.session_state.variables
-                            )
-                            if result.success:
-                                st.success(f"Document generated: {result.file_path}")
-                                # Create download link
-                                with open(result.file_path, "rb") as file:
-                                    st.download_button(
-                                        label="Download Document",
-                                        data=file,
-                                        file_name=os.path.basename(result.file_path),
-                                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                                    )
-                            else:
-                                st.error(f"Error: {result.error_message}")
-                    else:
-                        st.error("Please fill in the form first.")
+            # Generate buttons stacked vertically instead of columns
+            if st.button("Criar documento selecionado", use_container_width=True):
+                if "variables" in st.session_state:
+                    with st.spinner("A criar documento..."):
+                        result = generate_document_from_dict(
+                            selected_template,
+                            st.session_state.variables
+                        )
+                        if result.success:
+                            st.success(f"Documento criado: {result.file_path}")
+                            # Create download link
+                            with open(result.file_path, "rb") as file:
+                                st.download_button(
+                                    label="Descarregar documento",
+                                    data=file,
+                                    file_name=os.path.basename(result.file_path),
+                                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                )
+                        else:
+                            st.error(f"Erro: {result.error_message}")
+                else:
+                    st.error("Por favor, preencha o formulário primeiro.")
             
-            with col2:
-                if st.button("Generate All"):
-                    if "variables" in st.session_state:
-                        with st.spinner("Generating all documents..."):
-                            results = generate_document_from_dict(
-                                selected_template,
-                                st.session_state.variables,
-                                generate_all=True
-                            )
-                            success_count = sum(1 for r in results if r.success)
-                            if success_count > 0:
-                                st.success(f"Generated {success_count} documents successfully!")
-                                # List the files
-                                st.write("Generated documents:")
-                                for result in results:
-                                    if result.success:
-                                        st.write(f"- {os.path.basename(result.file_path)}")
-                            else:
-                                st.error("Failed to generate any documents.")
-                    else:
-                        st.error("Please fill in the form first.")
+            if st.button("Criar todos os documentos", use_container_width=True):
+                if "variables" in st.session_state:
+                    with st.spinner("A criar todos os documentos..."):
+                        results = generate_document_from_dict(
+                            selected_template,
+                            st.session_state.variables,
+                            generate_all=True
+                        )
+                        success_count = sum(1 for r in results if r.success)
+                        if success_count > 0:
+                            st.success(f"{success_count} documentos criados com sucesso!")
+                            # List the files
+                            st.write("Documentos criados:")
+                            for result in results:
+                                if result.success:
+                                    st.write(f"- {os.path.basename(result.file_path)}")
+                        else:
+                            st.error("Falha ao criar os documentos.")
+                else:
+                    st.error("Por favor, preencha o formulário primeiro.")
     
     # Main form area
     if "variables" not in st.session_state:
         st.session_state.variables = load_default_variables()
     
-    st.header("Document Variables")
+    st.header("Variáveis do documento")
     updated_variables = display_document_form(st.session_state.variables)
     
     # Update session state when form is submitted
-    if st.button("Update Variables"):
+    if st.button("Atualizar valores", use_container_width=True):
         st.session_state.variables = updated_variables
-        st.success("Variables updated!")
+        st.success("Valores atualizados!")
 
 
 if __name__ == "__main__":
