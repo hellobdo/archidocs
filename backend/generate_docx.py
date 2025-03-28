@@ -279,10 +279,9 @@ def main():
         variables['author_name_small'] = get_first_name_and_last_name(variables['author_name'])
     
     # Process date variable if it exists with special format
-    if 'date' in variables and variables['date'].lower() == 'today':
-        now = datetime.now()
-        month_name = get_portuguese_month(now.month)
-        variables['date'] = f"{month_name} de {now.year}"
+    now = datetime.now()
+    month_name = get_portuguese_month(now.month)
+    variables['date'] = f"{month_name} de {now.year}"
 
     # Process cost calculations if required variables exist
     if 'qty' in variables and 'cost_per_unit' in variables:

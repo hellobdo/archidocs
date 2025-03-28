@@ -33,7 +33,6 @@ class DocumentVariables:
     
     # Location and date
     location: str
-    date: str  # Can be set to "today" to automatically use current date in format "month de year"
     
     # Land registry information
     land_registry_location: str

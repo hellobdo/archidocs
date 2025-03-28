@@ -53,10 +53,7 @@ def display_document_form(default_values=None):
         construction_address = st.text_input("Endereço do Projeto", value=default_values.get("construction_address", ""))
         property_description = st.text_area("Descrição da Propriedade", value=default_values.get("property_description", ""))
         request_type = st.text_input("Tipo de Solicitação", value=default_values.get("request_type", ""))
-    
-    with st.expander("Location and Date", expanded=False):
-        location = st.text_input("Localização", value=default_values.get("location", ""))
-        date = st.text_input("Data (use 'today' para data atual)", value=default_values.get("date", "today"))
+        
     
     with st.expander("Informações do Registo de Imóveis", expanded=False):
         land_registry_location = st.text_input("Localização do Registo de Imóveis", value=default_values.get("land_registry_location", ""))
@@ -81,6 +78,7 @@ def display_document_form(default_values=None):
         author_nif = st.text_input("NIF do Autor", value=default_values.get("author_nif", ""))
         oa_number = st.text_input("Número de Registo na Ordem dos Arquitectos", value=default_values.get("oa_number", ""))
         oa_ref_number = st.text_input("Código de validação para verificação de competências", value=default_values.get("oa_ref_number", ""))
+        location = st.text_input("Localização", value=default_values.get("location", ""))
     
     # Build variables dictionary
     variables = {
@@ -96,7 +94,6 @@ def display_document_form(default_values=None):
         "requester_nif": requester_nif,
         "requester_address": requester_address,
         "location": location,
-        "date": date,
         "land_registry_location": land_registry_location,
         "land_registry_number": land_registry_number,
         "land_registry_sublocation": land_registry_sublocation,
