@@ -8,6 +8,7 @@ import json
 import tempfile
 from unittest.mock import patch, MagicMock
 import io
+import glob
 
 # Setup path for imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -19,7 +20,7 @@ sys.path.insert(0, current_dir)
 from _utils.test_utils import BaseTestCase, print_summary
 
 # Import the module we want to test
-from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month
+from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates
 
 # Module specific test fixtures
 def create_module_fixtures():
@@ -48,6 +49,7 @@ class TestGenerateDocxImports(BaseTestCase):
             self.assertTrue(callable(num_to_words_pt))
             self.assertTrue(callable(process_total_cost))
             self.assertTrue(callable(get_portuguese_month))
+            self.assertTrue(callable(get_available_templates))
             self.log_case_result("Functions are callable", True)
         except AssertionError:
             self.log_case_result("Functions are callable", False)
@@ -446,6 +448,45 @@ class TestGetPortugueseMonth(BaseTestCase):
         result = get_portuguese_month(13)
         self.assertEqual(result, "")
         self.log_case_result("Month 13 returns empty string", True)
+
+class TestGetAvailableTemplates(BaseTestCase):
+    """Test cases for get_available_templates function"""
+    
+    @patch('glob.glob')
+    def test_template_extraction(self, mock_glob):
+        """Test that template names are correctly extracted from paths"""
+        # Setup mock to return sample file paths
+        mock_glob.return_value = [
+            'templates/files/invoice.docx',
+            'templates/files/contract.docx',
+            'templates/files/report-2023.docx'
+        ]
+        
+        # Call the function
+        result = get_available_templates()
+        
+        # Verify mock was called with the right pattern
+        mock_glob.assert_called_once_with('templates/files/*.docx')
+        
+        # Verify the result contains the correct template names
+        self.assertEqual(result, ['invoice', 'contract', 'report-2023'])
+        self.log_case_result("Template names correctly extracted from file paths", True)
+    
+    @patch('glob.glob')
+    def test_empty_directory(self, mock_glob):
+        """Test behavior when no templates are found"""
+        # Setup mock to return empty list
+        mock_glob.return_value = []
+        
+        # Call the function
+        result = get_available_templates()
+        
+        # Verify mock was called
+        mock_glob.assert_called_once_with('templates/files/*.docx')
+        
+        # Verify the result is an empty list
+        self.assertEqual(result, [])
+        self.log_case_result("Empty list returned when no templates exist", True)
 
 if __name__ == '__main__':
     print("\n🔍 Running tests for generate_docx.py...")
