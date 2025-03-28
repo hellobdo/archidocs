@@ -152,6 +152,9 @@ def main():
         layout="wide"
     )
     
+    # Add CSS to make button text smaller
+    st.write('<style>div.stButton button p { font-size: 0.8rem !important; }</style>', unsafe_allow_html=True)
+    
     st.title("ArchiDocs")
     st.write("Cria todos os documentos necessários para o teu projecto de arquitetura com um clique")
     
@@ -159,92 +162,89 @@ def main():
     try:
         template_list = get_templates()
         if not template_list:
-            st.warning("No templates found. Please add templates to the 'backend/templates/files' directory.")
+            st.warning("No templates found. Please contact customer support.")
     except Exception as e:
         st.error(f"Error loading templates: {str(e)}")
         template_list = []
     
     # Sidebar for actions and template selection
     with st.sidebar:
-        st.header("Controls")
+        st.header("Opções")
         
         # Load/save variables
-        if st.button("Load Default Variables"):
+        if st.button("Carregar valores padrão", use_container_width=True):
             st.session_state.variables = load_default_variables()
-            st.success("Variables loaded!")
+            st.success("Valores carregados!")
             
-        if st.button("Save Variables"):
+        if st.button("Guardar valores", use_container_width=True):
             if "variables" in st.session_state:
                 save_variables(st.session_state.variables)
             else:
                 st.error("No variables to save.")
         
         # Template selection
-        st.header("Generate Documents")
+        st.header("Criar documentos")
         if template_list:
             selected_template = st.selectbox(
-                "Select template",
+                "Selecionar modelo",
                 options=template_list
             )
             
-            # Generate buttons
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("Generate Selected"):
-                    if "variables" in st.session_state:
-                        with st.spinner("Generating document..."):
-                            result = generate_document_from_dict(
-                                selected_template,
-                                st.session_state.variables
-                            )
-                            if result.success:
-                                st.success(f"Document generated: {result.file_path}")
-                                # Create download link
-                                with open(result.file_path, "rb") as file:
-                                    st.download_button(
-                                        label="Download Document",
-                                        data=file,
-                                        file_name=os.path.basename(result.file_path),
-                                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                                    )
-                            else:
-                                st.error(f"Error: {result.error_message}")
-                    else:
-                        st.error("Please fill in the form first.")
+            # Generate buttons stacked vertically instead of columns
+            if st.button("Criar documento selecionado", use_container_width=True):
+                if "variables" in st.session_state:
+                    with st.spinner("A criar documento..."):
+                        result = generate_document_from_dict(
+                            selected_template,
+                            st.session_state.variables
+                        )
+                        if result.success:
+                            st.success(f"Documento criado: {result.file_path}")
+                            # Create download link
+                            with open(result.file_path, "rb") as file:
+                                st.download_button(
+                                    label="Descarregar documento",
+                                    data=file,
+                                    file_name=os.path.basename(result.file_path),
+                                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                )
+                        else:
+                            st.error(f"Erro: {result.error_message}")
+                else:
+                    st.error("Por favor, preencha o formulário primeiro.")
             
-            with col2:
-                if st.button("Generate All"):
-                    if "variables" in st.session_state:
-                        with st.spinner("Generating all documents..."):
-                            results = generate_document_from_dict(
-                                selected_template,
-                                st.session_state.variables,
-                                generate_all=True
-                            )
-                            success_count = sum(1 for r in results if r.success)
-                            if success_count > 0:
-                                st.success(f"Generated {success_count} documents successfully!")
-                                # List the files
-                                st.write("Generated documents:")
-                                for result in results:
-                                    if result.success:
-                                        st.write(f"- {os.path.basename(result.file_path)}")
-                            else:
-                                st.error("Failed to generate any documents.")
-                    else:
-                        st.error("Please fill in the form first.")
+            if st.button("Criar todos os documentos", use_container_width=True):
+                if "variables" in st.session_state:
+                    with st.spinner("A criar todos os documentos..."):
+                        results = generate_document_from_dict(
+                            selected_template,
+                            st.session_state.variables,
+                            generate_all=True
+                        )
+                        success_count = sum(1 for r in results if r.success)
+                        if success_count > 0:
+                            st.success(f"{success_count} documentos criados com sucesso!")
+                            # List the files
+                            st.write("Documentos criados:")
+                            for result in results:
+                                if result.success:
+                                    st.write(f"- {os.path.basename(result.file_path)}")
+                        else:
+                            st.error("Falha ao criar os documentos.")
+                else:
+                    st.error("Por favor, preencha o formulário primeiro.")
     
     # Main form area
     if "variables" not in st.session_state:
         st.session_state.variables = load_default_variables()
     
-    st.header("Document Variables")
+    st.header("Variáveis do documento")
     updated_variables = display_document_form(st.session_state.variables)
     
     # Update session state when form is submitted
-    if st.button("Update Variables"):
+    if st.button("Atualizar valores", use_container_width=True):
         st.session_state.variables = updated_variables
-        st.success("Variables updated!")
+        st.success("Valores atualizados!")
 
 
 if __name__ == "__main__":

@@ -197,15 +197,27 @@ def get_portuguese_month(month_number):
 def get_available_templates():
     """Get a list of available templates."""
     templates = []
-    for path in glob.glob('templates/files/*.docx'):
-        template_name = os.path.splitext(os.path.basename(path))[0]
-        templates.append(template_name)
+    template_dir = 'backend/templates/files'
+    
+    try:
+        # List all files in the directory
+        files = os.listdir(template_dir)
+        
+        # Filter for .docx files
+        for file in files:
+            if file.lower().endswith('.docx'):
+                # Extract template name (filename without extension)
+                template_name = os.path.splitext(file)[0]
+                templates.append(template_name)
+    except Exception as e:
+        print(f"Error listing templates: {e}")
+    
     return templates
 
 def generate_document(template_name, variables, output_path):
     """Generate a document from a template and variables."""
     # Determine template path
-    template_path = os.path.join('templates', f"files/{template_name}.docx")
+    template_path = os.path.join('backend/templates/files', f"{template_name}.docx")
     
     # Check if template exists
     if not os.path.exists(template_path):
