@@ -20,7 +20,7 @@ sys.path.insert(0, current_dir)
 from _utils.test_utils import BaseTestCase, print_summary
 
 # Import the module we want to test
-from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates
+from generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number
 
 # Module specific test fixtures
 def create_module_fixtures():
@@ -50,6 +50,7 @@ class TestGenerateDocxImports(BaseTestCase):
             self.assertTrue(callable(process_total_cost))
             self.assertTrue(callable(get_portuguese_month))
             self.assertTrue(callable(get_available_templates))
+            self.assertTrue(callable(to_number))
             self.log_case_result("Functions are callable", True)
         except AssertionError:
             self.log_case_result("Functions are callable", False)
@@ -346,6 +347,65 @@ class TestNumToWordsPt(BaseTestCase):
         self.assertEqual(result, "not_a_number")  # Should return the input as string
         self.log_case_result("Invalid input handled correctly", True)
 
+class TestToNumber(BaseTestCase):
+    """Test cases for to_number function"""
+    
+    def test_basic_number_conversion(self):
+        """Test basic number conversion"""
+        # Case 1: Integer
+        result = to_number(100)
+        self.assertEqual(result, 100.00)
+        self.log_case_result("Integer conversion works correctly", True)
+        
+        # Case 2: Float with 2 decimal places
+        result = to_number(123.45)
+        self.assertEqual(result, 123.45)
+        self.log_case_result("Float with 2 decimal places works correctly", True)
+        
+        # Case 3: String number
+        result = to_number("50.75")
+        self.assertEqual(result, 50.75)
+        self.log_case_result("String number conversion works correctly", True)
+    
+    def test_rounding_behavior(self):
+        """Test rounding behavior with Decimal"""
+        # Case 1: Round up from 5
+        result = to_number(1.005)
+        self.assertEqual(result, 1.01)
+        self.log_case_result("Rounding up from exactly x.xx5 works correctly", True)
+        
+        # Case 2: Round down from 4
+        result = to_number(1.004)
+        self.assertEqual(result, 1.00)
+        self.log_case_result("Rounding down from x.xx4 works correctly", True)
+        
+        # Case 3: Multiple decimal places rounded to 2
+        result = to_number(10.12345)
+        self.assertEqual(result, 10.12)
+        self.log_case_result("Multiple decimal places rounded correctly", True)
+    
+    def test_edge_cases(self):
+        """Test edge cases"""
+        # Case 1: Zero
+        result = to_number(0)
+        self.assertEqual(result, 0.00)
+        self.log_case_result("Zero handled correctly", True)
+        
+        # Case 2: Negative number
+        result = to_number(-10.126)
+        self.assertEqual(result, -10.13)  # Should round up
+        self.log_case_result("Negative number handled correctly", True)
+        
+        # Case 3: Very small number that rounds to zero
+        result = to_number(0.00001)
+        self.assertEqual(result, 0.00)
+        self.log_case_result("Very small number handled correctly", True)
+        
+        # Case 4: Large number
+        result = to_number(1234567890.123)
+        self.assertEqual(result, 1234567890.12)
+        self.log_case_result("Large number handled correctly", True)
+
 class TestProcessTotalCost(BaseTestCase):
     """Test cases for process_total_cost function"""
     
@@ -416,6 +476,22 @@ class TestProcessTotalCost(BaseTestCase):
         result = process_total_cost(-5, -10)
         self.assertEqual(result, 50)
         self.log_case_result("Both negative values work correctly", True)
+    
+    @patch('generate_docx.to_number')
+    def test_uses_to_number_for_rounding(self, mock_to_number):
+        """Test that process_total_cost uses to_number for rounding"""
+        # Setup mock return value
+        mock_to_number.return_value = 42.42
+        
+        # Call the function
+        result = process_total_cost(10, 10)
+        
+        # Verify to_number was called with the product
+        mock_to_number.assert_called_once_with(100)
+        
+        # Verify result matches what to_number returned
+        self.assertEqual(result, 42.42)
+        self.log_case_result("Uses to_number for rounding", True)
 
 class TestGetPortugueseMonth(BaseTestCase):
     """Test cases for get_portuguese_month function"""
