@@ -129,6 +129,89 @@ class TestLoadVariables(BaseTestCase):
         
         self.log_case_result("Successfully handles Unicode characters", True)
 
+class TestFormatNumberPt(BaseTestCase):
+    """Test cases for format_number_pt function"""
+    
+    def test_basic_formatting_with_decimals(self):
+        """Test basic number formatting with decimals and default currency symbol"""
+        # Case 1: Regular number with decimals
+        result = format_number_pt(1234.56)
+        self.assertEqual(result, "1.234,56 €")
+        self.log_case_result("Regular number with decimals formats correctly", True)
+        
+        # Case 2: Large number with decimals
+        result = format_number_pt(1000000.00)
+        self.assertEqual(result, "1.000.000,00 €")
+        self.log_case_result("Large number with decimals formats correctly", True)
+    
+    def test_formatting_without_decimals(self):
+        """Test number formatting with show_decimals=False"""
+        # Case 1: Regular number without decimals
+        result = format_number_pt(1234.56, show_decimals=False)
+        self.assertEqual(result, "1.235 €")  # Should round up
+        self.log_case_result("Regular number without decimals rounds correctly", True)
+        
+        # Case 2: Large number without decimals
+        result = format_number_pt(1000000, show_decimals=False)
+        self.assertEqual(result, "1.000.000 €")
+        self.log_case_result("Large number without decimals formats correctly", True)
+    
+    def test_custom_currency_symbol(self):
+        """Test with custom currency symbols"""
+        # Case 1: Dollar symbol
+        result = format_number_pt(1234.56, currency_symbol="$")
+        self.assertEqual(result, "1.234,56 $")
+        self.log_case_result("Currency symbol can be changed to dollar", True)
+        
+        # Case 2: No currency symbol
+        result = format_number_pt(1234.56, currency_symbol="")
+        self.assertEqual(result, "1.234,56")
+        self.log_case_result("Currency symbol can be removed", True)
+    
+    def test_edge_cases(self):
+        """Test edge cases for the function"""
+        # Case 1: Zero value
+        result = format_number_pt(0)
+        self.assertEqual(result, "0,00 €")
+        self.log_case_result("Zero value formats correctly", True)
+        
+        # Case 2: Negative numbers
+        result = format_number_pt(-1234.56)
+        self.assertEqual(result, "-1.234,56 €")
+        self.log_case_result("Negative numbers format correctly", True)
+        
+        # Case 3: Very large number
+        result = format_number_pt(1234567890.12)
+        self.assertEqual(result, "1.234.567.890,12 €")
+        self.log_case_result("Very large numbers format correctly", True)
+        
+        # Case 4: Very small decimal
+        result = format_number_pt(0.01)
+        self.assertEqual(result, "0,01 €")
+        self.log_case_result("Very small decimals format correctly", True)
+    
+    def test_thousands_separators(self):
+        """Test correct placement of thousands separators"""
+        # Case 1: Four digit number
+        result = format_number_pt(1234.56)
+        self.assertEqual(result, "1.234,56 €")
+        self.log_case_result("Four digit number has correct separator", True)
+        
+        # Case 2: Five digit number
+        result = format_number_pt(12345.67)
+        self.assertEqual(result, "12.345,67 €")
+        self.log_case_result("Five digit number has correct separator", True)
+        
+        # Case 3: Six digit number
+        result = format_number_pt(123456.78)
+        self.assertEqual(result, "123.456,78 €")
+        self.log_case_result("Six digit number has correct separator", True)
+        
+        # Case 4: Seven digit number
+        result = format_number_pt(1234567.89)
+        self.assertEqual(result, "1.234.567,89 €")
+        self.log_case_result("Seven digit number has correct separators", True)
+
 if __name__ == '__main__':
     print("\n🔍 Running tests for generate_docx.py...")
     

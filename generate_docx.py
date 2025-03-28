@@ -32,7 +32,7 @@ def format_number_pt(number, show_decimals=True, currency_symbol="€"):
         int_part, dec_part = formatted.split('.')
     else:
         # Format without decimal places (round to integer)
-        int_part = str(int(number))
+        int_part = str(round(number))
         dec_part = None
     
     # Add thousands separator to integer part
