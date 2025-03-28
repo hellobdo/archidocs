@@ -193,7 +193,44 @@ def main():
     }
     .stDownloadButton button {
         padding: 0.1rem 0.5rem !important;
-        font-size: 0.7rem !important;
+        font-size: 0.6rem !important;
+    }
+    /* Style for the ZIP download buttons to match Streamlit native buttons exactly */
+    .streamlit-button {
+        display: inline-block;
+        width: 100%;
+        background-color: rgb(38, 39, 48);
+        border: 1px solid rgba(250, 250, 250, 0.2);
+        border-radius: 0.25rem;
+        color: rgb(255, 255, 255);
+        font-family: "Source Sans Pro", sans-serif;
+        font-weight: 400;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        padding: 0.55rem 1rem;
+        margin: 0px;
+        text-align: center;
+        text-decoration: none !important;  /* Force no underline */
+        cursor: pointer;
+        user-select: none;
+    }
+    .streamlit-button:hover {
+        border-color: rgb(255, 255, 255);
+        text-decoration: none !important;  /* Force no underline on hover */
+    }
+    .streamlit-button:active {
+        color: rgb(255, 255, 255);
+        border-color: rgb(255, 255, 255);
+        text-decoration: none !important;  /* Force no underline on active */
+    }
+    /* Remove any lingering link styling */
+    a.streamlit-button {
+        color: rgb(255, 255, 255) !important;
+        text-decoration: none !important;
+    }
+    a.streamlit-button:hover, a.streamlit-button:visited, a.streamlit-button:focus {
+        color: rgb(255, 255, 255) !important;
+        text-decoration: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -318,44 +355,41 @@ def main():
                                 pdf_zip_path = os.path.join("outputs", "documentos_pdf.zip")
                                 create_zip_from_files(pdf_files, pdf_zip_path)
                             
-                            # Create a container for the download buttons
-                            download_col1, download_col2 = st.columns(2)
+                            # Place each download button on its own line
                             
-                            # Add download all (DOCX) button with static link
-                            with download_col1:
-                                if os.path.exists(docx_zip_path):
-                                    # Read ZIP file and encode as base64 (like we do for individual files)
-                                    with open(docx_zip_path, "rb") as zip_file:
-                                        zip_content = zip_file.read()
-                                        zip_b64 = base64.b64encode(zip_content).decode()
-                                        
-                                        # Use data URL instead of relative path
-                                        st.markdown(
-                                            f'<a href="data:application/zip;base64,{zip_b64}" download="documentos.zip" target="_blank" style="display:inline-block; padding:0.5em 1em; color:white; background-color:#FF4B4B; border-radius:0.3em; text-decoration:none; font-weight:bold; text-align:center; width:100%;">Descarregar todos (DOCX)</a>',
-                                            unsafe_allow_html=True
-                                        )
-                                    print(f"DOCX ZIP created at: {docx_zip_path}, size: {os.path.getsize(docx_zip_path)}")
-                                else:
-                                    st.error("Erro ao gerar ZIP de DOCX")
-                                    print(f"DOCX ZIP not found at: {docx_zip_path}")
+                            # Add download all (DOCX) button
+                            if os.path.exists(docx_zip_path):
+                                # Read ZIP file and encode as base64 (like we do for individual files)
+                                with open(docx_zip_path, "rb") as zip_file:
+                                    zip_content = zip_file.read()
+                                    zip_b64 = base64.b64encode(zip_content).decode()
+                                    
+                                    # Use data URL instead of relative path
+                                    st.markdown(
+                                        f'<a href="data:application/zip;base64,{zip_b64}" download="documentos.zip" target="_blank" class="streamlit-button">Descarregar todos (DOCX)</a>',
+                                        unsafe_allow_html=True
+                                    )
+                                print(f"DOCX ZIP created at: {docx_zip_path}, size: {os.path.getsize(docx_zip_path)}")
+                            else:
+                                st.error("Erro ao gerar ZIP de DOCX")
+                                print(f"DOCX ZIP not found at: {docx_zip_path}")
                             
-                            # Add download all as PDF button
-                            with download_col2:
-                                if pdf_zip_path and os.path.exists(pdf_zip_path):
-                                    # Read ZIP file and encode as base64 (like we do for individual files)
-                                    with open(pdf_zip_path, "rb") as zip_file:
-                                        zip_content = zip_file.read()
-                                        zip_b64 = base64.b64encode(zip_content).decode()
-                                        
-                                        # Use data URL instead of relative path
-                                        st.markdown(
-                                            f'<a href="data:application/zip;base64,{zip_b64}" download="documentos_pdf.zip" target="_blank" style="display:inline-block; padding:0.5em 1em; color:white; background-color:#FF4B4B; border-radius:0.3em; text-decoration:none; font-weight:bold; text-align:center; width:100%;">Descarregar todos (PDF)</a>',
-                                            unsafe_allow_html=True
-                                        )
-                                    print(f"PDF ZIP created at: {pdf_zip_path}, size: {os.path.getsize(pdf_zip_path)}")
-                                else:
-                                    st.error("Erro ao gerar PDFs")
-                                    print(f"PDF ZIP not found at: {pdf_zip_path}")
+                            # Add download all as PDF button in a new line
+                            if pdf_zip_path and os.path.exists(pdf_zip_path):
+                                # Read ZIP file and encode as base64 (like we do for individual files)
+                                with open(pdf_zip_path, "rb") as zip_file:
+                                    zip_content = zip_file.read()
+                                    zip_b64 = base64.b64encode(zip_content).decode()
+                                    
+                                    # Use data URL instead of relative path
+                                    st.markdown(
+                                        f'<a href="data:application/zip;base64,{zip_b64}" download="documentos_pdf.zip" target="_blank" class="streamlit-button">Descarregar todos (PDF)</a>',
+                                        unsafe_allow_html=True
+                                    )
+                                print(f"PDF ZIP created at: {pdf_zip_path}, size: {os.path.getsize(pdf_zip_path)}")
+                            else:
+                                st.error("Erro ao gerar PDFs")
+                                print(f"PDF ZIP not found at: {pdf_zip_path}")
                             
                             # List the files with download buttons
                             st.write("Documentos criados:")

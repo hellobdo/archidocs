@@ -13,22 +13,6 @@ def load_variables(variables_path="templates/variables.json"):
     """Load variables from a JSON file."""
     with open(variables_path, 'r', encoding='utf-8') as f:
         return json.load(f)
-    
-
-def get_first_name_and_last_name(author_name):
-    """Extract first name and last name from a full name.
-    
-    Args:
-        author_name: The full name to extract from
-        
-    Returns:
-        Tuple containing first name and last name
-    """
-    if not author_name:
-        return "", ""
-    
-    parts = author_name.split()
-    return parts[0], " ".join(parts[1:])
 
 
 def format_number_pt(number, show_decimals=True, currency_symbol="€"):
@@ -218,10 +202,6 @@ def generate_document(template_name, variables, output_path):
     """Generate a document from a template and variables."""
     # Make a copy of variables to avoid modifying the original
     variables = variables.copy()
-    
-    # Process first name and last name variables
-    if 'author_name' in variables:
-        variables['author_name_small'] = get_first_name_and_last_name(variables['author_name'])
     
     # Process date variable with special format
     now = datetime.now()
