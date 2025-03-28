@@ -1032,6 +1032,43 @@ class TestMain(BaseTestCase):
         
         self.log_case_result("Missing variables file error handling works correctly", True)
 
+    @patch('argparse.ArgumentParser.parse_args')
+    @patch('backend.generate_docx.generate_document')
+    @patch('backend.generate_docx.get_first_name_and_last_name')
+    @patch('backend.generate_docx.load_variables')
+    def test_author_name_processing(self, mock_load_variables, mock_get_name_parts, mock_generate_document, mock_parse_args):
+        """Test processing of author_name to derive author_name_small"""
+        # Setup mocks
+        mock_args = MagicMock()
+        mock_args.templates = ['invoice']
+        mock_args.variables = 'templates/variables.json'
+        mock_args.output_dir = 'outputs'
+        mock_args.list = False
+        mock_parse_args.return_value = mock_args
+        
+        # Setup mock for get_available_templates
+        with patch('backend.generate_docx.get_available_templates', return_value=['invoice']):
+            # Setup author_name mock data
+            vars_with_author = {"author_name": "Daniela Cristina de Oliveira Grosso"}
+            mock_load_variables.return_value = vars_with_author
+            
+            # Setup return value for get_first_name_and_last_name
+            mock_get_name_parts.return_value = "Daniela", "Cristina de Oliveira Grosso"
+            
+            # Call the function
+            main()
+            
+            # Verify author_name_small was processed
+            mock_get_name_parts.assert_called_once_with("Daniela Cristina de Oliveira Grosso")
+            
+            # Verify variables were updated correctly
+            mock_generate_document.assert_called_once()
+            args, _ = mock_generate_document.call_args
+            updated_variables = args[1]
+            self.assertEqual(updated_variables['author_name'], "Daniela Cristina de Oliveira Grosso")
+            self.assertEqual(updated_variables['author_name_small'], ("Daniela", "Cristina de Oliveira Grosso"))
+        
+        self.log_case_result("Author name processing works correctly", True)
 
 if __name__ == '__main__':
     print("\n🔍 Running tests for generate_docx.py...")
