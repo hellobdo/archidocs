@@ -329,10 +329,6 @@ def main():
                             if "session_id" not in st.session_state:
                                 st.session_state.session_id = str(uuid.uuid4())
                             
-                            # Create directory for temporary download files
-                            download_dir = os.path.join("outputs", "downloads", st.session_state.session_id)
-                            os.makedirs(download_dir, exist_ok=True)
-                            
                             # Create a download all button for zip file
                             success_files = [r.file_path for r in results if r.success]
                             
