@@ -7,6 +7,7 @@ import sys
 import glob
 from docxtpl import DocxTemplate
 from num2words import num2words
+from decimal import Decimal, ROUND_HALF_UP
 
 def load_variables(variables_path="templates/variables.json"):
     """Load variables from a JSON file."""
@@ -123,10 +124,29 @@ def num_to_words_pt(number, currency=None, lang='pt_pt'):
         return str(number)
 
 def process_total_cost(qty, cost_per_unit):
-    """Process and add calculated variables."""
-    # Calculate total_cost if qty and cost_per_unit exist
-    total_cost = qty * cost_per_unit
-    return round(total_cost, 2)
+    """Process and add calculated variables.
+    
+    Uses Decimal for precise decimal arithmetic to avoid floating point precision issues.
+    
+    Args:
+        qty: The quantity
+        cost_per_unit: The cost per unit
+        
+    Returns:
+        The total cost rounded to 2 decimal places
+    """
+    # Convert to Decimal for precise arithmetic
+    qty_decimal = Decimal(str(qty))
+    cost_decimal = Decimal(str(cost_per_unit))
+    
+    # Calculate total cost
+    total_cost = qty_decimal * cost_decimal
+    
+    # Round to 2 decimal places using ROUND_HALF_UP
+    rounded_cost = total_cost.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    
+    # Convert back to float for compatibility
+    return float(rounded_cost)
 
 def get_portuguese_month(month_number):
     """Convert month number to Portuguese month name."""

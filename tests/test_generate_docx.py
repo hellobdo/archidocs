@@ -343,6 +343,77 @@ class TestNumToWordsPt(BaseTestCase):
         self.assertEqual(result, "not_a_number")  # Should return the input as string
         self.log_case_result("Invalid input handled correctly", True)
 
+class TestProcessTotalCost(BaseTestCase):
+    """Test cases for process_total_cost function"""
+    
+    def test_basic_calculation(self):
+        """Test basic multiplication calculations"""
+        # Case 1: Simple integers
+        result = process_total_cost(10, 5)
+        self.assertEqual(result, 50)
+        self.log_case_result("Simple integer multiplication works correctly", True)
+        
+        # Case 2: Integer and decimal
+        result = process_total_cost(100, 1.5)
+        self.assertEqual(result, 150)
+        self.log_case_result("Integer and decimal multiplication works correctly", True)
+    
+    def test_rounding(self):
+        """Test rounding behavior"""
+        # Case 1: Result with exactly 2 decimal places
+        result = process_total_cost(3, 1.11)
+        self.assertEqual(result, 3.33)
+        self.log_case_result("Result with 2 decimal places works correctly", True)
+        
+        # Case 2: Result requiring rounding up
+        result = process_total_cost(1, 1.005)
+        self.assertEqual(result, 1.01)
+        self.log_case_result("Rounding up works correctly", True)
+        
+        # Case 3: Result requiring rounding down
+        result = process_total_cost(1, 1.004)
+        self.assertEqual(result, 1.00)
+        self.log_case_result("Rounding down works correctly", True)
+    
+    def test_edge_cases(self):
+        """Test edge cases"""
+        # Case 1: Zero quantity
+        result = process_total_cost(0, 10)
+        self.assertEqual(result, 0)
+        self.log_case_result("Zero quantity works correctly", True)
+        
+        # Case 2: Zero cost
+        result = process_total_cost(10, 0)
+        self.assertEqual(result, 0)
+        self.log_case_result("Zero cost works correctly", True)
+        
+        # Case 3: Very large numbers
+        result = process_total_cost(1000000, 1000000)
+        self.assertEqual(result, 1000000000000)
+        self.log_case_result("Very large numbers work correctly", True)
+        
+        # Case 4: Very small numbers
+        result = process_total_cost(0.0001, 0.0001)
+        self.assertEqual(result, 0.00)  # Should round to 0.00
+        self.log_case_result("Very small numbers work correctly", True)
+    
+    def test_negative_numbers(self):
+        """Test negative number handling"""
+        # Case 1: Negative quantity
+        result = process_total_cost(-5, 10)
+        self.assertEqual(result, -50)
+        self.log_case_result("Negative quantity works correctly", True)
+        
+        # Case 2: Negative cost
+        result = process_total_cost(5, -10)
+        self.assertEqual(result, -50)
+        self.log_case_result("Negative cost works correctly", True)
+        
+        # Case 3: Both negative (should result in positive)
+        result = process_total_cost(-5, -10)
+        self.assertEqual(result, 50)
+        self.log_case_result("Both negative values work correctly", True)
+
 if __name__ == '__main__':
     print("\n🔍 Running tests for generate_docx.py...")
     
