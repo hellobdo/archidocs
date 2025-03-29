@@ -1,5 +1,2 @@
 -r requirements.txt
 watchdog>=2.3.0  # For better Streamlit hot-reload performance
-python-docx>=0.8.11  # For creating test DOCX files
-pikepdf>=7.0.0  # For PDF inspection and verification
-PyMuPDF>=1.21.1  # For PDF/A verification (fitz)
