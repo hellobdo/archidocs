@@ -196,19 +196,19 @@ def convert_docx_to_pdf(docx_path: str) -> str:
             docx_abs_path = os.path.abspath(docx_path)
             output_dir = os.path.dirname(os.path.abspath(pdf_path))
             
-            # Run LibreOffice in headless mode for conversion
+            # Create the JSON parameter for PDF/A format
+            pdf_params = '{"SelectPdfVersion":{"type":"long","value":"1"}}' 
+            
+            # Run LibreOffice in headless mode for conversion with PDF/A format
             cmd = [
                 libreoffice_cmd,
                 "--headless",
-                "--nofirststartwizard",
-                # Add minimal Microsoft Word compatibility parameters
-                "--infilter=MS Word 2007 XML",  # Treat input specifically as MS Word format
-                "--convert-to", "pdf",  # Simple PDF conversion without complex parameters
+                f"--convert-to", f"pdf:writer_pdf_Export:{pdf_params}",
                 "--outdir", output_dir,
                 docx_abs_path
             ]
             
-            print(f"Running command: {' '.join(cmd)}")
+            print(f"Running LibreOffice PDF/A conversion command: {' '.join(cmd)}")
             process = subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
