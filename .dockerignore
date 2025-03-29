@@ -1,0 +1,52 @@
+# Development and test files
+tests/
+requirements-dev.txt
+
+# Documentation
+*.md
+README*
+CHANGELOG*
+LICENSE*
+
+# Environment and cache files
+.env*
+.venv
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+backend/__pycache__/
+utils/__pycache__/
+tests/__pycache__/
+
+# System files
+.DS_Store
+*.log
+*.tmp
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Version control
+.git/
+.github/
+.gitignore
+
+# Docker files not needed inside the container
+.dockerignore
+
+# Temporary output files (these will be created in the container)
+outputs/*
+
+# Streamlit specific
+.streamlit/config.toml
+
+# Keep template files and core code
+!backend/templates/ 
