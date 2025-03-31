@@ -7,7 +7,6 @@ It serves as a single source of truth for data structures used throughout the ap
 from typing import Dict, Any, Optional, List, Union
 from dataclasses import dataclass, field
 
-
 @dataclass
 class DocumentVariables:
     """Schema for document template variables."""

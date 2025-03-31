@@ -16,7 +16,7 @@ import uuid  # Add import for unique IDs
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import backend functionality
-from backend import (
+from backend.connector import (
     DocumentVariables,
     DocumentRequest,
     DocumentResponse,

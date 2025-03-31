@@ -1,32 +1,33 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
-# Install system dependencies including LibreOffice
+# Install system dependencies including Ghostscript
 RUN apt-get update && apt-get install -y \
-    libreoffice \
-    libreoffice-writer \
-    libreoffice-base \
-    libreoffice-calc \
-    --no-install-recommends \
+    build-essential \
+    libcairo2 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf2.0-0 \
+    libffi-dev \
+    shared-mime-info \
+    ghostscript \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory
+# Create and set working directory
 WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
+# Copy requirements and install Python dependencies
 COPY requirements.txt .
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
-COPY . .
+# Copy the backend code
+COPY backend/backend /app/backend
 
-# Create outputs directory
-RUN mkdir -p outputs
+# Create necessary directories
+RUN mkdir -p outputs templates/html
 
-# Expose the port that the application will run on
-EXPOSE 8501
+# Add app directory to Python path
+ENV PYTHONPATH=/app
 
-# Command to run the application
-CMD ["streamlit", "run", "frontend/app.py"] 
+# Set the entrypoint to main.py
+ENTRYPOINT ["python", "-m", "backend.main"] 
