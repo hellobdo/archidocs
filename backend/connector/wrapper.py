@@ -7,25 +7,15 @@ that will later become an API.
 """
 
 import os
-import json
-import subprocess
-import time
-import shutil
 import zipfile
 from typing import Dict, Any, Optional, List, Union
 # Import the functions from the original generate_docx.py
 from backend.generate_docx import (
     load_variables,
-    format_number_pt,
-    num_to_words_pt,
-    to_number,
-    process_total_cost,
-    get_portuguese_month,
     get_available_templates,
     generate_document,
 )
-from backend.models import DocumentVariables, DocumentRequest, DocumentResponse
-
+from backend.connector.models import DocumentVariables, DocumentRequest, DocumentResponse
 
 def get_templates() -> List[str]:
     """
@@ -136,130 +126,6 @@ def load_and_generate_document(template_name: str, variables_path: str = "templa
         return generate_document_from_dict(template_name, variables_dict, output_format, generate_all)
     except Exception as e:
         return DocumentResponse(success=False, error_message=str(e))
-
-
-def convert_docx_to_pdf(docx_path: str) -> str:
-    """
-    Convert a DOCX document to PDF format using LibreOffice in headless mode.
-    
-    Args:
-        docx_path: Path to the DOCX document
-        
-    Returns:
-        Path to the generated PDF file or None if conversion failed
-    """
-    
-    try:
-        # Check if the source file exists
-        if not os.path.exists(docx_path):
-            print(f"Error: Source DOCX file not found: {docx_path}")
-            return None
-            
-        # Generate the output PDF path by replacing .docx with .pdf
-        pdf_path = docx_path.replace(".docx", ".pdf")
-        
-        # Ensure output directory exists
-        pdf_dir = os.path.dirname(pdf_path)
-        if pdf_dir and not os.path.exists(pdf_dir):
-            os.makedirs(pdf_dir)
-        
-        print(f"Converting {docx_path} to {pdf_path}")
-        print(f"Source file size: {os.path.getsize(docx_path)} bytes")
-        
-        # Check if LibreOffice is available
-        try:
-            # Try to find LibreOffice executable
-            libreoffice_paths = [
-                "libreoffice",  # Linux/Mac standard path
-                "/usr/bin/libreoffice",  # Linux common location
-                "/Applications/LibreOffice.app/Contents/MacOS/soffice",  # macOS
-                "soffice"  # Alternative command name
-            ]
-            
-            libreoffice_cmd = None
-            for path in libreoffice_paths:
-                try:
-                    # Check if command exists
-                    subprocess.run([path, "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
-                    libreoffice_cmd = path
-                    print(f"Found LibreOffice at: {path}")
-                    break
-                except (subprocess.SubprocessError, FileNotFoundError):
-                    continue
-            
-            if not libreoffice_cmd:
-                print("LibreOffice not found in expected locations")
-                # In Docker container the path might be different, try anyway with default
-                libreoffice_cmd = "libreoffice"
-            
-            # Get absolute paths for conversion
-            docx_abs_path = os.path.abspath(docx_path)
-            output_dir = os.path.dirname(os.path.abspath(pdf_path))
-            
-            # Create the JSON parameter for PDF/A format
-            pdf_params = '{"SelectPdfVersion":{"type":"long","value":"1"}}' 
-            
-            # Run LibreOffice in headless mode for conversion with PDF/A format
-            cmd = [
-                libreoffice_cmd,
-                "--headless",
-                f"--convert-to", f"pdf:writer_pdf_Export:{pdf_params}",
-                "--outdir", output_dir,
-                docx_abs_path
-            ]
-            
-            print(f"Running LibreOffice PDF/A conversion command: {' '.join(cmd)}")
-            process = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                check=False
-            )
-            
-            print(f"Command output: {process.stdout}")
-            if process.stderr:
-                print(f"Command errors: {process.stderr}")
-            
-            # Check if the PDF was created
-            if os.path.exists(pdf_path):
-                file_size = os.path.getsize(pdf_path)
-                print(f"PDF created at: {pdf_path} with size: {file_size} bytes")
-                
-                if file_size > 0:
-                    print(f"PDF successfully created at: {pdf_path}")
-                    return pdf_path
-                else:
-                    print(f"Error: PDF file was created but is empty (0 bytes): {pdf_path}")
-                    return None
-            else:
-                print(f"Error: PDF file was not created at expected location: {pdf_path}")
-                
-                # There may be a case where LibreOffice created the PDF with a different name
-                # Try to find it in the output directory
-                base_name = os.path.splitext(os.path.basename(docx_path))[0]
-                for file in os.listdir(output_dir):
-                    if file.startswith(base_name) and file.endswith(".pdf"):
-                        found_pdf = os.path.join(output_dir, file)
-                        print(f"Found PDF with different name: {found_pdf}")
-                        # Copy to expected location
-                        shutil.copy2(found_pdf, pdf_path)
-                        return pdf_path
-                        
-                return None
-                
-        except Exception as lo_e:
-            print(f"Error running LibreOffice: {str(lo_e)}")
-            import traceback
-            traceback.print_exc()
-            return None
-            
-    except Exception as e:
-        print(f"Error converting DOCX to PDF: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return None
-
 
 def create_zip_from_files(files: List[str], output_zip_path: str) -> Optional[str]:
     """
