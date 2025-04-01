@@ -19,27 +19,27 @@ jobs:
 
       - name: Build test image
         run: |
-          docker compose -f docker/docker-compose.dev.yml build dev
+          docker compose -f docker-compose.dev.yml build dev
 
       - name: Run HTML Converter tests
         run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.docs_gen.test_html_converter
+          docker compose -f docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.docs_gen.test_html_converter
 
       - name: Run PDF/A Service tests
         run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.docs_gen.test_pdfa_service
+          docker compose -f docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.docs_gen.test_pdfa_service
 
       - name: Run Number Formatting tests
         run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.utils.test_number_and_dates
+          docker compose -f docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.utils.test_number_and_dates
 
       - name: Run Utils tests
         run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.utils.test_utils
+          docker compose -f docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.utils.test_utils
 
       - name: Run Main Document Generation tests
         run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.test_main
+          docker compose -f docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.test_main
 
   build-prod:
     runs-on: ubuntu-latest
@@ -51,4 +51,4 @@ jobs:
       
       - name: Build production image
         run: |
-          docker compose -f docker/docker-compose.yml build
+          docker compose -f docker-compose.yml build

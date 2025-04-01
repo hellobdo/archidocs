@@ -2,13 +2,13 @@ services:
   # Development service with interactive terminal
   dev:
     build:
-      context: ..
-      dockerfile: docker/Dockerfile
+      context: .
+      dockerfile: Dockerfile
       target: dev
     hostname: archidocs-dev
     volumes:
-      - ../:/app
-      - ../outputs:/app/outputs
+      - .:/app
+      - ./outputs:/app/outputs
     environment:
       - PYTHONPATH=/app
     # Interactive terminal

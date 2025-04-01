@@ -2,12 +2,12 @@ services:
   # Main service for document generation
   app:
     build:
-      context: ..
-      dockerfile: docker/Dockerfile
+      context: .
+      dockerfile: Dockerfile
       target: prod
     volumes:
-      - ../backend/backend/templates:/app/templates
-      - ../outputs:/app/outputs
+      - ./backend/backend/templates:/app/templates
+      - ./outputs:/app/outputs
     environment:
       - PYTHONPATH=/app
     ports:

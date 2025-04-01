@@ -42,7 +42,7 @@ CMD ["/bin/bash"]
 # Production stage
 FROM base AS prod
 # Only copy production requirements
-COPY docker/requirements.txt ./requirements.txt
+COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy only what's needed for production (explicitly exclude tests)
