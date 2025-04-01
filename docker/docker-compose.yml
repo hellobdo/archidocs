@@ -10,4 +10,7 @@ services:
       - ../outputs:/app/outputs
     environment:
       - PYTHONPATH=/app
+    ports:
+      - "8501:8501"  # Expose Streamlit's default port
+    command: streamlit run frontend/app.py
     restart: unless-stopped 

@@ -11,7 +11,11 @@ from backend.backend.docs_gen.pdfa_service import convert_to_pdfa
 from tests._utils.test_utils import BaseTestCase, print_summary
 
 class TestPdfaService(BaseTestCase):
-    """Tests for the PDF/A conversion service functionality."""
+    """Tests for the PDF/A conversion service functionality.
+    
+    Note: Directory creation is handled by the caller (main.py).
+    This test suite focuses on the core conversion functionality.
+    """
 
     def setUp(self):
         super().setUp()
@@ -36,7 +40,11 @@ class TestPdfaService(BaseTestCase):
         super().tearDown()
 
     def test_basic_pdfa_conversion(self):
-        """Test basic PDF to PDF/A conversion."""
+        """Test basic PDF to PDF/A conversion.
+        
+        Verifies that the function can convert a basic PDF to PDF/A format.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'test_pdfa.pdf')
         
@@ -49,7 +57,7 @@ class TestPdfaService(BaseTestCase):
             result = convert_to_pdfa(self.test_pdf, output_path)
             
             # Check conversion was successful
-            self.assertTrue(result, "Conversion should return True on success")
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist")
             self.assertTrue(os.path.getsize(output_path) > 0, "Output file should not be empty")
             
@@ -65,7 +73,11 @@ class TestPdfaService(BaseTestCase):
             self.restore_stdout(original_stdout)
 
     def test_pdfa_version_selection(self):
-        """Test PDF/A conversion with different versions."""
+        """Test PDF/A conversion with different versions.
+        
+        Verifies that the function can convert to different PDF/A versions.
+        Directory creation is handled by the caller.
+        """
         versions = ["1", "2", "3"]
         
         for version in versions:
@@ -81,7 +93,7 @@ class TestPdfaService(BaseTestCase):
                 result = convert_to_pdfa(self.test_pdf, output_path, version)
                 
                 # Check conversion was successful
-                self.assertTrue(result, f"Conversion to PDF/A-{version} should return True on success")
+                self.assertEqual(result, output_path, f"Function should return the output file path for PDF/A-{version}")
                 self.assertTrue(os.path.exists(output_path), f"Output file for PDF/A-{version} should exist")
                 self.assertTrue(os.path.getsize(output_path) > 0, f"Output file for PDF/A-{version} should not be empty")
                 
@@ -96,42 +108,12 @@ class TestPdfaService(BaseTestCase):
             finally:
                 self.restore_stdout(original_stdout)
 
-    def test_output_directory_creation(self):
-        """Test that output directory is created if it doesn't exist."""
-        # Define output path in a nested directory that doesn't exist yet
-        nested_dir = os.path.join(self.test_output_dir, 'nested', 'dirs')
-        output_path = os.path.join(nested_dir, 'nested_test_pdfa.pdf')
-        
-        # Ensure the nested directory doesn't exist
-        if os.path.exists(nested_dir):
-            shutil.rmtree(nested_dir)
-        
-        # Capture stdout
-        original_stdout = self.capture_stdout()
-        
-        try:
-            # Execute the conversion
-            print(f"\nTesting PDF/A output directory creation")
-            result = convert_to_pdfa(self.test_pdf, output_path)
-            
-            # Check if nested directory was created
-            self.assertTrue(os.path.exists(nested_dir), "Nested directory should be created")
-            self.assertTrue(result, "Conversion should return True on success")
-            self.assertTrue(os.path.exists(output_path), "Output file should exist in the nested directory")
-            
-            self.log_case_result("PDF/A output directory creation", True)
-            
-        except Exception as e:
-            print(f"Error in test_output_directory_creation: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            self.log_case_result("PDF/A output directory creation", False)
-            self.fail(f"Unexpected error: {str(e)}")
-        finally:
-            self.restore_stdout(original_stdout)
-
     def test_file_overwrite(self):
-        """Test that existing PDF/A files are overwritten."""
+        """Test that existing PDF/A files are overwritten.
+        
+        Verifies that the function can overwrite existing files.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'overwrite_test_pdfa.pdf')
         
@@ -155,7 +137,7 @@ class TestPdfaService(BaseTestCase):
             result = convert_to_pdfa(self.test_pdf, output_path)
             
             # Check if file was overwritten
-            self.assertTrue(result, "Conversion should return True on success")
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist")
             self.assertNotEqual(original_mtime, os.path.getmtime(output_path), 
                                "File modification time should change, indicating overwrite")
@@ -172,7 +154,11 @@ class TestPdfaService(BaseTestCase):
             self.restore_stdout(original_stdout)
 
     def test_invalid_input_file(self):
-        """Test handling of invalid input file."""
+        """Test handling of invalid input file.
+        
+        Verifies that the function handles invalid PDF files gracefully.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'invalid_test_pdfa.pdf')
         
@@ -190,7 +176,7 @@ class TestPdfaService(BaseTestCase):
             result = convert_to_pdfa(invalid_pdf, output_path)
             
             # The conversion should fail gracefully
-            self.assertFalse(result, "Conversion should return False for invalid input")
+            self.assertIsNone(result, "Function should return None for invalid input")
             
             self.log_case_result("Invalid input file handling", True)
             
@@ -202,7 +188,11 @@ class TestPdfaService(BaseTestCase):
             self.restore_stdout(original_stdout)
 
     def test_nonexistent_input_file(self):
-        """Test handling of nonexistent input file."""
+        """Test handling of nonexistent input file.
+        
+        Verifies that the function handles nonexistent files gracefully.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'nonexistent_test_pdfa.pdf')
         
@@ -215,7 +205,7 @@ class TestPdfaService(BaseTestCase):
             result = convert_to_pdfa('nonexistent.pdf', output_path)
             
             # The conversion should fail gracefully
-            self.assertFalse(result, "Conversion should return False for nonexistent input")
+            self.assertIsNone(result, "Function should return None for nonexistent input")
             
             self.log_case_result("Nonexistent input file handling", True)
             

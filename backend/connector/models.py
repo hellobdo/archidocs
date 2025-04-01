@@ -122,5 +122,5 @@ class DocumentRequest:
 class DocumentResponse:
     """Response from document generation."""
     success: bool
-    file_path: Optional[str] = None
+    file_paths: Optional[Dict[str, str]] = None
     error_message: Optional[str] = None 

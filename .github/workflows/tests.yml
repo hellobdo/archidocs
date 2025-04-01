@@ -37,6 +37,10 @@ jobs:
         run: |
           docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.utils.test_utils
 
+      - name: Run Main Document Generation tests
+        run: |
+          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.test_main
+
   build-prod:
     runs-on: ubuntu-latest
     steps:

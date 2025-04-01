@@ -9,8 +9,8 @@ from backend.connector.models import DocumentVariables, DocumentRequest, Documen
 from backend.connector.wrapper import (
     generate_document_from_dict,
     generate_document_from_request,
-    load_and_generate_document,
     get_templates,
+    create_zip_from_files,
 )
 
 __all__ = [
@@ -19,6 +19,6 @@ __all__ = [
     'DocumentResponse',
     'generate_document_from_dict',
     'generate_document_from_request',
-    'load_and_generate_document',
     'get_templates',
+    'create_zip_from_files',
 ] 

@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import Dict, Tuple, Any
+from typing import Dict, Tuple, Any, Optional
 
 from backend.backend.docs_gen import (
     convert_html_to_docx,
@@ -9,68 +9,57 @@ from backend.backend.docs_gen import (
 )
 from backend.backend.utils import (
     process_costs_and_dates,
-    load_variables,
     render_html_template
 )
 
-def create_documents(template_name: str = "tr_coord") -> Tuple[bool, bool, bool]:
+def generate_document(template_name: str, variables: Dict[str, Any], output_path: str, generate_pdfa: bool = True) -> Dict[str, str]:
     """
-    Create DOCX, PDF and PDF/A documents from a template.
+    Generate document(s) from template. Always generates DOCX, and optionally generates PDF/A alongside it.
     
     Args:
-        template_name: Name of the template to use
-        
+        template_name: Template to use
+        variables: Template variables
+        output_path: Where to save the DOCX document
+        generate_pdfa: If True, also generates PDF/A alongside DOCX
     Returns:
-        Tuple of (docx_success, pdf_success, pdfa_success)
+        Dict with paths to generated files: {'docx': path} or {'docx': path, 'pdfa': path}
+    Raises:
+        ValueError: If output_path doesn't end in .docx
+        RuntimeError: If document generation fails
     """
-    # Create output directory if it doesn't exist
-    os.makedirs('outputs', exist_ok=True)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    html_content = render_html_template(template_name, process_costs_and_dates(variables))
     
-    # Load and process variables
-    variables = load_variables()
-    processed_variables = process_costs_and_dates(variables)
+    _, ext = os.path.splitext(output_path)
+    if ext.lower() != '.docx':
+        raise ValueError("Output path must end in .docx")
     
-    # Render HTML template
-    html_content = render_html_template(template_name, processed_variables)
+    # Always generate DOCX
+    docx_path = convert_html_to_docx(html_content, output_path)
+    if not docx_path:
+        raise RuntimeError(f"Failed to create DOCX: {output_path}")
     
-    # Save rendered HTML for inspection
-    html_output_path = os.path.join('outputs', f"{template_name}_rendered.html")
-    with open(html_output_path, 'w', encoding='utf-8') as f:
-        f.write(html_content)
-    print(f"Rendered HTML saved to: {html_output_path}")
+    result = {'docx': docx_path}
     
-    # Convert to DOCX
-    docx_output_path = os.path.join('outputs', f"{template_name}_from_html.docx")
-    docx_success = convert_html_to_docx(html_content, docx_output_path)
+    if not generate_pdfa:
+        return result
+        
+    # Generate PDF/A alongside DOCX if requested
+    pdfa_path = output_path.replace('.docx', '.pdf')
+    temp_pdf = output_path.replace('.docx', '_temp.pdf')
     
-    # Convert to PDF (standard)
-    pdf_output_path = os.path.join('outputs', f"{template_name}_from_html.pdf")
-    pdf_success = convert_html_to_pdf(html_content, pdf_output_path)
+    # Generate PDF/A through intermediate PDF
+    pdf_path = convert_html_to_pdf(html_content, temp_pdf)
+    if not pdf_path:
+        raise RuntimeError(f"Failed to create temporary PDF: {temp_pdf}")
+        
+    pdfa_result = convert_to_pdfa(pdf_path, pdfa_path)
+    if os.path.exists(pdf_path):  # Only try to remove if it exists
+        os.remove(pdf_path)  # Clean up temporary PDF
     
-    # Convert to PDF/A
-    pdfa_output_path = os.path.join('outputs', f"{template_name}_from_html_pdfa.pdf")
-    pdfa_success = False
-    if pdf_success:
-        pdfa_success = convert_to_pdfa(pdf_output_path, pdfa_output_path)
+    if not pdfa_result:
+        raise RuntimeError(f"Failed to create PDF/A: {pdfa_path}")
+        
+    result['pdfa'] = pdfa_result
     
-    return docx_success, pdf_success, pdfa_success
-
-
-if __name__ == "__main__":
-    # Get template name from command line if provided
-    template_name = "tr_coord"
-    if len(sys.argv) > 1:
-        template_name = sys.argv[1]
-    
-    print(f"Testing HTML template: {template_name}")
-    docx, pdf, pdfa = create_documents(template_name)
-    
-    print("\n--- RESULTS ---")
-    print(f"DOCX conversion: {'SUCCESS' if docx else 'FAILED'}")
-    print(f"PDF conversion:  {'SUCCESS' if pdf else 'FAILED'}")
-    print(f"PDF/A conversion: {'SUCCESS' if pdfa else 'FAILED'}")
-    
-    if docx and pdf and pdfa:
-        print("Test completed successfully!")
-    else:
-        print("Test completed with errors. Check the outputs directory for details.") 
+    return result

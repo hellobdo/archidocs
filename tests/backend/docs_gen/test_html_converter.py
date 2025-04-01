@@ -12,7 +12,11 @@ from backend.backend.docs_gen.html_converter import convert_html_to_docx, conver
 from tests._utils.test_utils import BaseTestCase, print_summary
 
 class TestHtmlToDocx(BaseTestCase):
-    """Tests for the HTML to DOCX converter functionality."""
+    """Tests for the HTML to DOCX converter functionality.
+    
+    Note: Directory creation is handled by the caller (main.py).
+    This test suite focuses on the core conversion functionality using HtmlToDocx.
+    """
 
     def setUp(self):
         super().setUp()
@@ -76,6 +80,26 @@ class TestHtmlToDocx(BaseTestCase):
         </html>
         """
         
+        # Prepare HTML with special characters
+        self.special_chars_html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Special Characters Test</title>
+        </head>
+        <body>
+            <h1>Special Characters Test</h1>
+            <p>Testing various special characters:</p>
+            <ul>
+                <li>Accents: é, è, ê, ë</li>
+                <li>Special symbols: ©, ®, ™, €, £, ¥</li>
+                <li>Non-breaking space: &nbsp;</li>
+                <li>Quotes: "smart quotes" and 'smart quotes'</li>
+            </ul>
+        </body>
+        </html>
+        """
+        
     def tearDown(self):
         # Clean up the test output directory
         if os.path.exists(self.test_output_dir):
@@ -88,7 +112,11 @@ class TestHtmlToDocx(BaseTestCase):
         super().tearDown()
     
     def test_basic_conversion(self):
-        """Test converting basic HTML to DOCX."""
+        """Test converting basic HTML to DOCX.
+        
+        Verifies that the function can convert simple HTML content to DOCX format using HtmlToDocx.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'basic_test.docx')
         
@@ -101,23 +129,27 @@ class TestHtmlToDocx(BaseTestCase):
             result = convert_html_to_docx(self.basic_html, output_path)
             
             # Check conversion was successful
-            self.assertTrue(result, "Conversion should return True on success")
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist")
             self.assertTrue(os.path.getsize(output_path) > 0, "Output file should not be empty")
             
-            self.log_case_result("Basic HTML conversion", True)
+            self.log_case_result("Basic HTML to DOCX conversion", True)
             
         except Exception as e:
             print(f"Error in test_basic_conversion: {str(e)}")
             import traceback
             traceback.print_exc()
-            self.log_case_result("Basic HTML conversion", False)
+            self.log_case_result("Basic HTML to DOCX conversion", False)
             self.fail(f"Unexpected error: {str(e)}")
         finally:
             self.restore_stdout(original_stdout)
     
     def test_complex_conversion(self):
-        """Test converting complex HTML with tables and formatting to DOCX."""
+        """Test converting complex HTML with tables and formatting to DOCX.
+        
+        Verifies that the function can handle complex HTML with tables, lists, and formatting using HtmlToDocx.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'complex_test.docx')
         
@@ -130,23 +162,60 @@ class TestHtmlToDocx(BaseTestCase):
             result = convert_html_to_docx(self.complex_html, output_path)
             
             # Check conversion was successful
-            self.assertTrue(result, "Conversion should return True on success")
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist")
             self.assertTrue(os.path.getsize(output_path) > 0, "Output file should not be empty")
             
-            self.log_case_result("Complex HTML conversion", True)
+            self.log_case_result("Complex HTML to DOCX conversion", True)
             
         except Exception as e:
             print(f"Error in test_complex_conversion: {str(e)}")
             import traceback
             traceback.print_exc()
-            self.log_case_result("Complex HTML conversion", False)
+            self.log_case_result("Complex HTML to DOCX conversion", False)
+            self.fail(f"Unexpected error: {str(e)}")
+        finally:
+            self.restore_stdout(original_stdout)
+    
+    def test_special_chars_conversion(self):
+        """Test converting HTML with special characters to DOCX.
+        
+        Verifies that the function can handle special characters and symbols using HtmlToDocx.
+        Directory creation is handled by the caller.
+        """
+        # Define output path
+        output_path = os.path.join(self.test_output_dir, 'special_chars_test.docx')
+        
+        # Capture stdout
+        original_stdout = self.capture_stdout()
+        
+        try:
+            # Execute the conversion
+            print(f"\nTesting special characters HTML to DOCX conversion")
+            result = convert_html_to_docx(self.special_chars_html, output_path)
+            
+            # Check conversion was successful
+            self.assertEqual(result, output_path, "Function should return the output file path")
+            self.assertTrue(os.path.exists(output_path), "Output file should exist")
+            self.assertTrue(os.path.getsize(output_path) > 0, "Output file should not be empty")
+            
+            self.log_case_result("Special characters HTML to DOCX conversion", True)
+            
+        except Exception as e:
+            print(f"Error in test_special_chars_conversion: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            self.log_case_result("Special characters HTML to DOCX conversion", False)
             self.fail(f"Unexpected error: {str(e)}")
         finally:
             self.restore_stdout(original_stdout)
     
     def test_empty_html_handling(self):
-        """Test handling of empty HTML content."""
+        """Test handling of empty HTML content for DOCX conversion.
+        
+        Verifies that the function can handle empty HTML content using HtmlToDocx.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'empty_test.docx')
         
@@ -155,27 +224,31 @@ class TestHtmlToDocx(BaseTestCase):
         
         try:
             # Execute the conversion with empty HTML
-            print(f"\nTesting empty HTML handling")
+            print(f"\nTesting empty HTML to DOCX conversion")
             empty_html = "<html><body></body></html>"
             result = convert_html_to_docx(empty_html, output_path)
             
             # Conversion should still succeed with an empty document
-            self.assertTrue(result, "Conversion of empty HTML should return True")
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist even for empty HTML")
             
-            self.log_case_result("Empty HTML handling", True)
+            self.log_case_result("Empty HTML to DOCX conversion", True)
             
         except Exception as e:
             print(f"Error in test_empty_html_handling: {str(e)}")
             import traceback
             traceback.print_exc()
-            self.log_case_result("Empty HTML handling", False)
+            self.log_case_result("Empty HTML to DOCX conversion", False)
             self.fail(f"Unexpected error: {str(e)}")
         finally:
             self.restore_stdout(original_stdout)
     
     def test_invalid_html_handling(self):
-        """Test handling of invalid HTML content."""
+        """Test handling of invalid HTML content for DOCX conversion.
+        
+        Verifies that the function can handle malformed HTML content using HtmlToDocx.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'invalid_test.docx')
         
@@ -184,58 +257,29 @@ class TestHtmlToDocx(BaseTestCase):
         
         try:
             # Execute the conversion with invalid HTML (malformed tags)
-            print(f"\nTesting invalid HTML handling")
+            print(f"\nTesting invalid HTML to DOCX conversion")
             invalid_html = "<html><body><div>Unclosed div tag</html>"
             result = convert_html_to_docx(invalid_html, output_path)
             
             # HtmlToDocx should handle invalid HTML and still produce some output
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist even for invalid HTML")
             
-            self.log_case_result("Invalid HTML handling", True)
+            self.log_case_result("Invalid HTML to DOCX conversion", True)
             
         except Exception as e:
             # It's acceptable if this raises an exception, but we'll log it
-            print(f"Note: Invalid HTML handling raised exception: {str(e)}")
-            self.log_case_result("Invalid HTML handling - exception path", True)
-        finally:
-            self.restore_stdout(original_stdout)
-    
-    def test_output_directory_creation(self):
-        """Test that output directory is created if it doesn't exist."""
-        # Define output path in a nested directory that doesn't exist yet
-        nested_dir = os.path.join(self.test_output_dir, 'nested', 'dirs')
-        output_path = os.path.join(nested_dir, 'nested_test.docx')
-        
-        # Ensure the nested directory doesn't exist
-        if os.path.exists(nested_dir):
-            shutil.rmtree(nested_dir)
-        
-        # Capture stdout
-        original_stdout = self.capture_stdout()
-        
-        try:
-            # Execute the conversion
-            print(f"\nTesting output directory creation")
-            result = convert_html_to_docx(self.basic_html, output_path)
-            
-            # Check if nested directory was created
-            self.assertTrue(os.path.exists(nested_dir), "Nested directory should be created")
-            self.assertTrue(result, "Conversion should return True on success")
-            self.assertTrue(os.path.exists(output_path), "Output file should exist in the nested directory")
-            
-            self.log_case_result("Output directory creation", True)
-            
-        except Exception as e:
-            print(f"Error in test_output_directory_creation: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            self.log_case_result("Output directory creation", False)
-            self.fail(f"Unexpected error: {str(e)}")
+            print(f"Note: Invalid HTML to DOCX conversion raised exception: {str(e)}")
+            self.log_case_result("Invalid HTML to DOCX conversion - exception path", True)
         finally:
             self.restore_stdout(original_stdout)
     
     def test_file_overwrite(self):
-        """Test that existing files are overwritten."""
+        """Test that existing DOCX files are overwritten.
+        
+        Verifies that the function can overwrite existing files using HtmlToDocx.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'overwrite_test.docx')
         
@@ -255,29 +299,33 @@ class TestHtmlToDocx(BaseTestCase):
             time.sleep(1)
             
             # Execute the conversion
-            print(f"\nTesting file overwrite behavior")
+            print(f"\nTesting DOCX file overwrite behavior")
             result = convert_html_to_docx(self.basic_html, output_path)
             
             # Check if file was overwritten
-            self.assertTrue(result, "Conversion should return True on success")
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist")
             self.assertNotEqual(original_mtime, os.path.getmtime(output_path), 
                                "File modification time should change, indicating overwrite")
             
-            self.log_case_result("File overwrite behavior", True)
+            self.log_case_result("DOCX file overwrite behavior", True)
             
         except Exception as e:
             print(f"Error in test_file_overwrite: {str(e)}")
             import traceback
             traceback.print_exc()
-            self.log_case_result("File overwrite behavior", False)
+            self.log_case_result("DOCX file overwrite behavior", False)
             self.fail(f"Unexpected error: {str(e)}")
         finally:
             self.restore_stdout(original_stdout)
 
 
 class TestHtmlToPdf(BaseTestCase):
-    """Tests for the HTML to PDF converter functionality."""
+    """Tests for the HTML to PDF converter functionality.
+    
+    Note: Directory creation is handled by the caller (main.py).
+    This test suite focuses on the core conversion functionality.
+    """
 
     def setUp(self):
         super().setUp()
@@ -373,7 +421,11 @@ class TestHtmlToPdf(BaseTestCase):
         super().tearDown()
 
     def test_basic_conversion(self):
-        """Test converting basic HTML to PDF."""
+        """Test converting basic HTML to PDF.
+        
+        Verifies that the function can convert simple HTML content to PDF format.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'basic_test.pdf')
         
@@ -386,7 +438,7 @@ class TestHtmlToPdf(BaseTestCase):
             result = convert_html_to_pdf(self.basic_html, output_path)
             
             # Check conversion was successful
-            self.assertTrue(result, "Conversion should return True on success")
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist")
             self.assertTrue(os.path.getsize(output_path) > 0, "Output file should not be empty")
             
@@ -402,7 +454,11 @@ class TestHtmlToPdf(BaseTestCase):
             self.restore_stdout(original_stdout)
 
     def test_complex_conversion(self):
-        """Test converting complex HTML with tables and formatting to PDF."""
+        """Test converting complex HTML with tables and formatting to PDF.
+        
+        Verifies that the function can handle complex HTML with tables, lists, and formatting.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'complex_test.pdf')
         
@@ -415,7 +471,7 @@ class TestHtmlToPdf(BaseTestCase):
             result = convert_html_to_pdf(self.complex_html, output_path)
             
             # Check conversion was successful
-            self.assertTrue(result, "Conversion should return True on success")
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist")
             self.assertTrue(os.path.getsize(output_path) > 0, "Output file should not be empty")
             
@@ -431,7 +487,11 @@ class TestHtmlToPdf(BaseTestCase):
             self.restore_stdout(original_stdout)
 
     def test_special_chars_conversion(self):
-        """Test converting HTML with special characters to PDF."""
+        """Test converting HTML with special characters to PDF.
+        
+        Verifies that the function can handle special characters and symbols.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'special_chars_test.pdf')
         
@@ -444,7 +504,7 @@ class TestHtmlToPdf(BaseTestCase):
             result = convert_html_to_pdf(self.special_chars_html, output_path)
             
             # Check conversion was successful
-            self.assertTrue(result, "Conversion should return True on success")
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist")
             self.assertTrue(os.path.getsize(output_path) > 0, "Output file should not be empty")
             
@@ -460,7 +520,11 @@ class TestHtmlToPdf(BaseTestCase):
             self.restore_stdout(original_stdout)
 
     def test_empty_html_handling(self):
-        """Test handling of empty HTML content for PDF conversion."""
+        """Test handling of empty HTML content for PDF conversion.
+        
+        Verifies that the function can handle empty HTML content.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'empty_test.pdf')
         
@@ -474,7 +538,7 @@ class TestHtmlToPdf(BaseTestCase):
             result = convert_html_to_pdf(empty_html, output_path)
             
             # Conversion should still succeed with an empty document
-            self.assertTrue(result, "Conversion of empty HTML should return True")
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist even for empty HTML")
             
             self.log_case_result("Empty HTML to PDF conversion", True)
@@ -489,7 +553,11 @@ class TestHtmlToPdf(BaseTestCase):
             self.restore_stdout(original_stdout)
 
     def test_invalid_html_handling(self):
-        """Test handling of invalid HTML content for PDF conversion."""
+        """Test handling of invalid HTML content for PDF conversion.
+        
+        Verifies that the function can handle malformed HTML content.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'invalid_test.pdf')
         
@@ -502,8 +570,8 @@ class TestHtmlToPdf(BaseTestCase):
             invalid_html = "<html><body><div>Unclosed div tag</html>"
             result = convert_html_to_pdf(invalid_html, output_path)
             
-            # WeasyPrint should handle invalid HTML and still produce some output
-            self.assertTrue(os.path.exists(output_path), "Output file should exist even for invalid HTML")
+            # We expect None for invalid HTML
+            self.assertIsNone(result, "Function should return None for invalid HTML")
             
             self.log_case_result("Invalid HTML to PDF conversion", True)
             
@@ -514,42 +582,12 @@ class TestHtmlToPdf(BaseTestCase):
         finally:
             self.restore_stdout(original_stdout)
 
-    def test_output_directory_creation(self):
-        """Test that output directory is created if it doesn't exist for PDF conversion."""
-        # Define output path in a nested directory that doesn't exist yet
-        nested_dir = os.path.join(self.test_output_dir, 'nested', 'dirs')
-        output_path = os.path.join(nested_dir, 'nested_test.pdf')
-        
-        # Ensure the nested directory doesn't exist
-        if os.path.exists(nested_dir):
-            shutil.rmtree(nested_dir)
-        
-        # Capture stdout
-        original_stdout = self.capture_stdout()
-        
-        try:
-            # Execute the conversion
-            print(f"\nTesting PDF output directory creation")
-            result = convert_html_to_pdf(self.basic_html, output_path)
-            
-            # Check if nested directory was created
-            self.assertTrue(os.path.exists(nested_dir), "Nested directory should be created")
-            self.assertTrue(result, "Conversion should return True on success")
-            self.assertTrue(os.path.exists(output_path), "Output file should exist in the nested directory")
-            
-            self.log_case_result("PDF output directory creation", True)
-            
-        except Exception as e:
-            print(f"Error in test_output_directory_creation: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            self.log_case_result("PDF output directory creation", False)
-            self.fail(f"Unexpected error: {str(e)}")
-        finally:
-            self.restore_stdout(original_stdout)
-
     def test_file_overwrite(self):
-        """Test that existing PDF files are overwritten."""
+        """Test that existing PDF files are overwritten.
+        
+        Verifies that the function can overwrite existing files.
+        Directory creation is handled by the caller.
+        """
         # Define output path
         output_path = os.path.join(self.test_output_dir, 'overwrite_test.pdf')
         
@@ -573,7 +611,7 @@ class TestHtmlToPdf(BaseTestCase):
             result = convert_html_to_pdf(self.basic_html, output_path)
             
             # Check if file was overwritten
-            self.assertTrue(result, "Conversion should return True on success")
+            self.assertEqual(result, output_path, "Function should return the output file path")
             self.assertTrue(os.path.exists(output_path), "Output file should exist")
             self.assertNotEqual(original_mtime, os.path.getmtime(output_path), 
                                "File modification time should change, indicating overwrite")
