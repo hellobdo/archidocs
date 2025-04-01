@@ -146,12 +146,19 @@ def process_total_cost(qty, cost_per_unit):
     """Calculate the total cost from quantity and cost per unit.
     
     Args:
-        qty: The quantity
-        cost_per_unit: The cost per unit
+        qty: The quantity (must be numeric)
+        cost_per_unit: The cost per unit (must be numeric)
         
     Returns:
         The total cost precisely rounded to 2 decimal places
+        
+    Raises:
+        TypeError: If either qty or cost_per_unit is not numeric
     """
+    # Validate inputs
+    if not isinstance(qty, (int, float)) or not isinstance(cost_per_unit, (int, float)):
+        raise TypeError("Both quantity and cost_per_unit must be numeric values")
+    
     # Calculate total cost
     total_cost = qty * cost_per_unit
     

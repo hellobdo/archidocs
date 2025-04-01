@@ -5,7 +5,7 @@ import os
 # Add project root to path to ensure imports work properly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
-from backend.backend.utils.numbers_and_dates import format_number_pt, split_number_parts, num_to_words_pt
+from backend.backend.utils.numbers_and_dates import format_number_pt, split_number_parts, num_to_words_pt, get_portuguese_month, process_total_cost
 from tests._utils.test_utils import BaseTestCase, print_summary
 
 class TestSplitNumberParts(BaseTestCase):
@@ -287,6 +287,124 @@ class TestNumberToWords(BaseTestCase):
             
         except Exception as e:
             self.log_case_result("Special cases", False)
+            raise
+
+class TestPortugueseMonth(BaseTestCase):
+    """Test Portuguese month name conversion functionality."""
+    
+    def test_month_conversion(self):
+        """Test conversion of month numbers to Portuguese names."""
+        try:
+            # Test cases for all months
+            test_cases = [
+                (1, "janeiro"),
+                (2, "fevereiro"),
+                (3, "março"),
+                (4, "abril"),
+                (5, "maio"),
+                (6, "junho"),
+                (7, "julho"),
+                (8, "agosto"),
+                (9, "setembro"),
+                (10, "outubro"),
+                (11, "novembro"),
+                (12, "dezembro")
+            ]
+            
+            for month_number, expected in test_cases:
+                result = get_portuguese_month(month_number)
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Month: {month_number}", True)
+            
+        except Exception as e:
+            self.log_case_result("Month conversion", False)
+            raise
+
+class TestProcessTotalCost(BaseTestCase):
+    """Test total cost calculation functionality."""
+    
+    def test_basic_calculations(self):
+        """Test basic cost calculations with whole and decimal numbers."""
+        try:
+            # Test cases for basic calculations
+            test_cases = [
+                (2, 10, 20.00),      # Simple whole numbers
+                (2.5, 10.5, 26.25),  # Decimal numbers
+                (1000, 1000, 1000000.00),  # Large numbers
+                (2.5, 2.5, 6.25)     # Numbers that would normally round differently
+            ]
+            
+            for qty, cost_per_unit, expected in test_cases:
+                result = process_total_cost(qty, cost_per_unit)
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Basic calculation: {qty} * {cost_per_unit}", True)
+            
+        except Exception as e:
+            self.log_case_result("Basic calculations", False)
+            raise
+    
+    def test_precision_handling(self):
+        """Test handling of numbers that would result in repeating decimals."""
+        try:
+            # Test cases for precision handling
+            test_cases = [
+                (1/3, 3, 1.00),      # Repeating decimal
+                (2/3, 3, 2.00),      # Repeating decimal
+                (1.333333, 3, 4.00), # Many decimal places
+                (1.666666, 3, 5.00)  # Many decimal places
+            ]
+            
+            for qty, cost_per_unit, expected in test_cases:
+                result = process_total_cost(qty, cost_per_unit)
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Precision handling: {qty} * {cost_per_unit}", True)
+            
+        except Exception as e:
+            self.log_case_result("Precision handling", False)
+            raise
+    
+    def test_exact_decimal_places(self):
+        """Test numbers that result in exactly 1 or 2 decimal places."""
+        try:
+            # Test cases for exact decimal places
+            test_cases = [
+                (2, 10.5, 21.00),    # Exactly 2 decimal places
+                (2, 10.25, 20.50),   # Exactly 2 decimal places
+                (2, 10.1, 20.20),    # Exactly 1 decimal place
+                (2, 10.05, 20.10)    # Exactly 1 decimal place
+            ]
+            
+            for qty, cost_per_unit, expected in test_cases:
+                result = process_total_cost(qty, cost_per_unit)
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Exact decimal places: {qty} * {cost_per_unit}", True)
+            
+        except Exception as e:
+            self.log_case_result("Exact decimal places", False)
+            raise
+    
+    def test_input_validation(self):
+        """Test handling of invalid inputs."""
+        try:
+            # Test cases for invalid inputs
+            invalid_inputs = [
+                (None, 10),
+                (2, None),
+                (None, None),
+                ("2", 10),
+                (2, "10"),
+                ("2", "10"),
+                ("", 10),
+                (2, "")
+            ]
+            
+            for qty, cost_per_unit in invalid_inputs:
+                with self.assertRaises(TypeError):
+                    process_total_cost(qty, cost_per_unit)
+                self.log_case_result(f"Invalid input handling: {qty}, {cost_per_unit}", True)
+            
+        except Exception as e:
+            self.log_case_result("Input validation", False)
             raise
 
 if __name__ == "__main__":
