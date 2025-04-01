@@ -7,16 +7,8 @@ import zipfile
 import tempfile
 from pathlib import Path
 
-# Import the PDF validation libraries
-try:
-    import pikepdf
-    import fitz  # PyMuPDF
-    HAVE_PDF_LIBS = True
-except ImportError:
-    HAVE_PDF_LIBS = False
-
 # Add project root to path to ensure imports work properly
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from backend.connector.wrapper import create_zip_from_files
 from tests._utils.test_utils import BaseTestCase, print_summary

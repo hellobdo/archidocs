@@ -1,8 +1,0 @@
-services:
-  html-converter:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./backend/backend/templates:/app/templates
-      - ./outputs:/app/outputs 

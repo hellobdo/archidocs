@@ -1,0 +1,81 @@
+name: Run Tests On File Changes
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  determine-tests:
+    runs-on: ubuntu-latest
+    outputs:
+      run-html-converter: ${{ steps.changes.outputs.html_converter }}
+      run-wrapper: ${{ steps.changes.outputs.wrapper }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Check changed files
+        id: changes
+        uses: tj-actions/changed-files@v35
+        with:
+          files: |
+            backend/backend/docs_gen/html_converter.py
+            tests/backend/test_html_converter.py
+            backend/connector/wrapper.py
+            tests/backend/test_wrapper.py
+      
+      - name: Set outputs based on changed files
+        id: set-outputs
+        run: |
+          if [[ "${{ steps.changes.outputs.all_changed_files }}" == *"backend/backend/docs_gen/html_converter.py"* ]] || [[ "${{ steps.changes.outputs.all_changed_files }}" == *"tests/backend/test_html_converter.py"* ]]; then
+            echo "html_converter=true" >> $GITHUB_OUTPUT
+          else
+            echo "html_converter=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if [[ "${{ steps.changes.outputs.all_changed_files }}" == *"backend/connector/wrapper.py"* ]] || [[ "${{ steps.changes.outputs.all_changed_files }}" == *"tests/backend/test_wrapper.py"* ]]; then
+            echo "wrapper=true" >> $GITHUB_OUTPUT
+          else
+            echo "wrapper=false" >> $GITHUB_OUTPUT
+          fi
+
+  test-html-converter:
+    name: Test HTML Converter
+    needs: determine-tests
+    if: needs.determine-tests.outputs.run-html-converter == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Create Docker context
+        run: cp docker/.dockerignore.dev .dockerignore
+      
+      - name: Build and run test container
+        run: |
+          docker-compose -f docker/docker-compose.dev.yml build test-specific
+          docker-compose -f docker/docker-compose.dev.yml run --rm test-specific python -m unittest tests.backend.test_html_converter
+  
+  test-wrapper:
+    name: Test Wrapper
+    needs: determine-tests
+    if: needs.determine-tests.outputs.run-wrapper == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Create Docker context
+        run: cp docker/.dockerignore.dev .dockerignore
+      
+      - name: Build and run test container
+        run: |
+          docker-compose -f docker/docker-compose.dev.yml build test-specific
+          docker-compose -f docker/docker-compose.dev.yml run --rm test-specific python -m unittest tests.backend.test_wrapper 

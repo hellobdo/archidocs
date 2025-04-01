@@ -2,19 +2,20 @@
 Document generation service layer.
 
 This module provides functions for document generation by wrapping the
-functionality from generate_docx.py. It serves as the business logic layer
+functionality from docs_gen and utils modules. It serves as the business logic layer
 that will later become an API.
 """
 
 import os
 import zipfile
 from typing import Dict, Any, Optional, List, Union
-# Import the functions from the original generate_docx.py
-from backend.generate_docx import (
+
+# Import the functions from our new modules
+from backend.backend.utils import (
     load_variables,
     get_available_templates,
-    generate_document,
 )
+
 from backend.connector.models import DocumentVariables, DocumentRequest, DocumentResponse
 
 def get_templates() -> List[str]:
