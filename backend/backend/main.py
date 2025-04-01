@@ -14,53 +14,52 @@ from backend.backend.utils import (
 
 def generate_document(template_name: str, variables: Dict[str, Any], output_path: str, generate_pdfa: bool = True) -> Dict[str, str]:
     """
-    Generate document(s) from template. Can generate both DOCX and PDF/A if requested.
+    Generate document(s) from template. Always generates DOCX, and optionally generates PDF/A alongside it.
     
     Args:
         template_name: Template to use
         variables: Template variables
-        output_path: Where to save the document
-        generate_pdfa: If True and output is DOCX, also generates PDF/A
+        output_path: Where to save the DOCX document
+        generate_pdfa: If True, also generates PDF/A alongside DOCX
     Returns:
-        Dict with paths to generated files: {'docx': path, 'pdfa': path}
+        Dict with paths to generated files: {'docx': path} or {'docx': path, 'pdfa': path}
     Raises:
-        ValueError: If format is not supported
+        ValueError: If output_path doesn't end in .docx
         RuntimeError: If document generation fails
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     html_content = render_html_template(template_name, process_costs_and_dates(variables))
     
     _, ext = os.path.splitext(output_path)
-    if ext.lower() not in ['.docx', '.pdfa']:
-        raise ValueError(f"Unsupported format: {ext}")
+    if ext.lower() != '.docx':
+        raise ValueError("Output path must end in .docx")
     
-    result = {}
-        
-    if ext.lower() == '.docx':
-        if not convert_html_to_docx(html_content, output_path):
-            raise RuntimeError(f"Failed to create DOCX: {output_path}")
-        result['docx'] = output_path
-        
-        if not generate_pdfa:
-            return result
-            
-        # Generate PDF/A alongside DOCX
-        pdfa_path = output_path.replace('.docx', '.pdfa')
-        temp_pdf = output_path.replace('.docx', '.pdf')
-        
-    else:  # .pdfa
-        pdfa_path = output_path
-        temp_pdf = output_path.replace('.pdfa', '.pdf')
+    # Always generate DOCX
+    docx_path = convert_html_to_docx(html_content, output_path)
+    if not docx_path:
+        raise RuntimeError(f"Failed to create DOCX: {output_path}")
     
-    # Generate PDF/A (either standalone or alongside DOCX)
-    if not convert_html_to_pdf(html_content, temp_pdf):
+    result = {'docx': docx_path}
+    
+    if not generate_pdfa:
+        return result
+        
+    # Generate PDF/A alongside DOCX if requested
+    pdfa_path = output_path.replace('.docx', '.pdfa')
+    temp_pdf = output_path.replace('.docx', '.pdf')
+    
+    # Generate PDF/A through intermediate PDF
+    pdf_path = convert_html_to_pdf(html_content, temp_pdf)
+    if not pdf_path:
         raise RuntimeError(f"Failed to create temporary PDF: {temp_pdf}")
         
-    if not convert_to_pdfa(temp_pdf, pdfa_path):
-        os.remove(temp_pdf)
+    pdfa_result = convert_to_pdfa(pdf_path, pdfa_path)
+    if os.path.exists(pdf_path):  # Only try to remove if it exists
+        os.remove(pdf_path)  # Clean up temporary PDF
+    
+    if not pdfa_result:
         raise RuntimeError(f"Failed to create PDF/A: {pdfa_path}")
         
-    os.remove(temp_pdf)
-    result['pdfa'] = pdfa_path
+    result['pdfa'] = pdfa_result
     
     return result

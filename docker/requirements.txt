@@ -4,4 +4,4 @@ htmldocx==0.0.6
 weasyprint==65.0
 beautifulsoup4==4.12.3
 num2words==0.5.13
-ghostscript==0.7 
+ghostscript==0.7
