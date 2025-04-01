@@ -2,11 +2,10 @@ import os
 import sys
 import shutil
 import unittest
-import tempfile
 from pathlib import Path
 
 # Add project root to path to ensure imports work properly
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
 from backend.backend.docs_gen.pdfa_service import convert_to_pdfa
 from tests._utils.test_utils import BaseTestCase, print_summary
@@ -20,36 +19,10 @@ class TestPdfaService(BaseTestCase):
         self.test_output_dir = os.path.join(os.getcwd(), 'test_outputs')
         os.makedirs(self.test_output_dir, exist_ok=True)
         
-        # Create a simple PDF file for testing
+        # Create a minimal valid PDF file for testing
         self.test_pdf = os.path.join(self.test_output_dir, 'test.pdf')
-        self.create_test_pdf()
-        
-    def create_test_pdf(self):
-        """Create a simple test PDF file."""
-        # Create a simple text file first
-        txt_file = os.path.join(self.test_output_dir, 'test.txt')
-        with open(txt_file, 'w') as f:
-            f.write("This is a test document for PDF/A conversion.")
-        
-        # Convert text to PDF using Ghostscript
-        try:
-            import subprocess
-            cmd = [
-                'gs',
-                '-sDEVICE=pdfwrite',
-                '-dNOPAUSE',
-                '-dQUIET',
-                '-dBATCH',
-                f'-sOutputFile={self.test_pdf}',
-                txt_file
-            ]
-            subprocess.run(cmd, check=True, capture_output=True)
-            os.remove(txt_file)  # Clean up the text file
-        except Exception as e:
-            print(f"Warning: Could not create test PDF: {str(e)}")
-            # Create a dummy PDF file as fallback
-            with open(self.test_pdf, 'wb') as f:
-                f.write(b'%PDF-1.4\n%EOF\n')  # Minimal valid PDF
+        with open(self.test_pdf, 'wb') as f:
+            f.write(b'%PDF-1.4\n%EOF\n')  # Minimal valid PDF
         
     def tearDown(self):
         # Clean up the test output directory

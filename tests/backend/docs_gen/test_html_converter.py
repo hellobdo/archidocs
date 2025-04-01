@@ -6,7 +6,7 @@ import tempfile
 from pathlib import Path
 
 # Add project root to path to ensure imports work properly
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
 from backend.backend.docs_gen.html_converter import convert_html_to_docx, convert_html_to_pdf
 from tests._utils.test_utils import BaseTestCase, print_summary

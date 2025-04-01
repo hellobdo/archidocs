@@ -21,15 +21,29 @@ class TestGetAvailableTemplates(BaseTestCase):
     def test_basic_template_discovery(self):
         """Test basic template discovery functionality."""
         try:
-            # Get available templates
-            templates = get_available_templates()
-            
-            # Check that it returns a list
-            self.assertIsInstance(templates, list)
-            
-            # Check that all items are strings
-            for template in templates:
-                self.assertIsInstance(template, str)
+            with patch('os.path.dirname') as mock_dirname, \
+                 patch('os.path.abspath') as mock_abspath, \
+                 patch('os.listdir') as mock_listdir:
+                
+                # Mock the directory path
+                mock_dirname.return_value = '/app/backend/utils'
+                mock_abspath.return_value = '/app/backend/utils/utils.py'
+                
+                # Mock directory contents with some templates
+                mock_listdir.return_value = [
+                    'template1.html',
+                    'template2.html',
+                    'template3.html'
+                ]
+                
+                # Get available templates
+                templates = get_available_templates()
+                
+                # Check that it returns a list
+                self.assertIsInstance(templates, list)
+                
+                # Check that all items are strings and match expected templates
+                self.assertEqual(set(templates), {'template1', 'template2', 'template3'})
             
             self.log_case_result("Basic template discovery", True)
             

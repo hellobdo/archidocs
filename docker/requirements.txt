@@ -3,4 +3,5 @@ python-docx==0.8.11
 htmldocx==0.0.6
 weasyprint==65.0
 beautifulsoup4==4.12.3
-num2words==0.5.13 
+num2words==0.5.13
+ghostscript==0.7 
