@@ -21,26 +21,6 @@ jobs:
         run: |
           docker compose -f docker/docker-compose.dev.yml build test-specific
 
-      - name: Debug environment
-        run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm -v ${{ github.workspace }}:/app test-specific /bin/sh -c "
-            echo '=== Current working directory ===' && 
-            pwd &&
-            echo '\n=== Contents of /app ===' &&
-            ls -la /app &&
-            echo '\n=== Contents of /app/backend ===' &&
-            ls -la /app/backend &&
-            echo '\n=== Contents of /app/backend/backend ===' &&
-            ls -la /app/backend/backend 2>/dev/null || echo 'Directory not found' &&
-            echo '\n=== Contents of /app/backend/docs_gen ===' &&
-            ls -la /app/backend/docs_gen 2>/dev/null || echo 'Directory not found' &&
-            echo '\n=== Find all __init__.py files ===' &&
-            find /app -name '__init__.py' &&
-            echo '\n=== Python sys.path ===' &&
-            PYTHONPATH=/app python -c 'import sys; print(\"\n\".join(sys.path))' &&
-            echo '\n=== Try importing backend ===' &&
-            PYTHONPATH=/app python -c 'import backend; print(\"backend imported successfully\")' 2>&1 || echo 'Failed to import backend'"
-
       - name: Run HTML Converter tests
         run: |
           docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app test-specific python -m unittest tests.backend.docs_gen.test_html_converter
@@ -61,14 +41,14 @@ jobs:
         run: |
           docker compose -f docker/docker-compose.dev.yml run --rm test-specific sh -c "rm -rf /app/test_outputs /app/outputs"
 
-  ##build-prod:
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #    - uses: actions/checkout@v3
+  build-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
       
-  #    - name: Set up Docker Buildx
-  #      uses: docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
       
-  #  - name: Build production image
-  #    run: |
-  #      docker compose -f docker/docker-compose.yml build
+      - name: Build production image
+        run: |
+          docker compose -f docker/docker-compose.yml build
