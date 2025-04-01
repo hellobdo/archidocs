@@ -9,14 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test_file: [
-          'tests.backend.docs_gen.test_html_converter',
-          'tests.backend.docs_gen.test_pdfa_service',
-          'tests.backend.utils.test_number_and_dates',
-          'tests.backend.utils.test_utils'
-        ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -29,9 +21,25 @@ jobs:
         run: |
           docker compose -f docker/docker-compose.dev.yml build test-specific
 
-      - name: Run tests
+      - name: Run HTML Converter tests
         run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app test-specific python -m unittest ${{ matrix.test_file }}
+          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app test-specific python -m unittest tests.backend.docs_gen.test_html_converter
+
+      - name: Run PDF/A Service tests
+        run: |
+          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app test-specific python -m unittest tests.backend.docs_gen.test_pdfa_service
+
+      - name: Run Number Formatting tests
+        run: |
+          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app test-specific python -m unittest tests.backend.utils.test_number_and_dates
+
+      - name: Run Utils tests
+        run: |
+          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app test-specific python -m unittest tests.backend.utils.test_utils
+
+      - name: Cleanup test directories
+        run: |
+          docker compose -f docker/docker-compose.dev.yml run --rm test-specific sh -c "rm -rf /app/test_outputs /app/outputs"
 
   build-prod:
     runs-on: ubuntu-latest
