@@ -37,10 +37,6 @@ jobs:
         run: |
           docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app test-specific python -m unittest tests.backend.utils.test_utils
 
-      - name: Cleanup test directories
-        run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm test-specific sh -c "rm -rf /app/test_outputs /app/outputs"
-
   build-prod:
     runs-on: ubuntu-latest
     steps:
