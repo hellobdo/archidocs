@@ -5,7 +5,7 @@ import os
 # Add project root to path to ensure imports work properly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
-from backend.backend.utils.numbers_and_dates import format_number_pt, split_number_parts
+from backend.backend.utils.numbers_and_dates import format_number_pt, split_number_parts, num_to_words_pt
 from tests._utils.test_utils import BaseTestCase, print_summary
 
 class TestSplitNumberParts(BaseTestCase):
@@ -197,6 +197,97 @@ class TestNumberFormatting(BaseTestCase):
                 self.log_case_result(f"Formatting rules: {number}", False)
                 self.fail(f"Unexpected error: {str(e)}")
 
+class TestNumberToWords(BaseTestCase):
+    """Test number to words conversion functionality."""
+    
+    def test_basic_number_conversion(self):
+        """Test basic number to words conversion."""
+        try:
+            # Test cases for basic numbers
+            test_cases = [
+                (0, "zero"),
+                (1, "um"),
+                (10, "dez"),
+                (100, "cem"),
+                (1000, "mil"),
+                (1000000, "um milhão"),
+                (1000000000, "mil milhões"),  # Updated to match Portuguese convention
+                (-1, "menos um"),
+                (-1000, "menos mil")
+            ]
+            
+            for number, expected in test_cases:
+                result = num_to_words_pt(number)
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Basic number: {number}", True)
+            
+        except Exception as e:
+            self.log_case_result("Basic number conversion", False)
+            raise
+    
+    def test_decimal_numbers(self):
+        """Test numbers with decimal parts."""
+        try:
+            # Test cases for decimal numbers
+            test_cases = [
+                (1.23, "um, vinte e três"),
+                (1000.50, "mil, cinquenta"),
+                (0.01, "zero, um"),
+                (1.00, "um"),
+                (1000.00, "mil")
+            ]
+            
+            for number, expected in test_cases:
+                result = num_to_words_pt(number)
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Decimal number: {number}", True)
+            
+        except Exception as e:
+            self.log_case_result("Decimal numbers", False)
+            raise
+    
+    def test_currency_conversion(self):
+        """Test number to words with currency."""
+        try:
+            # Test cases for currency
+            test_cases = [
+                (1, "um euro"),
+                (2, "dois euros"),
+                (1.50, "um euro e cinquenta centavos"),
+                (2.50, "dois euros e cinquenta centavos"),
+                (1000, "mil euros"),
+                (1000.01, "mil euros e um centavo")
+            ]
+            
+            for number, expected in test_cases:
+                result = num_to_words_pt(number, currency="euro")
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Currency: {number}", True)
+            
+        except Exception as e:
+            self.log_case_result("Currency conversion", False)
+            raise
+    
+    def test_special_cases(self):
+        """Test special cases and edge cases."""
+        try:
+            # Test cases for special cases
+            test_cases = [
+                (1e12, "um bilião"),  # Scientific notation
+                (0.0001, "zero"),  # Very small number
+                (1000.999, "mil"),  # Rounding to 2 decimal places
+                (1000000.00, "um milhão"),  # Whole number with trailing zeros
+                (1000000.01, "um milhão, um")  # Large number with small decimal
+            ]
+            
+            for number, expected in test_cases:
+                result = num_to_words_pt(number)
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Special case: {number}", True)
+            
+        except Exception as e:
+            self.log_case_result("Special cases", False)
+            raise
 
 if __name__ == "__main__":
     # Run tests
