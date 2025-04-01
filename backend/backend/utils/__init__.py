@@ -6,7 +6,8 @@ Utility functions for the document generation system.
 from .utils import (
     load_variables,
     get_available_templates,
-    render_html_template
+    render_html_template,
+    create_zip_from_files
 )
 
 # Import only the main function from numbers_and_dates module
@@ -19,5 +20,6 @@ __all__ = [
     # From loading
     'load_variables',
     'get_available_templates',
-    'render_html_template'
+    'render_html_template',
+    'create_zip_from_files'
 ]

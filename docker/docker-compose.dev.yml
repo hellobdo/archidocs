@@ -1,0 +1,50 @@
+services:
+  # Development service with interactive terminal
+  dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: dev
+    hostname: archidocs-dev
+    volumes:
+      - ../:/app
+    environment:
+      - PYTHONPATH=/app
+    # Interactive terminal
+    stdin_open: true
+    tty: true
+    # Override default command if needed
+    # command: ["python", "-m", "backend.backend.main"]
+
+  # Testing service for running tests
+  test:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: dev
+    hostname: archidocs-test
+    volumes:
+      - ../:/app
+      - ../outputs:/app/outputs
+      - ../test_outputs:/app/test_outputs
+    environment:
+      - PYTHONPATH=/app
+    # Command to run tests
+    command: ["python", "-m", "unittest", "discover", "-s", "tests"]
+
+  # Service for running specific test files or modules
+  test-specific:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: dev
+    hostname: archidocs-test-specific
+    volumes:
+      - ../:/app
+      - ../outputs:/app/outputs
+      - ../test_outputs:/app/test_outputs
+    environment:
+      - PYTHONPATH=/app
+    # Placeholder command - override this at runtime
+    # Example: docker-compose -f docker/docker-compose.dev.yml run --rm test-specific python -m unittest tests.backend.test_html_converter
+    command: ["echo", "Specify test file to run using command override"] 

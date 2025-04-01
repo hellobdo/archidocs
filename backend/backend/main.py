@@ -2,17 +2,16 @@ import os
 import sys
 from typing import Dict, Tuple, Any
 
-from backend.docs_gen import (
+from backend.backend.docs_gen import (
     convert_html_to_docx,
     convert_html_to_pdf,
     convert_to_pdfa
 )
-from backend.utils import (
+from backend.backend.utils import (
     process_costs_and_dates,
     load_variables,
     render_html_template
 )
-
 
 def create_documents(template_name: str = "tr_coord") -> Tuple[bool, bool, bool]:
     """

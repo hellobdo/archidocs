@@ -1,0 +1,13 @@
+services:
+  # Main service for document generation
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: prod
+    volumes:
+      - ../backend/backend/templates:/app/templates
+      - ../outputs:/app/outputs
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped 

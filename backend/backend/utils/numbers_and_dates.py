@@ -1,10 +1,29 @@
 """
-
+Numbers and Dates Utility - Converts numbers to words and formats dates in Portuguese style.
 """
 
 from num2words import num2words
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime
+
+def split_number_parts(number):
+    """Split a number into its integer and decimal parts.
+    
+    Args:
+        number: The number to split
+        
+    Returns:
+        tuple: (integer_part, decimal_part)
+    """
+    # Get integer part
+    int_part = int(number)
+    
+    # Get decimal part with 2 decimal places
+    formatted = f"{number:.2f}"
+    _, dec_str = formatted.split('.')
+    decimal_part = int(dec_str)
+    
+    return int_part, decimal_part
 
 def format_number_pt(number, show_decimals=True, currency_symbol="€"):
     """Format number in Portuguese style.
@@ -17,27 +36,19 @@ def format_number_pt(number, show_decimals=True, currency_symbol="€"):
     Returns:
         Formatted string (e.g., "1.234,56 €" or "1.234")
     """
-    if show_decimals:
-        # Format with 2 decimal places
-        formatted = f"{number:.2f}"
-        
-        # Split by decimal point
-        int_part, dec_part = formatted.split('.')
-    else:
-        # Format without decimal places (round to integer)
-        int_part = str(round(number))
-        dec_part = None
+    
+    int_part, dec_part = split_number_parts(number)
     
     # Add thousands separator to integer part
     int_part_with_sep = ''
-    for i, digit in enumerate(reversed(int_part)):
+    for i, digit in enumerate(reversed(str(int_part))):
         if i > 0 and i % 3 == 0:
             int_part_with_sep = '.' + int_part_with_sep
         int_part_with_sep = digit + int_part_with_sep
     
     # Combine with decimal part if needed
-    if show_decimals and dec_part:
-        result = f"{int_part_with_sep},{dec_part}"
+    if show_decimals:
+        result = f"{int_part_with_sep},{dec_part:02d}"
     else:
         result = int_part_with_sep
     
@@ -58,12 +69,8 @@ def num_to_words_pt(number, currency=None, lang='pt_pt'):
         String representation of the number in Portuguese words
     """
     try:
-        # Get integer and decimal parts
-        int_part = int(number)
-        # Use string formatting to get exact decimal part (avoids floating point errors)
-        formatted = f"{number:.2f}"
-        _, dec_str = formatted.split('.')
-        decimal_part = int(dec_str)
+        # Get integer and decimal parts using utility function
+        int_part, decimal_part = split_number_parts(number)
         
         print(f"Debug - Number: {number}, Int part: {int_part}, Decimal part: {decimal_part}")
         
@@ -139,12 +146,19 @@ def process_total_cost(qty, cost_per_unit):
     """Calculate the total cost from quantity and cost per unit.
     
     Args:
-        qty: The quantity
-        cost_per_unit: The cost per unit
+        qty: The quantity (must be numeric)
+        cost_per_unit: The cost per unit (must be numeric)
         
     Returns:
         The total cost precisely rounded to 2 decimal places
+        
+    Raises:
+        TypeError: If either qty or cost_per_unit is not numeric
     """
+    # Validate inputs
+    if not isinstance(qty, (int, float)) or not isinstance(cost_per_unit, (int, float)):
+        raise TypeError("Both quantity and cost_per_unit must be numeric values")
+    
     # Calculate total cost
     total_cost = qty * cost_per_unit
     
@@ -161,7 +175,14 @@ def to_number(variable):
         
     Returns:
         The value as a float, precisely rounded to 2 decimal places
+        
+    Raises:
+        ValueError: If the input is infinity (positive or negative)
     """
+    # Check for infinity values
+    if isinstance(variable, float) and (variable == float('inf') or variable == float('-inf')):
+        raise ValueError("Cannot convert infinity values to numbers")
+    
     # Convert to Decimal for precise arithmetic
     decimal_value = Decimal(str(variable))
     
@@ -172,11 +193,23 @@ def to_number(variable):
     return float(rounded_value)
 
 def process_date(variables):
-    """Process the date variable, formatting it in Portuguese style."""
+    """Process the date variable, formatting it in Portuguese style.
+    
+    Args:
+        variables: Dictionary containing variables to process
+        
+    Returns:
+        New dictionary with the date added in Portuguese style
+    """
+    # Create a new dictionary with a copy of the input
+    result = variables.copy()
+    
+    # Add the date to the new dictionary
     now = datetime.now()
     month_name = get_portuguese_month(now.month)
-    variables['date'] = f"{month_name} de {now.year}"
-    return variables
+    result['date'] = f"{month_name} de {now.year}"
+    
+    return result
 
 def process_costs_and_dates(variables):
     """

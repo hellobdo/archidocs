@@ -1,0 +1,43 @@
+# Version control
+.git/
+.gitignore
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# Logs
+*.log
+
+# Temporary files
+*.swp
+*.swo
+.DS_Store
+
+# IDE specific files
+.idea/
+.vscode/
+
+# Docker files themselves - keep them out of the build context
+docker/
+.dockerignore
+
+# Documentation - common to exclude
+docs/
+CHANGELOG*
+LICENSE*
+# README.md is kept for reference in the container 
