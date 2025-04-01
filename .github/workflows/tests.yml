@@ -12,6 +12,7 @@ jobs:
     outputs:
       run-html-converter: ${{ steps.changes.outputs.html_converter }}
       run-wrapper: ${{ steps.changes.outputs.wrapper }}
+      run-number-formatting: ${{ steps.changes.outputs.number_formatting }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -26,6 +27,8 @@ jobs:
             tests/backend/test_html_converter.py
             backend/connector/wrapper.py
             tests/backend/test_wrapper.py
+            backend/backend/utils/numbers_and_dates.py
+            tests/backend/utils/test_number_and_dates.py
       
       - name: Set outputs based on changed files
         id: set-outputs
@@ -40,6 +43,12 @@ jobs:
             echo "wrapper=true" >> $GITHUB_OUTPUT
           else
             echo "wrapper=false" >> $GITHUB_OUTPUT
+          fi
+
+          if [[ "${{ steps.changes.outputs.all_changed_files }}" == *"backend/backend/utils/numbers_and_dates.py"* ]] || [[ "${{ steps.changes.outputs.all_changed_files }}" == *"tests/backend/utils/test_number_and_dates.py"* ]]; then
+            echo "number_formatting=true" >> $GITHUB_OUTPUT
+          else
+            echo "number_formatting=false" >> $GITHUB_OUTPUT
           fi
 
   test-html-converter:
@@ -78,4 +87,23 @@ jobs:
       - name: Build and run test container
         run: |
           docker-compose -f docker/docker-compose.dev.yml build test-specific
-          docker-compose -f docker/docker-compose.dev.yml run --rm test-specific python -m unittest tests.backend.test_wrapper 
+          docker-compose -f docker/docker-compose.dev.yml run --rm test-specific python -m unittest tests.backend.test_wrapper
+
+  test-number-formatting:
+    name: Test Number Formatting
+    needs: determine-tests
+    if: needs.determine-tests.outputs.run-number-formatting == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Create Docker context
+        run: cp docker/.dockerignore.dev .dockerignore
+      
+      - name: Build and run test container
+        run: |
+          docker-compose -f docker/docker-compose.dev.yml build test-specific
+          docker-compose -f docker/docker-compose.dev.yml run --rm test-specific python -m unittest tests.backend.utils.test_number_and_dates 

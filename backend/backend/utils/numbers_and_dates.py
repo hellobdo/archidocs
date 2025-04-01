@@ -1,10 +1,29 @@
 """
-
+Numbers and Dates Utility - Converts numbers to words and formats dates in Portuguese style.
 """
 
 from num2words import num2words
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime
+
+def split_number_parts(number):
+    """Split a number into its integer and decimal parts.
+    
+    Args:
+        number: The number to split
+        
+    Returns:
+        tuple: (integer_part, decimal_part)
+    """
+    # Get integer part
+    int_part = int(number)
+    
+    # Get decimal part with 2 decimal places
+    formatted = f"{number:.2f}"
+    _, dec_str = formatted.split('.')
+    decimal_part = int(dec_str)
+    
+    return int_part, decimal_part
 
 def format_number_pt(number, show_decimals=True, currency_symbol="€"):
     """Format number in Portuguese style.
@@ -17,27 +36,19 @@ def format_number_pt(number, show_decimals=True, currency_symbol="€"):
     Returns:
         Formatted string (e.g., "1.234,56 €" or "1.234")
     """
-    if show_decimals:
-        # Format with 2 decimal places
-        formatted = f"{number:.2f}"
-        
-        # Split by decimal point
-        int_part, dec_part = formatted.split('.')
-    else:
-        # Format without decimal places (round to integer)
-        int_part = str(round(number))
-        dec_part = None
+    
+    int_part, dec_part = split_number_parts(number)
     
     # Add thousands separator to integer part
     int_part_with_sep = ''
-    for i, digit in enumerate(reversed(int_part)):
+    for i, digit in enumerate(reversed(str(int_part))):
         if i > 0 and i % 3 == 0:
             int_part_with_sep = '.' + int_part_with_sep
         int_part_with_sep = digit + int_part_with_sep
     
     # Combine with decimal part if needed
-    if show_decimals and dec_part:
-        result = f"{int_part_with_sep},{dec_part}"
+    if show_decimals:
+        result = f"{int_part_with_sep},{dec_part:02d}"
     else:
         result = int_part_with_sep
     
@@ -58,12 +69,8 @@ def num_to_words_pt(number, currency=None, lang='pt_pt'):
         String representation of the number in Portuguese words
     """
     try:
-        # Get integer and decimal parts
-        int_part = int(number)
-        # Use string formatting to get exact decimal part (avoids floating point errors)
-        formatted = f"{number:.2f}"
-        _, dec_str = formatted.split('.')
-        decimal_part = int(dec_str)
+        # Get integer and decimal parts using utility function
+        int_part, decimal_part = split_number_parts(number)
         
         print(f"Debug - Number: {number}, Int part: {int_part}, Decimal part: {decimal_part}")
         
