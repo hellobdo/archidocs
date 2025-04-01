@@ -1,11 +1,19 @@
 import unittest
 import sys
 import os
+from decimal import Decimal
 
 # Add project root to path to ensure imports work properly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
-from backend.backend.utils.numbers_and_dates import format_number_pt, split_number_parts, num_to_words_pt, get_portuguese_month, process_total_cost
+from backend.backend.utils.numbers_and_dates import (
+    format_number_pt, 
+    split_number_parts, 
+    num_to_words_pt, 
+    get_portuguese_month, 
+    process_total_cost,
+    to_number
+)
 from tests._utils.test_utils import BaseTestCase, print_summary
 
 class TestSplitNumberParts(BaseTestCase):
@@ -405,6 +413,104 @@ class TestProcessTotalCost(BaseTestCase):
             
         except Exception as e:
             self.log_case_result("Input validation", False)
+            raise
+
+class TestToNumber(BaseTestCase):
+    """Test number conversion and rounding functionality."""
+    
+    def test_basic_conversions(self):
+        """Test basic number conversions with various number types."""
+        try:
+            # Test cases for basic conversions
+            test_cases = [
+                (100, 100.00),           # Whole number
+                (100.5, 100.50),         # Simple decimal
+                (100.00, 100.00),        # Trailing zeros
+                (100.000, 100.00),       # Many trailing zeros
+                (100.001, 100.00),       # Small decimal
+                (100.999, 101.00)        # Rounding up
+            ]
+            
+            for input_value, expected in test_cases:
+                result = to_number(input_value)
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Basic conversion: {input_value}", True)
+            
+        except Exception as e:
+            self.log_case_result("Basic conversions", False)
+            raise
+    
+    def test_precision_and_rounding(self):
+        """Test precision handling and rounding rules."""
+        try:
+            # Test cases for precision and rounding
+            test_cases = [
+                (2.5, 2.50),             # Exactly 2.5
+                (2.55, 2.55),            # No rounding needed
+                (2.555, 2.56),           # Round up
+                (2.554, 2.55),           # Round down
+                (2.5555, 2.56),          # Multiple decimal places
+                (1/3, 0.33),             # Repeating decimal
+                (2/3, 0.67)              # Repeating decimal
+            ]
+            
+            for input_value, expected in test_cases:
+                result = to_number(input_value)
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Precision/rounding: {input_value}", True)
+            
+        except Exception as e:
+            self.log_case_result("Precision and rounding", False)
+            raise
+    
+    def test_input_types(self):
+        """Test conversion from different input types."""
+        try:
+            # Test cases for different input types
+            test_cases = [
+                ("100", 100.00),         # String integer
+                ("100.5", 100.50),       # String decimal
+                ("100.00", 100.00),      # String with trailing zeros
+                (100, 100.00),           # Integer
+                (100.5, 100.50),         # Float
+                (Decimal("100.5"), 100.50)  # Decimal
+            ]
+            
+            for input_value, expected in test_cases:
+                result = to_number(input_value)
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Input type: {type(input_value).__name__}", True)
+            
+        except Exception as e:
+            self.log_case_result("Input types", False)
+            raise
+    
+    def test_edge_cases(self):
+        """Test handling of edge cases."""
+        try:
+            # Test cases for edge cases
+            test_cases = [
+                (0, 0.00),               # Zero
+                (-100, -100.00),         # Negative number
+                (-100.5, -100.50),       # Negative decimal
+                (1e12, 1000000000000.00),  # Scientific notation
+                (1.23e-4, 0.00)          # Small scientific notation
+            ]
+            
+            for input_value, expected in test_cases:
+                result = to_number(input_value)
+                self.assertEqual(result, expected)
+                self.log_case_result(f"Edge case: {input_value}", True)
+            
+            # Test infinity values separately
+            with self.assertRaises(ValueError):
+                to_number(float('inf'))
+            with self.assertRaises(ValueError):
+                to_number(float('-inf'))
+            self.log_case_result("Infinity handling", True)
+            
+        except Exception as e:
+            self.log_case_result("Edge cases", False)
             raise
 
 if __name__ == "__main__":

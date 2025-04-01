@@ -175,7 +175,14 @@ def to_number(variable):
         
     Returns:
         The value as a float, precisely rounded to 2 decimal places
+        
+    Raises:
+        ValueError: If the input is infinity (positive or negative)
     """
+    # Check for infinity values
+    if isinstance(variable, float) and (variable == float('inf') or variable == float('-inf')):
+        raise ValueError("Cannot convert infinity values to numbers")
+    
     # Convert to Decimal for precise arithmetic
     decimal_value = Decimal(str(variable))
     
