@@ -9,7 +9,6 @@ services:
     volumes:
       - ../:/app
       - ../outputs:/app/outputs
-      - ../test_outputs:/app/test_outputs
     environment:
       - PYTHONPATH=/app
     # Interactive terminal
