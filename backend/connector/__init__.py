@@ -10,7 +10,6 @@ from backend.connector.wrapper import (
     generate_document_from_dict,
     generate_document_from_request,
     get_templates,
-    create_zip_from_files,
 )
 
 __all__ = [

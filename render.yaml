@@ -4,11 +4,13 @@ services:
     env: docker
     dockerfilePath: docker/Dockerfile
     dockerContext: .
-    buildCommand: docker build -t archidocs -f docker/Dockerfile --target prod .
+    buildTarget: prod
     startCommand: streamlit run frontend/app.py
     envVars:
       - key: PYTHONPATH
         value: /app
+      - key: PORT
+        value: 8501
     healthCheckPath: /_stcore/health
     plan: starter
     branch: main 
