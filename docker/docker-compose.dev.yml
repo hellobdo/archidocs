@@ -5,6 +5,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
       target: dev
+    hostname: archidocs-dev
     volumes:
       - ../:/app
     environment:
@@ -21,6 +22,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
       target: dev
+    hostname: archidocs-test
     volumes:
       - ../:/app
       - ../outputs:/app/outputs
@@ -36,6 +38,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
       target: dev
+    hostname: archidocs-test-specific
     volumes:
       - ../:/app
       - ../outputs:/app/outputs

@@ -13,7 +13,6 @@ from backend.backend.utils import (
     render_html_template
 )
 
-
 def create_documents(template_name: str = "tr_coord") -> Tuple[bool, bool, bool]:
     """
     Create DOCX, PDF and PDF/A documents from a template.
