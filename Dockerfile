@@ -26,9 +26,9 @@ ENV PYTHONPATH=/app
 
 # Development stage with testing dependencies
 FROM base AS dev
-# Copy all requirements from docker directory
-COPY docker/requirements.txt ./requirements.txt
-COPY docker/requirements-dev.txt ./requirements-dev.txt
+# Copy requirements from repository root
+COPY requirements.txt ./requirements.txt
+COPY requirements-dev.txt ./requirements-dev.txt
 # Install both sets of dependencies
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r requirements-dev.txt
@@ -49,7 +49,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend /app/backend
 COPY frontend /app/frontend
 COPY app.py /app/
-# Add any other necessary files here...
 
 # Command to run the application
-CMD ["python", "-m", "backend.backend.main"] 
+CMD ["streamlit", "run", "frontend/app.py"] 
