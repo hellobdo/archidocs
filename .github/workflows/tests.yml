@@ -21,6 +21,20 @@ jobs:
         run: |
           docker compose -f docker/docker-compose.dev.yml build test-specific
 
+      - name: Setup Python package structure
+        run: |
+          docker compose -f docker/docker-compose.dev.yml run --rm test-specific /bin/sh -c "
+            echo 'Creating __init__.py files if missing...' && 
+            touch /app/backend/__init__.py && 
+            touch /app/backend/backend/__init__.py && 
+            touch /app/backend/backend/docs_gen/__init__.py && 
+            echo 'Directory structure:' && 
+            find /app/backend -type f -name '__init__.py' && 
+            echo 'Python path:' && 
+            PYTHONPATH=/app python -c 'import sys; print(\"\n\".join(sys.path))' && 
+            echo 'Try importing module:' && 
+            PYTHONPATH=/app python -c 'from backend.docs_gen import html_converter; print(\"Import successful!\")'"
+
       - name: Debug environment
         run: |
           docker compose -f docker/docker-compose.dev.yml run --rm test-specific /bin/sh -c "
