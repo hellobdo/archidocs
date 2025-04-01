@@ -62,8 +62,8 @@ class TestGenerateDocument(BaseTestCase):
     def test_docx_and_pdfa_generation(self):
         """Test generating both DOCX and PDF/A documents."""
         output_path = os.path.join(self.test_output_dir, 'test.docx')
-        pdfa_path = output_path.replace('.docx', '.pdfa')
-        temp_pdf = output_path.replace('.docx', '.pdf')
+        pdfa_path = output_path.replace('.docx', '.pdf')
+        temp_pdf = output_path.replace('.docx', '_temp.pdf')
         
         with patch('backend.backend.main.render_html_template') as mock_render, \
              patch('backend.backend.main.convert_html_to_docx') as mock_docx, \
@@ -132,7 +132,7 @@ class TestGenerateDocument(BaseTestCase):
     def test_pdf_conversion_failure(self):
         """Test handling of PDF conversion failure."""
         output_path = os.path.join(self.test_output_dir, 'test.docx')
-        temp_pdf = output_path.replace('.docx', '.pdf')
+        temp_pdf = output_path.replace('.docx', '_temp.pdf')
         
         with patch('backend.backend.main.render_html_template') as mock_render, \
              patch('backend.backend.main.convert_html_to_docx') as mock_docx, \
@@ -153,8 +153,8 @@ class TestGenerateDocument(BaseTestCase):
     def test_pdfa_conversion_failure(self):
         """Test handling of PDF/A conversion failure."""
         output_path = os.path.join(self.test_output_dir, 'test.docx')
-        pdfa_path = output_path.replace('.docx', '.pdfa')
-        temp_pdf = output_path.replace('.docx', '.pdf')
+        pdfa_path = output_path.replace('.docx', '.pdf')
+        temp_pdf = output_path.replace('.docx', '_temp.pdf')
         
         with patch('backend.backend.main.render_html_template') as mock_render, \
              patch('backend.backend.main.convert_html_to_docx') as mock_docx, \
@@ -203,7 +203,7 @@ class TestGenerateDocument(BaseTestCase):
     def test_file_overwrite(self):
         """Test that existing files are overwritten."""
         output_path = os.path.join(self.test_output_dir, 'test.docx')
-        pdfa_path = output_path.replace('.docx', '.pdfa')
+        pdfa_path = output_path.replace('.docx', '.pdf')
         
         # Create dummy files
         os.makedirs(os.path.dirname(output_path), exist_ok=True)

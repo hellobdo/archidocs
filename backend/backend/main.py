@@ -45,8 +45,8 @@ def generate_document(template_name: str, variables: Dict[str, Any], output_path
         return result
         
     # Generate PDF/A alongside DOCX if requested
-    pdfa_path = output_path.replace('.docx', '.pdfa')
-    temp_pdf = output_path.replace('.docx', '.pdf')
+    pdfa_path = output_path.replace('.docx', '.pdf')
+    temp_pdf = output_path.replace('.docx', '_temp.pdf')
     
     # Generate PDF/A through intermediate PDF
     pdf_path = convert_html_to_pdf(html_content, temp_pdf)

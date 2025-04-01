@@ -22,9 +22,7 @@ from backend.connector import (
     DocumentResponse,
     generate_document_from_dict,
     generate_document_from_request,
-    load_and_generate_document,
     get_templates,
-    convert_docx_to_pdf,
     create_zip_from_files
 )
 
@@ -32,7 +30,7 @@ from backend.connector import (
 def load_default_variables():
     """Load default variables from the JSON file."""
     try:
-        with open('backend/templates/variables.json', 'r', encoding='utf-8') as f:
+        with open('backend/backend/templates/variables.json', 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
         st.error("Variables file not found. Please create 'backend/templates/variables.json'.")
@@ -158,23 +156,21 @@ def display_document_form(default_values=None):
 
 def save_variables(variables):
     """Save the variables to a JSON file."""
-    backup_path = "backend/templates/variables_backup.json"
+    backup_path = "backend/backend/templates/variables_backup.json"
     
     # Create backup of original file if it exists
-    if os.path.exists("backend/templates/variables.json"):
-        with open("backend/templates/variables.json", 'r', encoding='utf-8') as f:
+    if os.path.exists("backend/backend/templates/variables.json"):
+        with open("backend/backend/templates/variables.json", 'r', encoding='utf-8') as f:
             original = json.load(f)
             
         with open(backup_path, 'w', encoding='utf-8') as f:
             json.dump(original, f, indent=2, ensure_ascii=False)
-        
-        st.success(f"Created backup at {backup_path}")
     
     # Save new variables
-    with open("backend/templates/variables.json", 'w', encoding='utf-8') as f:
+    with open("backend/backend/templates/variables.json", 'w', encoding='utf-8') as f:
         json.dump(variables, f, indent=2, ensure_ascii=False)
     
-    st.success("Variables saved successfully!")
+    st.success("Valores guardados com sucesso!")
 
 
 def main():
@@ -277,7 +273,8 @@ def main():
                     with st.spinner("A criar documento..."):
                         result = generate_document_from_dict(
                             selected_template,
-                            st.session_state.variables
+                            st.session_state.variables,
+                            output_format="pdfa"
                         )
                         if result.success:
                             st.success(f"Documento criado com sucesso!")
@@ -285,29 +282,27 @@ def main():
                             st.write("Documentos criados:")
                             col1, col2, col3 = st.columns([0.6, 0.2, 0.2])
                             with col1:
-                                filename = os.path.basename(result.file_path)
+                                filename = os.path.basename(result.file_paths['docx'])
                                 filename_without_ext = os.path.splitext(filename)[0]
                                 st.write(f"{filename_without_ext}")
                             with col2:
                                 # Add DOCX download button using custom styling
-                                with open(result.file_path, "rb") as file:
+                                with open(result.file_paths['docx'], "rb") as file:
                                     file_content = file.read()
-                                    file_name = os.path.basename(result.file_path)
+                                    file_name = os.path.basename(result.file_paths['docx'])
                                     b64_content = base64.b64encode(file_content).decode()
                                     st.markdown(f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_content}" download="{file_name}" class="small-font stButton">docx</a>', unsafe_allow_html=True)
                                     
                             with col3:
-                                # Add button to generate and download PDF
-                                pdf_path = convert_docx_to_pdf(result.file_path)
-                                if pdf_path and os.path.exists(pdf_path):
-                                    with open(pdf_path, "rb") as pdf_file:
+                                # Add PDF/A download button
+                                if 'pdfa' in result.file_paths:
+                                    with open(result.file_paths['pdfa'], "rb") as pdf_file:
                                         pdf_content = pdf_file.read()
-                                        pdf_filename = os.path.basename(pdf_path)
+                                        pdf_filename = os.path.basename(result.file_paths['pdfa'])
                                         pdf_b64 = base64.b64encode(pdf_content).decode()
-                                        # Use application/pdf MIME type with target="_blank" to avoid page reload
-                                        st.markdown(f'<a href="data:application/pdf;base64,{pdf_b64}" download="{pdf_filename}" target="_blank" class="small-font stButton">pdf</a>', unsafe_allow_html=True)
+                                        st.markdown(f'<a href="data:application/pdf;base64,{pdf_b64}" download="{pdf_filename}" target="_blank" class="small-font stButton">pdf/a</a>', unsafe_allow_html=True)
                                 else:
-                                    st.error("Erro ao gerar PDF")
+                                    st.error("PDF/A não disponível")
                         else:
                             st.error(f"Erro: {result.error_message}")
                 else:
@@ -319,6 +314,7 @@ def main():
                         results = generate_document_from_dict(
                             selected_template,
                             st.session_state.variables,
+                            output_format="pdfa",
                             generate_all=True
                         )
                         success_count = sum(1 for r in results if r.success)
@@ -329,98 +325,66 @@ def main():
                             if "session_id" not in st.session_state:
                                 st.session_state.session_id = str(uuid.uuid4())
                             
-                            # Create a download all button for zip file
-                            success_files = [r.file_path for r in results if r.success]
+                            # Create lists for DOCX and PDF/A files
+                            docx_files = []
+                            pdfa_files = []
+                            for result in results:
+                                if result.success:
+                                    docx_files.append(result.file_paths['docx'])
+                                    if 'pdfa' in result.file_paths:
+                                        pdfa_files.append(result.file_paths['pdfa'])
                             
-                            # Generate PDFs up front, before any download buttons
-                            with st.spinner("A gerar PDFs..."):
-                                pdf_files = []
-                                for file_path in success_files:
-                                    pdf_path = convert_docx_to_pdf(file_path)
-                                    if pdf_path:
-                                        pdf_files.append(pdf_path)
-                            
-                            # Create DOCX and PDF zip files using our dedicated function
-                            # Create files directly in the outputs directory with clear names
+                            # Create DOCX and PDF/A zip files
                             docx_zip_path = os.path.join("outputs", "documentos.zip")
-                            create_zip_from_files(success_files, docx_zip_path)
+                            create_zip_from_files(docx_files, docx_zip_path)
                             
-                            # Create PDF zip if we have PDFs
-                            pdf_zip_path = None
-                            if pdf_files:
-                                pdf_zip_path = os.path.join("outputs", "documentos_pdf.zip")
-                                create_zip_from_files(pdf_files, pdf_zip_path)
+                            # Create PDF/A zip if we have PDF/A files
+                            pdfa_zip_path = None
+                            if pdfa_files:
+                                pdfa_zip_path = os.path.join("outputs", "documentos_pdfa.zip")
+                                create_zip_from_files(pdfa_files, pdfa_zip_path)
                             
-                            # Place each download button on its own line
-                            
-                            # Add download all (DOCX) button
+                            # Add download buttons for zip files
                             if os.path.exists(docx_zip_path):
-                                # Read ZIP file and encode as base64 (like we do for individual files)
                                 with open(docx_zip_path, "rb") as zip_file:
                                     zip_content = zip_file.read()
                                     zip_b64 = base64.b64encode(zip_content).decode()
-                                    
-                                    # Use data URL instead of relative path
                                     st.markdown(
                                         f'<a href="data:application/zip;base64,{zip_b64}" download="documentos.zip" target="_blank" class="streamlit-button">Descarregar todos (DOCX)</a>',
                                         unsafe_allow_html=True
                                     )
-                                print(f"DOCX ZIP created at: {docx_zip_path}, size: {os.path.getsize(docx_zip_path)}")
-                            else:
-                                st.error("Erro ao gerar ZIP de DOCX")
-                                print(f"DOCX ZIP not found at: {docx_zip_path}")
                             
-                            # Add download all as PDF button in a new line
-                            if pdf_zip_path and os.path.exists(pdf_zip_path):
-                                # Read ZIP file and encode as base64 (like we do for individual files)
-                                with open(pdf_zip_path, "rb") as zip_file:
+                            if pdfa_zip_path and os.path.exists(pdfa_zip_path):
+                                with open(pdfa_zip_path, "rb") as zip_file:
                                     zip_content = zip_file.read()
                                     zip_b64 = base64.b64encode(zip_content).decode()
-                                    
-                                    # Use data URL instead of relative path
                                     st.markdown(
-                                        f'<a href="data:application/zip;base64,{zip_b64}" download="documentos_pdf.zip" target="_blank" class="streamlit-button">Descarregar todos (PDF)</a>',
+                                        f'<a href="data:application/zip;base64,{zip_b64}" download="documentos_pdfa.zip" target="_blank" class="streamlit-button">Descarregar todos (PDF/A)</a>',
                                         unsafe_allow_html=True
                                     )
-                                print(f"PDF ZIP created at: {pdf_zip_path}, size: {os.path.getsize(pdf_zip_path)}")
-                            else:
-                                st.error("Erro ao gerar PDFs")
-                                print(f"PDF ZIP not found at: {pdf_zip_path}")
                             
-                            # List the files with download buttons
+                            # List individual files with download buttons
                             st.write("Documentos criados:")
                             for result in results:
                                 if result.success:
                                     col1, col2, col3 = st.columns([0.6, 0.2, 0.2])
                                     with col1:
-                                        filename = os.path.basename(result.file_path)
+                                        filename = os.path.basename(result.file_paths['docx'])
                                         filename_without_ext = os.path.splitext(filename)[0]
                                         st.write(f"{filename_without_ext}")
                                     with col2:
-                                        # Use the file directly from its original location
-                                        file_path = result.file_path
-                                        docx_rel_path = os.path.relpath(file_path, os.getcwd())
-                                        
-                                        # Use HTML link with target="_blank" to avoid page reload
-                                        st.markdown(
-                                            f'<a href="{docx_rel_path}" download="{filename}" target="_blank" class="small-font stButton">docx</a>',
-                                            unsafe_allow_html=True
-                                        )
-
+                                        with open(result.file_paths['docx'], "rb") as file:
+                                            file_content = file.read()
+                                            file_name = os.path.basename(result.file_paths['docx'])
+                                            b64_content = base64.b64encode(file_content).decode()
+                                            st.markdown(f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_content}" download="{file_name}" class="small-font stButton">docx</a>', unsafe_allow_html=True)
                                     with col3:
-                                        # Add button to generate and download PDF
-                                        pdf_path = convert_docx_to_pdf(result.file_path)
-                                        if pdf_path and os.path.exists(pdf_path):
-                                            pdf_filename = os.path.basename(pdf_path)
-                                            pdf_rel_path = os.path.relpath(pdf_path, os.getcwd())
-                                            
-                                            # Use HTML link with target="_blank" to avoid page reload
-                                            st.markdown(
-                                                f'<a href="{pdf_rel_path}" download="{pdf_filename}" target="_blank" class="small-font stButton">pdf</a>',
-                                                unsafe_allow_html=True
-                                            )
-                                        else:
-                                            st.error("Erro ao gerar PDF")
+                                        if 'pdfa' in result.file_paths:
+                                            with open(result.file_paths['pdfa'], "rb") as pdf_file:
+                                                pdf_content = pdf_file.read()
+                                                pdf_filename = os.path.basename(result.file_paths['pdfa'])
+                                                pdf_b64 = base64.b64encode(pdf_content).decode()
+                                                st.markdown(f'<a href="data:application/pdf;base64,{pdf_b64}" download="{pdf_filename}" target="_blank" class="small-font stButton">pdf/a</a>', unsafe_allow_html=True)
                         else:
                             st.error("Falha ao criar os documentos.")
                 else:
