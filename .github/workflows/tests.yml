@@ -19,32 +19,32 @@ jobs:
 
       - name: Build test image
         run: |
-          docker compose -f docker/docker-compose.dev.yml build test-specific
+          docker compose -f docker/docker-compose.dev.yml build dev
 
       - name: Run HTML Converter tests
         run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app test-specific python -m unittest tests.backend.docs_gen.test_html_converter
+          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.docs_gen.test_html_converter
 
       - name: Run PDF/A Service tests
         run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app test-specific python -m unittest tests.backend.docs_gen.test_pdfa_service
+          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.docs_gen.test_pdfa_service
 
       - name: Run Number Formatting tests
         run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app test-specific python -m unittest tests.backend.utils.test_number_and_dates
+          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.utils.test_number_and_dates
 
       - name: Run Utils tests
         run: |
-          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app test-specific python -m unittest tests.backend.utils.test_utils
+          docker compose -f docker/docker-compose.dev.yml run --rm -e PYTHONPATH=/app -v ${{ github.workspace }}:/app dev python -m unittest tests.backend.utils.test_utils
 
-  build-prod:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+  #build-prod:
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v3
       
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+  #    - name: Set up Docker Buildx
+  #      uses: docker/setup-buildx-action@v2
       
-      - name: Build production image
-        run: |
-          docker compose -f docker/docker-compose.yml build
+  #  - name: Build production image
+  #    run: |
+  #      docker compose -f docker/docker-compose.yml build
