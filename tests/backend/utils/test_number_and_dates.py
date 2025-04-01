@@ -14,7 +14,8 @@ from backend.backend.utils.numbers_and_dates import (
     get_portuguese_month, 
     process_total_cost,
     to_number,
-    process_date
+    process_date,
+    process_costs_and_dates
 )
 from tests._utils.test_utils import BaseTestCase, print_summary
 
@@ -587,6 +588,136 @@ class TestProcessDate(BaseTestCase):
             
         except Exception as e:
             self.log_case_result("Variables handling", False)
+            raise
+
+class TestProcessCostsAndDates(BaseTestCase):
+    """Test cost and date processing functionality."""
+    
+    def test_basic_cost_processing(self):
+        """Test basic cost calculations and formatting."""
+        try:
+            # Test with simple numbers
+            variables = {
+                'qty': 2,
+                'cost_per_unit': 10
+            }
+            result = process_costs_and_dates(variables)
+            
+            # Check all required fields are present
+            self.assertIn('total_cost', result)
+            self.assertIn('total_cost_words', result)
+            self.assertIn('qty', result)
+            self.assertIn('cost_per_unit', result)
+            self.assertIn('date', result)
+            
+            # Check values
+            self.assertEqual(result['total_cost'], "20,00 €")
+            self.assertEqual(result['total_cost_words'], "vinte euros")
+            self.assertEqual(result['qty'], "2,00")
+            self.assertEqual(result['cost_per_unit'], "10,00 €")
+            
+            self.log_case_result("Basic cost processing", True)
+            
+        except Exception as e:
+            self.log_case_result("Basic cost processing", False)
+            raise
+    
+    def test_decimal_numbers(self):
+        """Test handling of decimal numbers."""
+        try:
+            # Test with decimal numbers
+            variables = {
+                'qty': 2.5,
+                'cost_per_unit': 10.5
+            }
+            result = process_costs_and_dates(variables)
+            
+            # Check values
+            self.assertEqual(result['total_cost'], "26,25 €")
+            self.assertEqual(result['total_cost_words'], "vinte e seis euros e vinte e cinco centavos")
+            self.assertEqual(result['qty'], "2,50")
+            self.assertEqual(result['cost_per_unit'], "10,50 €")
+            
+            self.log_case_result("Decimal numbers", True)
+            
+        except Exception as e:
+            self.log_case_result("Decimal numbers", False)
+            raise
+    
+    def test_missing_cost_variables(self):
+        """Test behavior when cost variables are missing."""
+        try:
+            # Test with missing variables
+            variables = {
+                'other_var': 'value'
+            }
+            result = process_costs_and_dates(variables)
+            
+            # Check that only date is added
+            self.assertIn('date', result)
+            self.assertIn('other_var', result)
+            self.assertEqual(result['other_var'], 'value')
+            
+            # Check that cost fields are not present
+            self.assertNotIn('total_cost', result)
+            self.assertNotIn('total_cost_words', result)
+            self.assertNotIn('qty', result)
+            self.assertNotIn('cost_per_unit', result)
+            
+            self.log_case_result("Missing cost variables", True)
+            
+        except Exception as e:
+            self.log_case_result("Missing cost variables", False)
+            raise
+    
+    def test_large_numbers(self):
+        """Test handling of large numbers."""
+        try:
+            # Test with large numbers
+            variables = {
+                'qty': 1000000,
+                'cost_per_unit': 1000000
+            }
+            result = process_costs_and_dates(variables)
+            
+            # Check values
+            self.assertEqual(result['total_cost'], "1.000.000.000.000,00 €")
+            self.assertEqual(result['qty'], "1.000.000,00")
+            self.assertEqual(result['cost_per_unit'], "1.000.000,00 €")
+            
+            self.log_case_result("Large numbers", True)
+            
+        except Exception as e:
+            self.log_case_result("Large numbers", False)
+            raise
+    
+    def test_input_preservation(self):
+        """Test that input dictionary is not modified."""
+        try:
+            # Test with existing variables
+            variables = {
+                'qty': 2,
+                'cost_per_unit': 10,
+                'existing_var': 'value'
+            }
+            original_variables = variables.copy()
+            
+            # Process the variables
+            result = process_costs_and_dates(variables)
+            
+            # Check that original variables are preserved
+            self.assertEqual(variables, original_variables)
+            
+            # Check that result is a new dictionary
+            self.assertIsNot(result, variables)
+            
+            # Check that existing variables are in result
+            self.assertEqual(result['existing_var'], 'value')
+            
+            self.log_case_result("Input preservation", True)
+            
+        except Exception as e:
+            self.log_case_result("Input preservation", False)
             raise
 
 if __name__ == "__main__":
