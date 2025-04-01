@@ -193,11 +193,23 @@ def to_number(variable):
     return float(rounded_value)
 
 def process_date(variables):
-    """Process the date variable, formatting it in Portuguese style."""
+    """Process the date variable, formatting it in Portuguese style.
+    
+    Args:
+        variables: Dictionary containing variables to process
+        
+    Returns:
+        New dictionary with the date added in Portuguese style
+    """
+    # Create a new dictionary with a copy of the input
+    result = variables.copy()
+    
+    # Add the date to the new dictionary
     now = datetime.now()
     month_name = get_portuguese_month(now.month)
-    variables['date'] = f"{month_name} de {now.year}"
-    return variables
+    result['date'] = f"{month_name} de {now.year}"
+    
+    return result
 
 def process_costs_and_dates(variables):
     """

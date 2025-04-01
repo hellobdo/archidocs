@@ -2,6 +2,7 @@ import unittest
 import sys
 import os
 from decimal import Decimal
+from datetime import datetime
 
 # Add project root to path to ensure imports work properly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
@@ -12,7 +13,8 @@ from backend.backend.utils.numbers_and_dates import (
     num_to_words_pt, 
     get_portuguese_month, 
     process_total_cost,
-    to_number
+    to_number,
+    process_date
 )
 from tests._utils.test_utils import BaseTestCase, print_summary
 
@@ -511,6 +513,80 @@ class TestToNumber(BaseTestCase):
             
         except Exception as e:
             self.log_case_result("Edge cases", False)
+            raise
+
+class TestProcessDate(BaseTestCase):
+    """Test date processing functionality."""
+    
+    def test_date_formatting(self):
+        """Test that dates are formatted correctly in Portuguese style."""
+        try:
+            # Get current date
+            now = datetime.now()
+            expected_month = get_portuguese_month(now.month)
+            expected_year = now.year
+            
+            # Test with empty dictionary
+            variables = {}
+            result = process_date(variables)
+            
+            # Check the date format
+            self.assertIn('date', result)
+            self.assertEqual(result['date'], f"{expected_month} de {expected_year}")
+            self.log_case_result("Basic date formatting", True)
+            
+        except Exception as e:
+            self.log_case_result("Date formatting", False)
+            raise
+    
+    def test_month_name_validation(self):
+        """Test that month names are valid Portuguese with proper formatting."""
+        try:
+            # Test with empty dictionary
+            variables = {}
+            result = process_date(variables)
+            
+            # Get the month name from the result
+            month_name = result['date'].split(' de ')[0]
+            
+            # Check month name properties
+            self.assertTrue(month_name.islower())  # Should be lowercase
+            self.assertIn(month_name, [
+                "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+                "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
+            ])
+            self.log_case_result("Month name validation", True)
+            
+        except Exception as e:
+            self.log_case_result("Month name validation", False)
+            raise
+    
+    def test_variables_handling(self):
+        """Test that the function properly handles input variables."""
+        try:
+            # Test with existing variables
+            variables = {
+                'existing_var': 'value',
+                'another_var': 123
+            }
+            original_variables = variables.copy()
+            
+            # Process the date
+            result = process_date(variables)
+            
+            # Check that original variables are preserved
+            self.assertEqual(result['existing_var'], original_variables['existing_var'])
+            self.assertEqual(result['another_var'], original_variables['another_var'])
+            
+            # Check that a new dictionary was created
+            self.assertIsNot(result, variables)
+            
+            # Check that the date was added
+            self.assertIn('date', result)
+            self.log_case_result("Variables handling", True)
+            
+        except Exception as e:
+            self.log_case_result("Variables handling", False)
             raise
 
 if __name__ == "__main__":
