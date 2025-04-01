@@ -2,8 +2,6 @@
 .vscode/*
 /venv/*
 /backend/outputs/*
-/backend/__pycache__/*
-__pycache__/*
-utils/__pycache__/*
-tests/__pycache__/*
+**/__pycache__/
+**/*.py[cod]
 .pytest_cache/*
