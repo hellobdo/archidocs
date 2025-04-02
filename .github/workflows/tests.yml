@@ -1,4 +1,4 @@
-name: Python Tests
+name: Docker Build and Tests
 
 on:
   push:
@@ -24,13 +24,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-
     
-    - name: Build Docker image
+    - name: Build Dev Docker image
       uses: docker/build-push-action@v4
       with:
         context: .
+        target: dev
         push: false
         load: true
-        tags: archidocs:test
+        tags: archidocs:dev
         cache-from: |
           type=local,src=/tmp/.buildx-cache
           type=gha
@@ -38,7 +39,6 @@ jobs:
           type=local,dest=/tmp/.buildx-cache-new,mode=max
           type=gha,mode=max
     
-    # Temp fix for https://github.com/docker/build-push-action/issues/252
     - name: Move cache
       run: |
         rm -rf /tmp/.buildx-cache
@@ -56,7 +56,7 @@ jobs:
         if [ ! -f "test_data/test_document.docx" ]; then
           mkdir -p test_data
           # Create a simple test DOCX using LibreOffice in the Docker container
-          docker run --rm -v $(pwd):/app archidocs:test bash -c '
+          docker run --rm -v $(pwd):/app archidocs:dev bash -c '
             echo "Test content" > /tmp/test.txt
             libreoffice --headless --convert-to docx --outdir /app/test_data /tmp/test.txt
             mv /app/test_data/test.docx /app/test_data/test_document.docx
@@ -64,10 +64,67 @@ jobs:
         fi
         cp -f test_data/test_document.docx outputs/ || echo "No test document available"
     
-    # Run tests in parallel for speed
+    # Run tests in the dev container
     - name: Run all tests
       run: |
         docker run --rm \
           -v $(pwd):/app \
-          archidocs:test \
+          archidocs:dev \
           bash -c "python -m unittest discover -s tests -p 'test_*.py' -v" 
+          
+  build-prod:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-prod-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-prod-
+    
+    - name: Build Production Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        target: prod
+        push: false
+        load: true
+        tags: archidocs:prod
+        cache-from: |
+          type=local,src=/tmp/.buildx-cache
+          type=gha
+        cache-to: |
+          type=local,dest=/tmp/.buildx-cache-new,mode=max
+          type=gha,mode=max
+    
+    - name: Move cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+    
+    - name: Verify production container starts properly
+      run: |
+        # Start the container in the background
+        docker run -d --name archidocs-prod -p 8501:8501 archidocs:prod
+        
+        # Give it a few seconds to start
+        sleep 10
+        
+        # Check if the container is running
+        if docker ps | grep archidocs-prod; then
+          echo "Production container started successfully"
+          docker stop archidocs-prod
+          exit 0
+        else
+          echo "Production container failed to start"
+          docker logs archidocs-prod
+          exit 1
+        fi 

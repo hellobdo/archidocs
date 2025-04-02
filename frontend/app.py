@@ -49,12 +49,20 @@ def display_document_form(default_values=None):
 
     with st.expander("Informações do projeto", expanded=False):
         construction_type = st.text_input("Tipo de Construção", value=default_values.get("construction_type", ""))
+        construction_type2 = st.text_input("Tipo de Construção (complemento)", value=default_values.get("construction_type2", ""))
+        construction_type3 = st.text_input("Tipologia", value=default_values.get("construction_type3", ""))
         construction_address = st.text_input("Endereço do Projeto", value=default_values.get("construction_address", ""))
         property_description = st.text_area("Descrição da Propriedade", value=default_values.get("property_description", ""))
         request_type = st.text_input("Tipo de Solicitação", value=default_values.get("request_type", ""))
         qty = st.number_input("Quantidade em m2", value=float(default_values.get("qty", 0)), format="%.2f")
         cost_per_unit = st.number_input("Custo por m2", value=float(default_values.get("cost_per_unit", 0)), format="%.2f")
         
+    with st.expander("Acessibilidade", expanded=False):
+        accessibility_width = st.number_input("Largura", value=int(default_values.get("accessibility_width", 0)))
+        accessibility_height = st.number_input("Altura", value=int(default_values.get("accessibility_height", 0)))
+        accessibility_comparison = st.text_input("Comparação", value=default_values.get("accessibility_comparison", ""))
+        accessiblitity_floors = st.text_input("Pisos", value=default_values.get("accessiblitity_floors", ""))
+        accessibility_how_many_floors = st.text_input("Número de Níveis", value=default_values.get("accessibility_how_many_floors", ""))
     
     with st.expander("Informações do registo de imóveis", expanded=False):
         land_registry_location = st.text_input("Localização no Registo de Imóveis", value=default_values.get("land_registry_location", ""))
@@ -104,6 +112,8 @@ def display_document_form(default_values=None):
         "author_address": author_address,
         "author_nif": author_nif,
         "construction_type": construction_type,
+        "construction_type2": construction_type2,
+        "construction_type3": construction_type3,
         "construction_address": construction_address,
         "property_description": property_description,
         "request_type": request_type,
@@ -123,6 +133,11 @@ def display_document_form(default_values=None):
         "cost_per_unit": str(cost_per_unit),
         "technical_information_id": technical_information_id,
         "process_nr": process_nr,
+        "accessibility_width": str(accessibility_width),
+        "accessibility_height": str(accessibility_height),
+        "accessibility_comparison": accessibility_comparison,
+        "accessiblitity_floors": accessiblitity_floors,
+        "accessibility_how_many_floors": accessibility_how_many_floors,
         "table_row1": table_row1,
         "table_row2": table_row2,
         "table_row3": table_row3,

@@ -20,7 +20,7 @@ sys.path.insert(0, current_dir)
 from _utils.test_utils import BaseTestCase, print_summary
 
 # Import the module we want to test
-from backend.generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document, main
+from backend.generate_docx import load_variables, format_number_pt, num_to_words_pt, process_total_cost, get_portuguese_month, get_available_templates, to_number, generate_document
 
 # Module specific test fixtures
 def create_module_fixtures():
@@ -52,7 +52,6 @@ class TestGenerateDocxImports(BaseTestCase):
             self.assertTrue(callable(get_available_templates))
             self.assertTrue(callable(to_number))
             self.assertTrue(callable(generate_document))
-            self.assertTrue(callable(main))
             self.log_case_result("Functions are callable", True)
         except AssertionError:
             self.log_case_result("Functions are callable", False)
@@ -779,191 +778,6 @@ class TestGenerateDocument(BaseTestCase):
         self.assertEqual(original_vars, self.variables)
         self.assertTrue(result)
         self.log_case_result("Original variables dictionary is not modified", True)
-
-class TestMain(BaseTestCase):
-    """Test cases for main function"""
-    
-    def setUp(self):
-        """Set up test fixtures"""
-        super().setUp()
-        # Sample templates and variables
-        self.templates = ["invoice", "contract", "report"]
-        self.variables = {
-            "author_name": "Test Author",
-            "qty": 10,
-            "cost_per_unit": 12.50,
-            "date": "today"
-        }
-    
-    @patch('argparse.ArgumentParser.parse_args')
-    @patch('backend.generate_docx.generate_document')
-    @patch('backend.generate_docx.load_variables')
-    @patch('backend.generate_docx.get_available_templates')
-    def test_default_arguments(self, mock_get_templates, mock_load_variables, mock_generate_document, mock_parse_args):
-        """Test main function with default arguments"""
-        # Setup mocks
-        mock_args = MagicMock()
-        mock_args.templates = None
-        mock_args.variables = 'templates/variables.json'
-        mock_args.output_dir = 'outputs'
-        mock_args.list = False
-        mock_parse_args.return_value = mock_args
-        
-        mock_get_templates.return_value = self.templates
-        mock_load_variables.return_value = self.variables
-        
-        # Call the function
-        main()
-        
-        # Verify templates were retrieved
-        mock_get_templates.assert_called_once()
-        
-        # Verify variables were loaded from default path
-        mock_load_variables.assert_called_once_with('templates/variables.json')
-        
-        # Verify generate_document was called for each template
-        self.assertEqual(mock_generate_document.call_count, len(self.templates))
-        for template in self.templates:
-            expected_output_path = f"outputs/{template}.docx"
-            mock_generate_document.assert_any_call(template, mock_load_variables.return_value, expected_output_path)
-        
-        self.log_case_result("Default arguments work correctly", True)
-    
-    @patch('argparse.ArgumentParser.parse_args')
-    @patch('backend.generate_docx.generate_document')
-    @patch('backend.generate_docx.load_variables')
-    @patch('backend.generate_docx.get_available_templates')
-    def test_custom_templates(self, mock_get_templates, mock_load_variables, mock_generate_document, mock_parse_args):
-        """Test main function with custom templates argument"""
-        # Setup mocks
-        mock_args = MagicMock()
-        mock_args.templates = ['invoice', 'contract']
-        mock_args.variables = 'templates/variables.json'
-        mock_args.output_dir = 'outputs'
-        mock_args.list = False
-        mock_parse_args.return_value = mock_args
-        
-        mock_get_templates.return_value = self.templates
-        mock_load_variables.return_value = self.variables
-        
-        # Call the function
-        main()
-        
-        # Verify only selected templates were generated
-        self.assertEqual(mock_generate_document.call_count, 2)
-        mock_generate_document.assert_any_call('invoice', mock_load_variables.return_value, 'outputs/invoice.docx')
-        mock_generate_document.assert_any_call('contract', mock_load_variables.return_value, 'outputs/contract.docx')
-        
-        self.log_case_result("Custom templates argument works correctly", True)
-    
-    @patch('argparse.ArgumentParser.parse_args')
-    @patch('backend.generate_docx.load_variables')
-    def test_custom_variables_file(self, mock_load_variables, mock_parse_args):
-        """Test main function with custom variables file"""
-        # Setup mocks
-        mock_args = MagicMock()
-        mock_args.templates = []
-        mock_args.variables = 'custom/vars.json'
-        mock_args.output_dir = 'outputs'
-        mock_args.list = False
-        mock_parse_args.return_value = mock_args
-        
-        # Mock generate_document to prevent actual document generation
-        with patch('backend.generate_docx.generate_document'):
-            with patch('backend.generate_docx.get_available_templates', return_value=[]):
-                # Call the function
-                main()
-        
-        # Verify variables were loaded from custom path
-        mock_load_variables.assert_called_once_with('custom/vars.json')
-        
-        self.log_case_result("Custom variables file works correctly", True)
-    
-    @patch('argparse.ArgumentParser.parse_args')
-    @patch('backend.generate_docx.generate_document')
-    @patch('backend.generate_docx.get_available_templates')
-    def test_custom_output_directory(self, mock_get_templates, mock_generate_document, mock_parse_args):
-        """Test main function with custom output directory"""
-        # Setup mocks
-        mock_args = MagicMock()
-        mock_args.templates = None
-        mock_args.variables = 'templates/variables.json'
-        mock_args.output_dir = 'custom_outputs'
-        mock_args.list = False
-        mock_parse_args.return_value = mock_args
-        
-        mock_get_templates.return_value = self.templates
-        
-        # Mock load_variables to return empty dict
-        with patch('backend.generate_docx.load_variables', return_value={}):
-            # Call the function
-            main()
-        
-        # Verify documents were generated in the custom output directory
-        for template in self.templates:
-            expected_output_path = f"custom_outputs/{template}.docx"
-            mock_generate_document.assert_any_call(template, {}, expected_output_path)
-        
-        self.log_case_result("Custom output directory works correctly", True)
-    
-    @patch('argparse.ArgumentParser.parse_args')
-    @patch('backend.generate_docx.get_available_templates')
-    @patch('sys.stdout', new_callable=io.StringIO)
-    def test_list_templates(self, mock_stdout, mock_get_templates, mock_parse_args):
-        """Test listing templates with --list flag"""
-        # Setup mocks
-        mock_args = MagicMock()
-        mock_args.list = True
-        mock_parse_args.return_value = mock_args
-        
-        mock_get_templates.return_value = self.templates
-        
-        # Call the function
-        main()
-        
-        # Verify templates were listed
-        output = mock_stdout.getvalue()
-        self.assertIn("Available templates:", output)
-        for template in self.templates:
-            self.assertIn(f"  - {template}", output)
-        
-        self.log_case_result("Template listing works correctly", True)
-    
-    @patch('argparse.ArgumentParser.parse_args')
-    def test_variables_file_not_found(self, mock_parse_args):
-        """Test handling of missing variables file"""
-        # Setup mocks
-        mock_args = MagicMock()
-        mock_args.templates = None
-        mock_args.variables = 'nonexistent.json'
-        mock_args.output_dir = 'outputs'
-        mock_args.list = False
-        mock_parse_args.return_value = mock_args
-        
-        # Create a custom exception to test sys.exit
-        class TestExitException(Exception):
-            pass
-        
-        # Setup mocks
-        with patch('backend.generate_docx.get_available_templates', return_value=[]):
-            with patch('backend.generate_docx.load_variables') as mock_load_variables:
-                with patch('sys.exit', side_effect=TestExitException) as mock_exit:
-                    with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
-                        # Setup the exception
-                        mock_load_variables.side_effect = FileNotFoundError("No such file")
-                        
-                        # Call the function and expect our custom exception
-                        with self.assertRaises(TestExitException):
-                            main()
-                        
-                        # Verify error message
-                        output = mock_stdout.getvalue()
-                        self.assertIn("Error: Variables file 'nonexistent.json' not found", output)
-                        
-                        # Verify exit was called with code 1
-                        mock_exit.assert_called_once_with(1)
-        
-        self.log_case_result("Missing variables file error handling works correctly", True)
 
 if __name__ == '__main__':
     print("\n🔍 Running tests for generate_docx.py...")

@@ -21,11 +21,20 @@ class DocumentVariables:
     
     # Project information
     construction_type: str
+    construction_type2: str
+    construction_type3: str
     construction_address: str
     property_description: str
     request_type: str
     qty: int
     cost_per_unit: int
+    
+    # Accessibility information
+    accessibility_width: int
+    accessibility_height: int
+    accessibility_comparison: str
+    accessiblitity_floors: str
+    accessibility_how_many_floors: str
     
     # Request information
     requester_name: str
