@@ -26,7 +26,7 @@
                 <span class="label">REQUERENTE:</span> {{requester}}
             </div>
             <div class="info-row">
-                <span class="label">TÉCNICA:</span> {{technician}}
+                <span class="label">TÉCNICA:</span> {{author}}
             </div>
         </div>
 
@@ -37,19 +37,7 @@
                         <th rowspan="2">Designação</th>
                         <th colspan="12">Meses</th>
                     </tr>
-                    <tr>
-                        <th>2</th>
-                        <th>4</th>
-                        <th>6</th>
-                        <th>8</th>
-                        <th>10</th>
-                        <th>12</th>
-                        <th>14</th>
-                        <th>16</th>
-                        <th>18</th>
-                        <th>20</th>
-                        <th>22</th>
-                        <th>24</th>
+                    <tr id="month-numbers">
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -66,6 +54,6 @@
             </div>
         </div>
     </div>
-    <script src="../utils/calendar-generator.js"></script>
+    <script type="module" src="../utils/calendar-generator.js"></script>
 </body>
 </html>

@@ -1,26 +1,36 @@
+import { config } from './config.js';
+
 const tableBody = document.getElementById('tableBody');
 const totalRow = tableBody.querySelector('.total-row');
-const rows = generateTableRows();
-totalRow.insertAdjacentHTML('beforebegin', rows);
+const numRows = config.numRows;
 
-function generateTableRows(numRows = 20) {
-    let rows = '';
+// Generate and insert rows
+for (let i = 1; i <= numRows; i++) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.textContent = `{{table_row${i}}}`;
+    tr.appendChild(td);
     
-    for (let i = 1; i <= numRows; i++) {
-        rows += `<tr><td>{{table_row${i}}}</td>`;
+    // Add the rowspan cells only for the first row
+    if (i === 1) {
+        const m2 = document.createElement('td');
+        m2.setAttribute('rowspan', numRows);
+        m2.textContent = 'm²';
         
-        // Add the rowspan cells only for the first row
-        if (i === 1) {
-            rows += `
-                <td rowspan="${numRows}">m²</td>
-                <td rowspan="${numRows}">{{qty}}</td>
-                <td rowspan="${numRows}">{{cost_per_unit}}</td>
-                <td rowspan="${numRows}">{{total_cost}}</td>
-            `;
-        }
+        const qty = document.createElement('td');
+        qty.setAttribute('rowspan', numRows);
+        qty.textContent = '{{qty}}';
         
-        rows += '</tr>\n';
+        const costPerUnit = document.createElement('td');
+        costPerUnit.setAttribute('rowspan', numRows);
+        costPerUnit.textContent = '{{cost_per_unit}}';
+        
+        const totalCost = document.createElement('td');
+        totalCost.setAttribute('rowspan', numRows);
+        totalCost.textContent = '{{total_cost}}';
+        
+        tr.append(m2, qty, costPerUnit, totalCost);
     }
     
-    return rows;
+    tableBody.insertBefore(tr, totalRow);
 }
