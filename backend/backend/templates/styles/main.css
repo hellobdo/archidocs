@@ -58,7 +58,7 @@ body {
     break-before: page;
 }
 
-/* Styles specific to estimativa.html */
+/* Existing template-specific styles */
 .info-section {
     margin-bottom: 30px;
 }
@@ -101,13 +101,4 @@ body {
 .total-value {
     font-weight: bold;
     text-align: right;
-}
-
-/* Responsive styles */
-@media (max-width: 900px) {
-    .logo img {
-        max-width: 100%;
-        width: auto;
-        height: auto;
-    }
 }
