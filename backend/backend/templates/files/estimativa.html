@@ -1,276 +1,68 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="pt">
 	<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta charset="utf-8" />
-		<title>
-		</title>
-
-
-		</style>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Estimativa de Custos</title>
+		<link rel="stylesheet" href="../styles/main.css">
 	</head>
 	<body>
-			<p style="margin-right:2.3pt; margin-left:0.15pt; text-indent:-0.15pt; text-align:center; line-height:14pt; vertical-align:top">
-				<strong><span style="font-family:Calibri; font-size:14pt; font-variant:small-caps; vertical-align:top">E S T I M A T I V A</span></strong><strong><span style="font-family:Calibri; font-size:14pt; font-variant:small-caps; vertical-align:top">&#xa0;&#xa0; </span></strong><strong><span style="font-family:Calibri; font-size:14pt; font-variant:small-caps; vertical-align:top">D E</span></strong><strong><span style="font-family:Calibri; font-size:14pt; font-variant:small-caps; vertical-align:top">&#xa0;&#xa0; </span></strong><strong><span style="font-family:Calibri; font-size:14pt; font-variant:small-caps; vertical-align:top">C U S T O S</span></strong>
-			</p>
-			<p style="margin-right:2.3pt; margin-left:0.15pt; text-indent:-0.15pt; text-align:center; line-height:14pt; vertical-align:top">
-				<strong><span style="font-family:Calibri; font-size:14pt; font-variant:small-caps; vertical-align:-0.5pt">&#xa0;</span></strong>
-			</p>
-			<p style="margin-right:2.3pt; margin-left:0.15pt; text-indent:-0.15pt; text-align:center; line-height:14pt; vertical-align:top">
-				<strong><span style="font-family:Calibri; font-size:14pt; font-variant:small-caps; vertical-align:-0.5pt">&#xa0;</span></strong>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:normal; font-size:14pt; vertical-align:top">
-				<strong><span style="font-family:Calibri; font-size:8pt; font-variant:small-caps; vertical-align:top">ASSUNTO:</span></strong><strong><span style="font-family:Calibri; font-variant:small-caps; vertical-align:top"> </span></strong><strong><span style="width:34.45pt; text-indent:0pt; font-family:Calibri; font-variant:small-caps; vertical-align:top; display:inline-block">&#xa0;</span></strong><span style="font-family:Calibri; font-size:9pt; font-variant:small-caps; vertical-align:top">{{request_type}} de obras de {{construction_type}}</span>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:normal; font-size:9pt; vertical-align:top">
-				<span style="font-family:Calibri; font-variant:small-caps; vertical-align:-0.5pt">&#xa0;</span>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:normal; widows:0; orphans:0; font-size:9pt; vertical-align:top">
-				<strong><span style="font-family:Calibri; font-size:8pt; font-variant:small-caps; vertical-align:top">LOCAL:</span></strong><strong><span style="font-family:Calibri; font-size:8pt; font-variant:small-caps; vertical-align:top">&#xa0; </span></strong><strong><span style="width:9.02pt; text-indent:0pt; font-family:Calibri; font-size:8pt; font-variant:small-caps; vertical-align:top; display:inline-block">&#xa0;</span></strong><strong><span style="width:36pt; text-indent:0pt; font-family:Calibri; font-size:8pt; font-variant:small-caps; vertical-align:top; display:inline-block">&#xa0;</span></strong><span style="font-family:Calibri; font-variant:small-caps; vertical-align:top">{{construction_address}}</span>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:normal; font-size:8pt; vertical-align:top">
-				<strong><span style="font-family:Calibri; font-variant:small-caps; vertical-align:-0.5pt">&#xa0;</span></strong>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:justify; line-height:150%; font-size:9pt; vertical-align:top">
-				<strong><span style="line-height:150%; font-family:Calibri; font-size:8pt; font-variant:small-caps; vertical-align:top">REQUERENTE: </span></strong><strong><span style="width:23.53pt; text-indent:0pt; line-height:150%; font-family:Calibri; font-size:8pt; font-variant:small-caps; vertical-align:top; display:inline-block">&#xa0;</span></strong><span style="font-family:Calibri; font-variant:small-caps; vertical-align:top">{{requester_name}}</span>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:normal; font-size:8pt; vertical-align:top">
-				<strong><span style="font-family:Calibri; font-variant:small-caps; vertical-align:-0.5pt">&#xa0;</span></strong>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:normal; font-size:8pt; vertical-align:top">
-				<strong><span style="font-family:Calibri; font-variant:small-caps; vertical-align:-0.5pt">&#xa0;</span></strong>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:justify; line-height:150%; font-size:11pt; vertical-align:top">
-				<span style="line-height:150%; font-family:Calibri; font-size:10pt; vertical-align:top">Para efeitos da alínea f) do n.º 9 do ponto II, Anexo I, da Portaria n.º 71-A, de 27 de fevereiro, apresenta-se a estimativa de custos relativo ao valor das obras a que respeita o presente processo com a estimativa de </span><strong><span style="line-height:150%; font-family:Calibri; font-size:10pt; vertical-align:top">{{total_cost_words}} (</span></strong><strong><span style="font-family:Calibri; vertical-align:top">{{total_cost}})</span></strong><strong><span style="line-height:150%; font-family:Calibri; font-size:10pt; vertical-align:top">.</span></strong>
-			</p>
-			<p style="margin-left:0.05pt; line-height:5pt; vertical-align:top">
-				<span style="font-family:Calibri; font-size:5pt; vertical-align:-0.5pt">&#xa0;</span>
-			</p>
-			<table style="width:462.55pt; margin-left:0.05pt; padding:0pt; border-collapse:collapse">
-				<tr style="height:21.7pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:center; line-height:10pt; vertical-align:top">
-							<strong><span style="font-family:Calibri; vertical-align:top">Designação</span></strong>
-						</p>
-					</td>
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:center; line-height:10pt; vertical-align:top">
-							<strong><span style="font-family:Calibri; vertical-align:top">Unidades</span></strong>
-						</p>
-					</td>
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:center; line-height:10pt; vertical-align:top">
-							<strong><span style="font-family:Calibri; vertical-align:top">Quantidades</span></strong>
-						</p>
-					</td>
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:center; line-height:10pt; vertical-align:top">
-							<strong><span style="font-family:Calibri; vertical-align:top">Valor Unitário</span></strong>
-						</p>
-					</td>
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:center; line-height:10pt; vertical-align:top">
-							<strong><span style="font-family:Calibri; vertical-align:top">Valor total</span></strong>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row1}}</span>
-						</p>
-					</td>
-					<td rowspan="20" style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:center; line-height:11pt; vertical-align:top">
-							<span style="font-family:Calibri; font-size:11pt; vertical-align:top">m ²</span>
-						</p>
-					</td>
-					<td rowspan="20" style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:center; line-height:11pt; vertical-align:top">
-							<span style="font-family:Calibri; font-size:11pt; vertical-align:top">{{qty}}</span>
-						</p>
-					</td>
-					<td rowspan="20" style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:center; line-height:11pt; vertical-align:top">
-							<span style="font-family:Calibri; font-size:11pt; vertical-align:top">{{cost_per_unit}}</span>
-						</p>
-					</td>
-					<td rowspan="20" style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:center; line-height:11pt; vertical-align:top">
-							<span style="font-family:Calibri; font-size:11pt; vertical-align:top">{{total_cost}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row2}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row3}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row4}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row5}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row6}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row7}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row8}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row9}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row10}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row11}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row12}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row13}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row14}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row15}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row16}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row17}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row18}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row19}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:10pt; vertical-align:top">
-							<span style="font-family:Calibri; vertical-align:top">{{table_row20}}</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:8.5pt">
-					<td colspan="5" style="border-top:0.75pt solid #000000; border-bottom:0.75pt solid #000000; padding:0pt 5.4pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:center; line-height:8pt; vertical-align:top">
-							<span style="font-family:Calibri; font-size:8pt; vertical-align:-0.5pt">&#xa0;</span>
-						</p>
-					</td>
-				</tr>
-				<tr style="height:14.15pt">
-					<td style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:right; line-height:10pt; vertical-align:top">
-							<strong><span style="font-family:Calibri; vertical-align:top">Custo estimado do valor total</span></strong>
-						</p>
-					</td>
-					<td colspan="4" style="border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
-						<p style="margin-left:0.1pt; text-indent:-0.1pt; text-align:center; line-height:11pt; vertical-align:top">
-							<strong><span style="font-family:Calibri; font-size:11pt; vertical-align:top">{{total_cost}}</span></strong>
-						</p>
-					</td>
-				</tr>
+		<div class="container">
+			<div class="header">
+				<p class="logo">
+					<img src="../assets/logo.png" width="262" height="62" alt="Logo" />
+				</p>
+				<h1 class="title">ESTIMATIVA DE CUSTOS</h1>
+			</div>
+
+			<div class="info-section">
+				<div class="info-row">
+					<strong class="label">ASSUNTO:</strong>
+					<span class="value">{{request_type}} de obras de {{construction_type}}</span>
+				</div>
+
+				<div class="info-row">
+					<strong class="label">LOCAL:</strong>
+					<span class="value">{{construction_address}}</span>
+				</div>
+
+				<div class="info-row">
+					<strong class="label">REQUERENTE:</strong>
+					<span class="value">{{requester_name}}</span>
+				</div>
+			</div>
+
+			<div class="content">
+				<p class="description">Para efeitos da alínea f) do n.º 9 do ponto II, Anexo I, da Portaria n.º 71-A, de 27 de fevereiro, apresenta-se a estimativa de custos relativo ao valor das obras a que respeita o presente processo com a estimativa de <strong>{{total_cost_words}} ({{total_cost}})</strong>.</p>
+			</div>
+
+			<table class="cost-table">
+				<thead>
+					<tr>
+						<th>Designação</th>
+						<th>Unidades</th>
+						<th>Quantidades</th>
+						<th>Valor Unitário</th>
+						<th>Valor total</th>
+					</tr>
+				</thead>
+				<tbody id="tableBody">
+					<!-- Table rows will be generated by JavaScript -->
+					<tr class="total-row">
+						<td class="total-label"><strong>Custo estimado do valor total</strong></td>
+						<td colspan="4" class="total-value"><strong>{{total_cost}}</strong></td>
+					</tr>
+				</tbody>
 			</table>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:11pt; vertical-align:top">
-				<span style="font-family:Calibri; font-size:11pt; vertical-align:-0.5pt">&#xa0;</span>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:11pt; vertical-align:top">
-				<span style="font-family:Calibri; font-size:11pt; vertical-align:top">{{location}}, {{date}}</span>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:11pt; vertical-align:top">
-				<span style="font-family:Calibri; font-size:11pt; vertical-align:-0.5pt">&#xa0;</span>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:9pt; vertical-align:top">
-				<span style="font-family:Calibri; font-size:9pt; vertical-align:top">{{author_name}}, Arquiteta | OASRS {{oa_number}}</span>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:9pt; vertical-align:top">
-				<span style="font-family:Calibri; font-size:9pt; vertical-align:-0.5pt">&#xa0;</span>
-			</p>
-			<p style="margin-left:0.1pt; text-indent:-0.1pt; line-height:9pt; vertical-align:top">
-				<em><span style="font-family:Calibri; font-size:9pt; vertical-align:top">OASRS {{oa_number}}</span></em>
-			</p>
-</body>
+
+			<div class="footer">
+				<p class="date">{{location}}, {{date}}</p>
+				<p class="author">{{author_name}}, Arquiteta | OASRS {{oa_number}}</p>
+				<p class="registration"><em>OASRS {{oa_number}}</em></p>
+			</div>
+		</div>
+
+		<!-- Scripts at the bottom for better page load performance -->
+		<script src="../utils/table-generator.js"></script>
+	</body>
 </html>
