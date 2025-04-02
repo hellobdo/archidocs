@@ -18,7 +18,7 @@ except ImportError:
 # Add project root to path to ensure imports work properly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from backend.document_service import convert_docx_to_pdf, create_zip_from_files
+from backend.wrapper import convert_docx_to_pdf, create_zip_from_files
 from tests._utils.test_utils import BaseTestCase, print_summary
 
 class TestPDFConversion(BaseTestCase):

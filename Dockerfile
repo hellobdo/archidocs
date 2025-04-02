@@ -1,32 +1,49 @@
-FROM python:3.12-slim
+# Base stage with common dependencies
+FROM python:3.11-slim AS base
 
-# Install system dependencies including LibreOffice
+# Install system dependencies including LibreOffice and Ghostscript
 RUN apt-get update && apt-get install -y \
+    ghostscript \
     libreoffice \
-    libreoffice-writer \
-    libreoffice-base \
-    libreoffice-calc \
-    --no-install-recommends \
+    bash \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory
+# Create and set working directory
 WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
-COPY requirements.txt .
+# Create necessary directories
+RUN mkdir -p outputs templates/html test_outputs
 
-# Install Python dependencies
+# Add app directory to Python path
+ENV PYTHONPATH=/app
+
+# Development stage with testing dependencies
+FROM base AS dev
+# Copy requirements from repository root
+COPY requirements.txt ./requirements.txt
+COPY requirements-dev.txt ./requirements-dev.txt
+# Install both sets of dependencies
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -r requirements-dev.txt
+
+# Copy all application code including tests
+COPY . /app/
+
+# Default command for development (interactive shell)
+CMD ["/bin/bash"]
+
+# Production stage
+FROM base AS prod
+# Only copy production requirements
+COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
-COPY . .
-
-# Create outputs directory
-RUN mkdir -p outputs
-
-# Expose the port that the application will run on
-EXPOSE 8501
+# Copy only what's needed for production (explicitly exclude tests)
+COPY backend /app/backend
+COPY frontend /app/frontend
+COPY .streamlit /app/.streamlit
+COPY app.py /app/
 
 # Command to run the application
 CMD ["streamlit", "run", "frontend/app.py"] 

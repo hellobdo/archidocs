@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: archidocs
+    env: docker
+    dockerfilePath: docker/Dockerfile
+    dockerContext: .
+    buildTarget: prod
+    startCommand: streamlit run frontend/app.py
+    envVars:
+      - key: PYTHONPATH
+        value: /app
+      - key: PORT
+        value: 8501
+    healthCheckPath: /_stcore/health
+    plan: starter
+    branch: main 

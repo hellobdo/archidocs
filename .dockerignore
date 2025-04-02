@@ -1,52 +1,28 @@
-# Development and test files
-tests/
-requirements-dev.txt
+# Version control
+.git/
+.gitignore
 
-# Documentation
-*.md
-README*
-CHANGELOG*
-LICENSE*
-
-# Environment and cache files
-.env*
-.venv
-venv/
-ENV/
+# Python cache files
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
 .pytest_cache/
-.coverage
-htmlcov/
-backend/__pycache__/
-utils/__pycache__/
-tests/__pycache__/
 
-# System files
-.DS_Store
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# Logs
 *.log
-*.tmp
 
-# IDE files
+# IDE specific files
 .idea/
 .vscode/
-*.swp
-*.swo
-
-# Version control
-.git/
-.github/
-.gitignore
-
-# Docker files not needed inside the container
-.dockerignore
-
-# Temporary output files (these will be created in the container)
-outputs/*
-
-# Streamlit specific
-.streamlit/config.toml
-
-# Keep template files and core code
-!backend/templates/ 

@@ -1,0 +1,18 @@
+services:
+  # Development service with interactive terminal
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    hostname: archidocs-dev
+    volumes:
+      - .:/app
+      - ./outputs:/app/outputs
+    environment:
+      - PYTHONPATH=/app
+    # Interactive terminal
+    stdin_open: true
+    tty: true
+    # Override default command if needed
+    # command: ["python", "-m", "backend.backend.main"]

@@ -1,3 +1,4 @@
 streamlit>=1.24.0
 docxtpl>=0.16.7
 num2words>=0.5.12
+ghostscript==0.7
