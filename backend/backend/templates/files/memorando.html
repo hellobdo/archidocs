@@ -12,21 +12,24 @@
                 <p class="logo">
                     <img src="../assets/logo.png" alt="Logo" />
                 </p>
-                <h1 class="title">RESPOSTA À INFORMAÇÃO TÉCNICA N.º {{technical_information_id}}</h1>
+                <p class="title">RESPOSTA À INFORMAÇÃO TÉCNICA N.º {{technical_information_id}}</p>
             </div>
 
             <div class="info-section">
                 <div class="info-row">
-                    <span>PROCESSO {{process_nr}}</span>
-                    <span class="date">Data: {{date}}</span>
+                    <span class="label">PROCESSO</span>
+                    <span class="value">{{process_nr}}</span>
+                    <span class="value">Data: {{date}}</span>
                 </div>
 
                 <div class="info-row">
-                    <span>LOCAL DA OBRA: {{construction_address}}</span>
+                    <span class="label">LOCAL:</span>
+                    <span class="value">{{construction_address}}</span>
                 </div>
 
                 <div class="info-row">
-                    <span>REQUERENTE: {{requester_name}}</span>
+                    <span class="label">REQUERENTE:</span>
+                    <span class="value">{{requester_name}}</span>
                 </div>
             </div>
 
@@ -65,8 +68,8 @@
             </div>
 
             <div class="footer">
-                <p>Pede deferimento,</p>
-                <p class="location-date">Setúbal, {{date}}</p>
+                <p class="date">Pede deferimento,</p>
+                <p class="date">{{location}}, {{date}}</p>
                 <div class="signature">
                     <p>{{author_name}}</p>
                     <p>Arquiteta - OA {{oa_number}}</p>
