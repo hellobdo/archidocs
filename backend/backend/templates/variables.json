@@ -42,5 +42,12 @@
   "qty": "140.14",
   "cost_per_unit": "1350",
   "technical_information_id": "2528/23",
-  "process_nr": "EDIF. 368/22 DE 12.06.2023"
+  "process_nr": "EDIF. 368/22 DE 12.06.2023",
+  "construction_type_short": "moradia unifamiliar de tipologia T3",
+  "access_width": "1.00",
+  "access_height": "2.10",
+  "access_comparison": "superior",
+  "tipologia": "T3",
+  "nr_of_floors": "um piso",
+  "access_to_floors": "num único nível"
 } 
