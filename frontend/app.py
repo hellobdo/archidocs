@@ -58,8 +58,8 @@ def display_document_form(default_values=None):
         cost_per_unit = st.number_input("Custo por m2", value=float(default_values.get("cost_per_unit", 0)), format="%.2f")
         
     with st.expander("Acessibilidade", expanded=False):
-        accessibility_width = st.number_input("Largura", value=int(default_values.get("accessibility_width", 0)))
-        accessibility_height = st.number_input("Altura", value=int(default_values.get("accessibility_height", 0)))
+        accessibility_width = st.number_input("Largura", value=float(default_values.get("accessibility_width", 0)))
+        accessibility_height = st.number_input("Altura", value=float(default_values.get("accessibility_height", 0)))
         accessibility_comparison = st.text_input("Comparação", value=default_values.get("accessibility_comparison", ""))
         accessiblitity_floors = st.text_input("Pisos", value=default_values.get("accessiblitity_floors", ""))
         accessibility_how_many_floors = st.text_input("Número de Níveis", value=default_values.get("accessibility_how_many_floors", ""))
