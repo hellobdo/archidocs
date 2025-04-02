@@ -52,6 +52,12 @@ body {
     font-style: italic;
 }
 
+/* Page break control */
+.page-break {
+    page-break-before: always;
+    break-before: page;
+}
+
 /* Styles specific to estimativa.html */
 .info-section {
     margin-bottom: 30px;
