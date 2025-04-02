@@ -29,11 +29,11 @@ class TestGetAvailableTemplates(BaseTestCase):
                 mock_dirname.return_value = '/app/backend/utils'
                 mock_abspath.return_value = '/app/backend/utils/utils.py'
                 
-                # Mock directory contents with some templates
+                # Mock directory contents with some templates in unsorted order
                 mock_listdir.return_value = [
-                    'template1.html',
                     'template2.html',
-                    'template3.html'
+                    'template3.html',
+                    'template1.html'
                 ]
                 
                 # Get available templates
@@ -42,8 +42,8 @@ class TestGetAvailableTemplates(BaseTestCase):
                 # Check that it returns a list
                 self.assertIsInstance(templates, list)
                 
-                # Check that all items are strings and match expected templates
-                self.assertEqual(set(templates), {'template1', 'template2', 'template3'})
+                # Check that templates are returned in sorted order
+                self.assertEqual(templates, ['template1', 'template2', 'template3'])
             
             self.log_case_result("Basic template discovery", True)
             
@@ -63,20 +63,20 @@ class TestGetAvailableTemplates(BaseTestCase):
                 mock_dirname.return_value = '/app/backend/utils'
                 mock_abspath.return_value = '/app/backend/utils/utils.py'
                 
-                # Mock directory contents with mixed file types
+                # Mock directory contents with mixed file types in unsorted order
                 mock_listdir.return_value = [
-                    'template1.html',
+                    'template5.html',
                     'template2.HTML',
                     'template3.txt',
                     'template4.pdf',
-                    'template5.html'
+                    'template1.html'
                 ]
                 
                 # Get available templates
                 templates = get_available_templates()
                 
-                # Check that only HTML files are included
-                self.assertEqual(set(templates), {'template1', 'template2', 'template5'})
+                # Check that only HTML files are included and they are sorted
+                self.assertEqual(templates, ['template1', 'template2', 'template5'])
                 
             self.log_case_result("File extension handling", True)
             

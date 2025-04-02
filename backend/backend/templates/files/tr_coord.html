@@ -2,55 +2,38 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Termo de Responsabilidade do Coordenador</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 40px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .content {
-            text-align: justify;
-        }
-        .signature {
-            margin-top: 50px;
-            text-align: center;
-        }
-        .date {
-            margin-top: 30px;
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="../styles/main.css">
 </head>
 <body>
-    <div class="header">
-        <h2>TERMO DE RESPONSABILIDADE DO COORDENADOR DE PROJETO</h2>
-    </div>
+    <div class="container">
+        <div class="header">
+            <p class="logo">
+                <img src="../assets/logo.png" alt="Logo" />
+            </p>
+            <p class="title">TERMO DE RESPONSABILIDADE DO COORDENADOR DE PROJETO</p>
+        </div>
 
-    <div class="content">
-        <p>{{ author_name }}, {{ author_registration }}, morador em {{ author_address }}, contribuinte n.º {{ author_nif }}, inscrito na Ordem dos Arquitetos com o n.º {{ oa_number }}, declara, para efeitos do disposto no n.º 1 do artigo 10.º do Decreto-Lei n.º 555/99, de 16 de dezembro, na sua redação atual, que o projeto de {{ construction_type }}, de que é coordenador, relativo à obra localizada em {{ construction_address }}, {{ property_description }}, cujo(a) {{ request_type }} foi requerido por {{ requester_name }}, morador em {{ requester_address }}, contribuinte n.º {{ requester_nif }}:</p>
+        <div class="content">
+            <p>{{ author_name }}, {{ author_registration }}, morador em {{ author_address }}, contribuinte n.º {{ author_nif }}, inscrito na Ordem dos Arquitetos com o n.º {{ oa_number }}, declara, para efeitos do disposto no n.º 1 do artigo 10.º do Decreto-Lei n.º 555/99, de 16 de dezembro, na sua redação atual, que o projeto de {{ construction_type }}, de que é coordenador, relativo à obra localizada em {{ construction_address }}, {{ property_description }}, cujo(a) {{ request_type }} foi requerido por {{ requester_name }}, morador em {{ requester_address }}, contribuinte n.º {{ requester_nif }}:</p>
 
-        <p>a) Observa as normas legais e regulamentares aplicáveis, designadamente {{ regulatory_reference }} e o {{ pdm }};</p>
+            <p>a) Observa as normas legais e regulamentares aplicáveis, designadamente {{ regulatory_reference }} e o {{ pdm }};</p>
 
-        <p>b) Está conforme com os planos municipais ou intermunicipais de ordenamento do território aplicáveis à pretensão;</p>
+            <p>b) Está conforme com os planos municipais ou intermunicipais de ordenamento do território aplicáveis à pretensão;</p>
 
-        <p>c) As peças do projeto estão em conformidade com as normas técnicas e demais legislação específica aplicável.</p>
-    </div>
+            <p>c) As peças do projeto estão em conformidade com as normas técnicas e demais legislação específica aplicável.</p>
+        </div>
 
-    <div class="date">
-        <p>{{ location }}, {{ date }}</p>
-    </div>
-
-    <div class="signature">
-        <p>O Técnico,</p>
-        <br><br>
-        <p>_________________________________________</p>
-        <p>{{ author_name }}</p>
-        <p>OA {{ oa_number }}</p>
+        <div class="footer">
+            <p class="date">{{ location }}, {{ date }}</p>
+            <p class="label">A Técnica,</p>
+            <div class="signature-space"></div>
+            <div class="signature">
+                <p>{{ author_name }}</p>
+                <p>OA {{ oa_number }}</p>
+            </div>
+        </div>
     </div>
 </body>
 </html> 

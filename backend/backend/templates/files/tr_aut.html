@@ -1,1 +1,43 @@
-<html><body><p></p><p></p><p></p><p>TERMO DE RESPONSABILIDADE DA AUTORA</p><p>DO PROJECTO DE ARQUITECTURA</p><p>(conforme redação prevista no ANEXO III – número II, a que se refere o n.º 2</p><p>do artigo 2.º da Portaria n.º 71-A/2024 de 27 de fevereiro.)</p><p></p><p></p><p>{{author_name}}, arquiteta, moradora na {{author_address}}, Contribuinte Fiscal n.º {{author_nif}}, inscrita na Ordem dos Arquitetos (S.R.LVT) sob o n.º {{oa_number}}, declara, para efeitos do disposto n.º 1 do artigo 10.º do Decreto-Lei n.º 555/99, de 16 de dezembro, na sua redação atual, que o projeto de arquitetura, de que é coordenadora, relativo à obra de {{construction_type}}, localizado na {{construction_address}} e a implantar no {{property_description}} e registado na Conservatória do Registo Predial do {{land_registry_location}} sob o n.º {{land_registry_number}}, da freguesia de {{land_registry_sublocation}}, cujo {{request_type}} foi requerido por {{requester_name}}, com o NIF. {{requester_nif}}, moradora na {{requester_address}}:</p><p>Observa as normas legais e regulamentares aplicáveis, designadamente as normas técnicas de construção em vigor, os requisitos relativos aos componentes da envolvente opaca e da envolvente envidraçada, nos termos da alínea a) do n.º 5 do artigo 6.º do Decreto-Lei n.º 101-D/2020, de 7 de dezembro, alterado pelo Decreto-Lei n.º 102/2021, de 19 de novembro, o disposto no Regulamento Geral de Edificações Urbanas (RGEU), no {{regulatory_reference}};</p><p>Está conforme com os planos municipais ou intermunicipais de ordenamento do território aplicáveis à pretensão, nomeadamente o disposto no {{pdm}}, bem como com as restantes normativas em vigor;</p><p>Atesta a compatibilidade entre os projetos necessários à execução da operação urbanística.</p><p></p><p></p><p>Pegões, março de 2025</p><p></p><p>A Técnica,</p><p></p><p></p><p></p><p></p><p></p><p></p><p>Daniela Cristina de Oliveira Grosso</p><p>Arquiteta - OA 17855</p><p>Código de validação para verificação de competências {{oa_ref_number}}</p></body></html>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termo de Responsabilidade da Autora do Projeto de Arquitetura</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <p class="logo">
+                <img src="../assets/logo.png" alt="Logo" />
+            </p>
+            <p class="title">TERMO DE RESPONSABILIDADE DA AUTORA</p>
+            <p class="title">DO PROJECTO DE ARQUITECTURA</p>
+            <p class="label">(conforme redação prevista no ANEXO III – número II, a que se refere o n.º 2
+            do artigo 2.º da Portaria n.º 71-A/2024 de 27 de fevereiro.)</p>
+        </div>
+
+        <div class="content">
+            <p>{{author_name}}, arquiteta, moradora na {{author_address}}, Contribuinte Fiscal n.º {{author_nif}}, inscrita na Ordem dos Arquitetos (S.R.LVT) sob o n.º {{oa_number}}, declara, para efeitos do disposto n.º 1 do artigo 10.º do Decreto-Lei n.º 555/99, de 16 de dezembro, na sua redação atual, que o projeto de arquitetura, de que é coordenadora, relativo à obra de {{construction_type}}, localizado na {{construction_address}} e a implantar no {{property_description}} e registado na Conservatória do Registo Predial do {{land_registry_location}} sob o n.º {{land_registry_number}}, da freguesia de {{land_registry_sublocation}}, cujo {{request_type}} foi requerido por {{requester_name}}, com o NIF. {{requester_nif}}, moradora na {{requester_address}}:</p>
+
+            <p>Observa as normas legais e regulamentares aplicáveis, designadamente as normas técnicas de construção em vigor, os requisitos relativos aos componentes da envolvente opaca e da envolvente envidraçada, nos termos da alínea a) do n.º 5 do artigo 6.º do Decreto-Lei n.º 101-D/2020, de 7 de dezembro, alterado pelo Decreto-Lei n.º 102/2021, de 19 de novembro, o disposto no Regulamento Geral de Edificações Urbanas (RGEU), no {{regulatory_reference}};</p>
+
+            <p>Está conforme com os planos municipais ou intermunicipais de ordenamento do território aplicáveis à pretensão, nomeadamente o disposto no {{pdm}}, bem como com as restantes normativas em vigor;</p>
+
+            <p>Atesta a compatibilidade entre os projetos necessários à execução da operação urbanística.</p>
+        </div>
+
+        <div class="footer">
+            <p class="date">{{location}}, {{date}}</p>
+            <p class="label">A Técnica,</p>
+            <div class="signature-space"></div>
+            <div class="signature">
+                <p>{{signature}}</p>
+                <p>Arquiteta - OA {{oa_number}}</p>
+                <p class="registration">Código de validação para verificação de competências {{oa_ref_number}}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

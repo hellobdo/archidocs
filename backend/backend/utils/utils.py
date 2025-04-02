@@ -28,6 +28,9 @@ def get_available_templates():
                 # Extract template name (filename without extension)
                 template_name = os.path.splitext(file)[0]
                 templates.append(template_name)
+                
+        # Sort templates alphabetically
+        templates.sort()
     except Exception as e:
         print(f"Error listing templates: {e}")
     
