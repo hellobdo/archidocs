@@ -3,7 +3,7 @@
   "author_address": "Rua Dona Ana de Castro Osório, n.º 1, 2910-392 Setúbal",
   "author_nif": "234809540",
   "author_registration": "17855",
-  "construction_type": "construção de moradia unifamiliar e muro de vedação",
+  "construction_type": "moradia unifamiliar e muro de vedação",
   "construction_address": "Rua da Água (sem número), Craveira do Norte – Pegões, Montijo",
   "property_description": "terreno rústico n.º 114, secção 1D, União das Freguesias de Setúbal",
   "request_type": "Pedido de Informação Prévia",
@@ -42,5 +42,12 @@
   "qty": "140.14",
   "cost_per_unit": "1350",
   "technical_information_id": "2528/23",
-  "process_nr": "EDIF. 368/22 DE 12.06.2023"
+  "process_nr": "EDIF. 368/22 DE 12.06.2023",
+  "construction_type2": "moradia unifamiliar de tipologia",
+  "accessibility_width": "1.00",
+  "accessibility_height": "2.10",
+  "accessibility_comparison": "superior",
+  "construction_type3": "T3",
+  "accessiblitity_floors": "um piso",
+  "accessibility_how_many_floors": "num único nível"
 } 

@@ -226,6 +226,11 @@ def generate_document(template_name, variables, output_path):
         variables['total_cost_words'] = total_cost_words
         variables['qty'] = format_number_pt(qty, True, "")
         variables['cost_per_unit'] = format_number_pt(cost_per_unit, True, "€")
+
+    # Process accessibility calculations if required variables exist
+    if 'accessibility_width' in variables and 'accessibility_height' in variables:
+        variables['accessibility_width'] = to_number(variables['accessibility_width'])
+        variables['accessibility_height'] = to_number(variables['accessibility_height'])
     
     # Determine template path
     template_path = os.path.join('backend/templates/files', f"{template_name}.docx")
